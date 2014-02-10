@@ -15,8 +15,8 @@ function __G__TRACKBACK__(msg)
     print("----------------------------------------")
 end
 
+require("framework/preload.lua")
 require("script/preload.lua")
-
 function cclog(...)
     print(string.format(...))
 end

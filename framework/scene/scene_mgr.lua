@@ -9,7 +9,6 @@
 if not SceneMgr then
     SceneMgr = {}
 end
-require("script/scene/scene_base.lua")
 
 if not SceneMgr.tb_class_logic_scene then
     SceneMgr.tb_class_logic_scene = {}

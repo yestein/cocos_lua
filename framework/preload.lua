@@ -6,19 +6,12 @@
 -- Modify       :
 --===================================================
 
-require("script/define.lua")
-require("script/lib.lua")
-require("script/event.lua")
-require("script/dbg.lua")
-require("script/performance.lua")
-require("script/menu.lua")
-require("script/title.lua")
-require("script/ui.lua")
+require("framework/lib.lua")
+require("framework/event.lua")
+require("framework/dbg.lua")
+require("framework/menu.lua")
+require("framework/ui.lua")
 
-require("script/scene/scene_base.lua")
-require("script/scene/scene_mgr.lua")
-
-
-
-
-
+require("framework/scene/scene_base.lua")
+require("framework/scene/scene_mgr.lua")
+require("script/game_mgr.lua")
