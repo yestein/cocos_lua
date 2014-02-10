@@ -14,6 +14,8 @@ if not SceneMgr._SceneBase then
 end
 
 local SceneBase = SceneMgr._SceneBase
+SceneBase.MAX_SCALE = 3.0
+
 local tb_visible_size = CCDirector:getInstance():getVisibleSize()
 
 function SceneBase:DeclareListenEvent(str_event, str_func)
@@ -75,27 +77,6 @@ function SceneBase:Uninit()
 	self.tb_cc_layer = nil
 	self.cc_scene = nil
 	self.str_scene_name = nil
-end
-
-function SceneBase:SetWidth(width)
-	self.width = width
-	self.min_width_scale = tb_visible_size.width / width
-
-	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
-end
-function SceneBase:SetHeight(height)
-	self.height = height
-	self.min_height_scale = tb_visible_size.width / height
-
-	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
-end
-
-function SceneBase:GetWidth()
-	return self.width
-end
-
-function SceneBase:GetHeight()
-	return self.height
 end
 
 function SceneBase:CreateLayer(str_layer_name, z_level)
@@ -166,6 +147,87 @@ function SceneBase:SysMsg(szMsg, str_color)
 	local tb_ui = self:GetUI()
 	if tb_ui then
 		Ui:SysMsg(tb_ui, szMsg, str_color)
+	end
+end
+
+function SceneBase:SetWidth(width)
+	self.width = width
+	self.min_width_scale = tb_visible_size.width / width
+
+	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
+end
+function SceneBase:SetHeight(height)
+	self.height = height
+	self.min_height_scale = tb_visible_size.height / height
+
+	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
+end
+
+function SceneBase:GetWidth()
+	return self.width
+end
+
+function SceneBase:GetHeight()
+	return self.height
+end
+
+function SceneBase:MoveCamera(x, y)
+	local layer_x, layer_y = tb_visible_size.width / 2 - x, tb_visible_size.height / 2 - y
+	return self:MoveMainLayer(layer_x, layer_y)
+end
+
+function SceneBase:MoveMainLayer(position_x, position_y)
+	local cc_layer_main = self:GetLayer("main")
+	assert(cc_layer_main)
+	if self:IsLimitDrag() == 1 then
+        position_x, position_y = self:GetModifyPosition(position_x, position_y)
+    end
+    cc_layer_main:setPosition(position_x, position_y)
+end
+
+function SceneBase:GetModifyPosition(position_x, position_y)
+	local min_x, max_x = tb_visible_size.width - (self:GetWidth() * self.scale), 0
+	if min_x > max_x then
+		min_x, max_x = max_x, min_x
+	end
+    local min_y, max_y = tb_visible_size.height - (self:GetHeight() * self.scale),  0
+    if min_y > max_y then
+    	min_y, max_y = max_y, min_y
+    end
+    if position_x < min_x then
+        position_x = min_x
+    elseif position_x > max_x then
+        position_x = max_x
+    end
+
+    if position_y < min_y then
+        position_y = min_y
+    elseif position_y > max_y then
+        position_y = max_y
+    end
+    return position_x, position_y
+end
+
+function SceneBase:GetScale()
+	return self.scale
+end
+
+function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
+	local cc_layer_main = self:GetLayer("main")
+	if scale < self.min_scale then
+		scale = self.min_scale
+	elseif self.scale > self.MAX_SCALE then
+		self.scale = self.MAX_SCALE
+	end
+	if self.scale == scale then
+		return
+	end
+
+	self.scale = scale
+	cc_layer_main:setScale(scale)
+	
+	if zoom_x and zoom_y then
+		self:MoveCamera(zoom_x * self:GetWidth() * scale + zoom_offset_x, zoom_y * self:GetHeight() * scale + zoom_offset_y)
 	end
 end
 
@@ -287,7 +349,8 @@ function SceneBase:RegisterTouchEvent()
         if current_touches == 1 and self:CanPick() == 1 then
         	if self.OnTouchBegan then
         		local x, y = touches[1], touches[2]
-        		self:OnTouchBegan(x - layer_x, y - layer_y)
+        		local scale = self:GetScale()
+        		self:OnTouchBegan((x - layer_x) / scale, (y - layer_y) / scale)
         	end
         elseif current_touches == 2 and self:CanScale() == 1 then
         	local x1, y1, x2, y2
@@ -314,7 +377,8 @@ function SceneBase:RegisterTouchEvent()
             local layer_x, layer_y = cc_layer_main:getPosition()
             local bool_pick = 0
         	if self.OnTouchMoved then
-        		if self:OnTouchMoved(x - layer_x, y - layer_y) == 1 then
+        		local scale = self:GetScale()
+        		if self:OnTouchMoved((x - layer_x) / scale, (y - layer_y) / scale) == 1 then
         			bool_pick = 1
         		end
             end
@@ -349,11 +413,12 @@ function SceneBase:RegisterTouchEvent()
 
     local function onTouchEnded(touches)
     	-- print("end", #touches, touches[3], touches[6])
-        local nX, nY = cc_layer_main:getPosition()
+        local layer_x, layer_y = cc_layer_main:getPosition()
     	if current_touches == 1 then
 	        if self.OnTouchEnded then
 	        	local x, y = touches[1], touches[2]
-	    		self:OnTouchEnded(x - nX, y - nY)
+	        	local scale = self:GetScale()
+	    		self:OnTouchEnded((x - layer_x) / scale, (y - layer_y) / scale)
 	    	end
 	    elseif current_touches == 2 then
 	        touch_distance = nil
@@ -379,62 +444,6 @@ function SceneBase:RegisterTouchEvent()
 
     cc_layer_main:registerScriptTouchHandler(onTouch, true)
     cc_layer_main:setTouchEnabled(true)
-end
-
-function SceneBase:MoveCamera(x, y)
-	local layer_x, layer_y = tb_visible_size.width / 2 - x, tb_visible_size.height / 2 - y
-	return self:MoveMainLayer(layer_x, layer_y)
-end
-
-function SceneBase:MoveMainLayer(position_x, position_y)
-	local cc_layer_main = self:GetLayer("main")
-	assert(cc_layer_main)
-	if self:IsLimitDrag() == 1 then
-        position_x, position_y = self:GetModifyPosition(position_x, position_y)
-    end
-    cc_layer_main:setPosition(position_x, position_y)
-end
-
-function SceneBase:GetModifyPosition(position_x, position_y)
-	local min_x, max_x = tb_visible_size.width - (self:GetWidth() * self.scale), 0
-	if min_x > max_x then
-		min_x, max_x = max_x, min_x
-	end
-    local min_y, max_y = tb_visible_size.height - (self:GetHeight() * self.scale),  0
-    if min_y > max_y then
-    	min_y, max_y = max_y, min_y
-    end
-    if position_x < min_x then
-        position_x = min_x
-    elseif position_x > max_x then
-        position_x = max_x
-    end
-
-    if position_y < min_y then
-        position_y = min_y
-    elseif position_y > max_y then
-        position_y = max_y
-    end
-    return position_x, position_y
-end
-
-function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
-	local cc_layer_main = self:GetLayer("main")
-	if scale < self.min_scale then
-		scale = self.min_scale
-	elseif self.scale > Def.MAX_SCALE then
-		self.scale = Def.MAX_SCALE
-	end
-	if self.scale == scale then
-		return
-	end
-
-	self.scale = scale
-	cc_layer_main:setScale(scale)
-	
-	if zoom_x and zoom_y then
-		self:MoveCamera(zoom_x * self:GetWidth() * scale + zoom_offset_x, zoom_y * self:GetHeight() * scale + zoom_offset_y)
-	end
 end
 
 function SceneBase:Reload()

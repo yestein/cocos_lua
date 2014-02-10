@@ -14,26 +14,16 @@ Debug.MODE_BLACK_LIST = 1
 Debug.MODE_WHITE_LIST = 2
 
 Debug.tbWatchEventList = {
-	"CharacterHPChanged",
-	"CharacterDie",
-	"CharacterStartMove",
-	"CharacterReset",
-	"GameMgrStartBattle",
-	"GameMgrStartReset",
-	"SceneCreate",
-	"HeroAdd",
-	"LoadMaze",
-	"SaveMaze",
-	"Dig",
+
 }
 
 Debug.tbWatchEventBlackList = {
-	["CharacterMove"] = 1,
-	["CharacterGoto"] = 1,
-	["SetUnit"] = 1,
-	["TitleHPUpdate"] = 1,
-	["TitleStateUpdate"] = 1,
+
 }
+
+function Debug:AddBlackEvent(szEvent)
+	self.tbWatchEventBlackList[szEvent] = 1
+end
 
 function Debug:Init(nMode)
 	if nMode == self.MODE_BLACK_LIST then

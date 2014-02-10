@@ -59,6 +59,9 @@ local function main()
     Debug:Init(Debug.MODE_BLACK_LIST)
     
     SceneMgr:Init()
+    if _DEBUG then
+    	assert(SceneMgr:CheckAllClass() == 1)
+    end
     MenuMgr:Init()
     Physics:Init()
     Ui:Init()

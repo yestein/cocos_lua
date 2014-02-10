@@ -10,6 +10,10 @@ if not Event then
 	Event = {}
 end
 
+function CPPEvent(...)
+	Event:FireEvent(...)
+end
+
 function Event:Preload()
 	self.tbGlobalEvent = {}
 end
