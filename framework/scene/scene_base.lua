@@ -15,6 +15,7 @@ end
 
 local SceneBase = SceneMgr._SceneBase
 SceneBase.MAX_SCALE = 3.0
+SceneBase.SCALE_RATE = 0.01
 
 local tb_visible_size = CCDirector:getInstance():getVisibleSize()
 
@@ -404,7 +405,7 @@ function SceneBase:RegisterTouchEvent()
         	end
         	local distance = Lib:GetDistance(x1, y1, x2, y2)
         	if touch_distance then
-	        	local change_scale = self.scale + (distance - touch_distance) * Def.SCALE_RATE
+	        	local change_scale = self.scale + (distance - touch_distance) * self.SCALE_RATE
 	        	self:SetScale(change_scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 	        end
 	        touch_distance = distance
