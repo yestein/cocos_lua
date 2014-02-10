@@ -10,6 +10,7 @@ require("framework/lib.lua")
 require("framework/event.lua")
 require("framework/dbg.lua")
 require("framework/menu.lua")
+require("framework/physics_mgr.lua")
 require("framework/ui.lua")
 
 require("framework/scene/scene_base.lua")

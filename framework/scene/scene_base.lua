@@ -289,7 +289,6 @@ function SceneBase:RegisterTouchEvent()
         		local x, y = touches[1], touches[2]
         		self:OnTouchBegan(x - layer_x, y - layer_y)
         	end
-        	-- PhysicsWorld:MouseDown(x - nX,  y - nY)
         elseif current_touches == 2 and self:CanScale() == 1 then
         	local x1, y1, x2, y2
         	for id, touch_info in pairs(touch_begin_points) do  		

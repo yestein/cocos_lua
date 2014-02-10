@@ -22,9 +22,21 @@ function cclog(...)
 end
 
 local function MainLoop(delta)
-	SceneMgr:OnLoop(delta)
-	GameMgr:OnLoop(delta)
+	local tbModule = nil
+	function ModulLoop()
+		tbModule:OnLoop(delta)
+	end
+
+	tbModule = Physics
+	xpcall(ModulLoop, __G__TRACKBACK__)
+
+	tbModule = SceneMgr
+	xpcall(ModulLoop, __G__TRACKBACK__)
+
+	tbModule = GameMgr
+	xpcall(ModulLoop, __G__TRACKBACK__)
 end
+
 
 local function main()
 	-- avoid memory leak
@@ -48,6 +60,7 @@ local function main()
     
     SceneMgr:Init()
     MenuMgr:Init()
+    Physics:Init()
     Ui:Init()
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
 
