@@ -14,6 +14,10 @@ if not SceneMgr.tb_class_logic_scene then
     SceneMgr.tb_class_logic_scene = {}
 end
 
+SceneMgr.ZOOM_LEVEL_WORLD = 1
+SceneMgr.ZOOM_LEVEL_TITLE = 3
+SceneMgr.ZOOM_LEVEL_MENU = 5
+
 function SceneMgr:Init()
 	self.tb_logic_scene = {}
     return 1
@@ -91,8 +95,8 @@ function SceneMgr:CreateScene(str_name, str_class_name)
         return cclog("Error! No Scene Class [%s] !", str_class_name)
     end
 	local tb_logic_scene = Lib:NewClass(tb_class)
-    tb_logic_scene:Init(str_name)
     self.tb_logic_scene[str_name] = tb_logic_scene
+    tb_logic_scene:Init(str_name)
 	return tb_logic_scene
 end
 

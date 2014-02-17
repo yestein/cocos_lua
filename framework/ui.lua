@@ -54,7 +54,7 @@ function Ui:InitScene(str_scene_name, cc_scene)
     end
     tb_ui.index_sysmsg = 1
 
-    cc_scene:addChild(cc_layer_ui, Def.ZOOM_LEVEL_TITLE)
+    cc_scene:addChild(cc_layer_ui, SceneMgr.ZOOM_LEVEL_TITLE)
 
     tb_ui.cc_scene = cc_scene
     tb_ui.cc_layer_ui = cc_layer_ui
@@ -149,7 +149,7 @@ function Ui:SetColor(tb_ui, str_labelttf_name, str_color)
         assert(false)
         return
     end
-    cc_labelttf:setColor(str_content)
+    cc_labelttf:setColor(Def.tbColor[str_color])
 end
 
 function Ui:SysMsg(tb_ui, szMsg, str_color)

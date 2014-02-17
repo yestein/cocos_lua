@@ -12,6 +12,7 @@ require("framework/dbg.lua")
 require("framework/menu.lua")
 require("framework/physics_mgr.lua")
 require("framework/ui.lua")
+require("framework/define.lua")
 
 require("framework/scene/scene_base.lua")
 require("framework/scene/scene_mgr.lua")

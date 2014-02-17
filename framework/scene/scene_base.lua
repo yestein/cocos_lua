@@ -15,7 +15,7 @@ end
 
 local SceneBase = SceneMgr._SceneBase
 SceneBase.MAX_SCALE = 3.0
-SceneBase.SCALE_RATE = 0.01
+SceneBase.SCALE_RATE = 0.005
 
 local tb_visible_size = CCDirector:getInstance():getVisibleSize()
 
@@ -40,7 +40,7 @@ function SceneBase:Init(str_scene_name)
 	self:RegisterEventListen()
 	Ui:InitScene(str_scene_name, self.cc_scene)
 	self:AddReturnMenu()
-	local layer_main = self:CreateLayer("main", Def.ZOOM_LEVEL_WORLD)
+	local layer_main = self:CreateLayer("main", SceneMgr.ZOOM_LEVEL_WORLD)
 	layer_main:setAnchorPoint(cc.p(0, 0))
 	self.scale = 1
 
@@ -237,7 +237,7 @@ function SceneBase:AddReturnMenu()
 	local tbVisibleSize = CCDirector:getInstance():getVisibleSize()
 	local layerMenu = MenuMgr:CreateMenu(str_name)
     layerMenu:setPosition(tbVisibleSize.width, tbVisibleSize.height)
-    self.cc_scene:addChild(layerMenu, Def.ZOOM_LEVEL_MENU)
+    self.cc_scene:addChild(layerMenu, SceneMgr.ZOOM_LEVEL_MENU)
     local tbElement = nil
     if str_name ~= "MainScene" then
 	    tbElement = {
@@ -290,41 +290,41 @@ function SceneBase:RemoveReturnMenu()
 end
 
 function SceneBase:IsDebugPhysics()
-	if self.tb_property and self.tb_property.debug_physics == 1 then
+	if self.property and self.property.debug_physics == 1 then
 		return 1
 	end
 end
 
 function SceneBase:CanTouch()
-	if self.tb_property and self.tb_property.can_touch == 1 then
+	if self.property and self.property.can_touch == 1 then
 		return 1
 	end
 	return 0
 end
 
 function SceneBase:CanPick()
-	if self.tb_property and self.tb_property.can_pick == 1 then
+	if self.property and self.property.can_pick == 1 then
 		return 1
 	end
 	return 0
 end
 
 function SceneBase:CanDrag()
-	if self.tb_property and self.tb_property.can_drag == 1 then
+	if self.property and self.property.can_drag == 1 then
 		return 1
 	end
 	return 0
 end
 
 function SceneBase:IsLimitDrag()
-	if self.tb_property and self.tb_property.limit_drag == 1 then
+	if self.property and self.property.limit_drag == 1 then
 		return 1
 	end
 	return 0
 end
 
 function SceneBase:CanScale()
-	if self.tb_property and self.tb_property.can_scale == 1 then
+	if self.property and self.property.can_scale == 1 then
 		return 1
 	end
 	return 0
@@ -347,7 +347,7 @@ function SceneBase:RegisterTouchEvent()
     		current_touches = current_touches + 1
     	end
         local layer_x, layer_y = cc_layer_main:getPosition()            
-        if current_touches == 1 and self:CanPick() == 1 then
+        if current_touches == 1 then
         	if self.OnTouchBegan then
         		local x, y = touches[1], touches[2]
         		local scale = self:GetScale()
@@ -372,13 +372,14 @@ function SceneBase:RegisterTouchEvent()
     end
 
     local function onTouchMoved(touches)
-    	if current_touches == 1 and self:CanDrag() == 1 then
+    	if current_touches == 1 then
     		local x, y = touches[1], touches[2]
     		local touch_begin_point = touch_begin_points[touches[3]]
             local layer_x, layer_y = cc_layer_main:getPosition()
             local bool_pick = 0
         	if self.OnTouchMoved then
         		local scale = self:GetScale()
+        		
         		if self:OnTouchMoved((x - layer_x) / scale, (y - layer_y) / scale) == 1 then
         			bool_pick = 1
         		end
