@@ -456,19 +456,26 @@ function SceneBase:Reload()
 	print("开始重载脚本...")
 	reload("framework/scene/scene_base.lua")
 	reload("framework/scene/scene_mgr.lua")
+	reload("framework/physics_mgr.lua")	
+	reload("framework/lib.lua")
+	reload("framework/menu.lua")
+	reload("framework/ui.lua")
+	reload("framework/define.lua")
+
 	reload("script/scene/demo_scene.lua")
+	reload("script/scene/game_scene.lua")
 	reload("script/scene/construct_scene.lua")
 	reload("script/physics/physics_lib.lua")
-	reload("script/physics/physics_mgr.lua")
+	reload("script/construct/movement/spider.lua")
+	reload("script/construct/construct.lua")
 
 	reload("script/battle/battle_logic.lua")
 	
 	reload("script/game_mgr.lua")
-	reload("framework/lib.lua")
-	reload("framework/menu.lua")
+
 	reload("script/misc_math.lua")
-	reload("framework/ui.lua")
 	reload("script/define.lua")
+	
 
 	
 	print("脚本重载完毕")
