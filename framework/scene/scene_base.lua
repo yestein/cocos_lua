@@ -263,7 +263,7 @@ function SceneBase:AddReturnMenu()
 		        },
 		    },
 		}
-	else
+	elseif device == "win32" then
 		tbElement = {
 		    [1] = {
 		        [1] = {
@@ -275,9 +275,11 @@ function SceneBase:AddReturnMenu()
 		    },
 		}
 	end
-    MenuMgr:UpdateByString(str_name, tbElement, 
-    	{szFontName = Def.szMenuFontName, nSize = 30, szAlignType = "right", nIntervalX = 20}
-    )
+	if tbElement then
+	    MenuMgr:UpdateByString(str_name, tbElement, 
+	    	{szFontName = Def.szMenuFontName, nSize = 30, szAlignType = "right", nIntervalX = 20}
+	    )
+	end
 end
 
 function SceneBase:RemoveReturnMenu()
