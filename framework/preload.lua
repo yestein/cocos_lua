@@ -6,14 +6,37 @@
 -- Modify       :
 --===================================================
 
-require("framework/lib.lua")
-require("framework/event.lua")
-require("framework/dbg.lua")
-require("framework/menu.lua")
-require("framework/physics_mgr.lua")
-require("framework/ui.lua")
-require("framework/define.lua")
+local g_script_list = {}
 
-require("framework/scene/scene_base.lua")
-require("framework/scene/scene_mgr.lua")
-require("script/game_mgr.lua")
+function AddPreloadFile(script_file)
+	g_script_list[#g_script_list + 1] = script_file
+end
+
+function PreloadScript()
+	for _, script_file in ipairs(g_script_list) do
+		require(script_file)
+	end
+end
+
+function ReloadScript()
+	if device == "win32" then
+		print("Reload Lua Script...")
+		for _, script_file in ipairs(g_script_list) do
+			dofile(script_file)
+			print("Reload\t["..script_file.."]")
+		end
+	else
+		print("Can not support Script Reload!!")
+	end
+end
+
+AddPreloadFile("framework/lib.lua")
+AddPreloadFile("framework/event.lua")
+AddPreloadFile("framework/dbg.lua")
+AddPreloadFile("framework/menu.lua")
+AddPreloadFile("framework/physics_mgr.lua")
+AddPreloadFile("framework/ui.lua")
+AddPreloadFile("framework/define.lua")
+AddPreloadFile("framework/scene/scene_base.lua")
+AddPreloadFile("framework/scene/scene_mgr.lua")
+AddPreloadFile("script/game_mgr.lua")

@@ -134,6 +134,24 @@ function Ui:GetElement(tb_ui, str_type, str_name)
     return tb_element[str_name]
 end
 
+function Ui:RemoveElement(tb_ui, str_type, str_name)
+    local tb_element = self:GetTypeElement(tb_ui, str_type)
+    if not tb_element then
+        return 0
+    end
+    if not tb_element[str_name] then
+        cclog("[%s][%s] not Exists", str_type, str_name)
+        return 0
+    end
+    tu_ui.cc_layer_ui:removeChiled(tb_element[str_name], true)
+    tb_element[str_name] = nil
+end
+
+function Ui:SetVisible(tb_ui, str_type, str_name, is_visible)
+    local element = self:GetElement(tb_ui, str_type, str_name)
+    element:setVisible(is_show)
+end
+
 function Ui:SetText(tb_ui, str_labelttf_name, str_content)
     local cc_labelttf = self:GetElement(tb_ui, "LabelTTF", str_labelttf_name)
     if not cc_labelttf then
@@ -150,6 +168,20 @@ function Ui:SetColor(tb_ui, str_labelttf_name, str_color)
         return
     end
     cc_labelttf:setColor(Def.tbColor[str_color])
+end
+
+function Ui:SetSysMsgSize(tb_ui, size)
+    for i = 1, self.MSG_MAX_COUNT do
+        local cc_labelttf_sysmsg = tb_ui.tb_lablettf_sysmsg[i]
+        cc_labelttf_sysmsg:setFontSize(size)
+    end
+end
+
+function Ui:SetSysMsgFont(tb_ui, font_name)
+    for i = 1, self.MSG_MAX_COUNT do
+        local cc_labelttf_sysmsg = tb_ui.tb_lablettf_sysmsg[i]
+        cc_labelttf_sysmsg:setFontName(font_name)
+    end
 end
 
 function Ui:SysMsg(tb_ui, szMsg, str_color)
@@ -171,7 +203,7 @@ function Ui:SysMsg(tb_ui, szMsg, str_color)
             cc_labelttf_sysmsg:runAction(CCFadeOut:create(3))
         end
         local tbMsgRect = cc_labelttf_sysmsg:getTextureRect()
-        cc_labelttf_sysmsg:setPosition(tb_size_visible.width / 2, tb_size_visible.height / 2 + (i + 3) * tbMsgRect.height)
+        cc_labelttf_sysmsg:setPosition(tb_size_visible.width / 2, tb_size_visible.height - (self.MSG_MAX_COUNT - i + 1) * tbMsgRect.height)
     end
     tb_ui.index_sysmsg = tb_ui.index_sysmsg + 1
     if tb_ui.index_sysmsg > self.MSG_MAX_COUNT then

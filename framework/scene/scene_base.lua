@@ -253,9 +253,7 @@ function SceneBase:AddReturnMenu()
 		        [2] = {
 					szItemName = "重载脚本和场景",
 		        	fnCallBack = function()
-		        		if device == "win32" then
-		        			self:Reload()
-		        		end
+	        			self:Reload()
 		        		SceneMgr:DestroyScene(str_name)
 		        		local cc_scene = SceneMgr:GetSceneObj("MainScene")
 		        		CCDirector:getInstance():replaceScene(cc_scene)
@@ -271,9 +269,7 @@ function SceneBase:AddReturnMenu()
 		        [1] = {
 					szItemName = "重载脚本",
 		        	fnCallBack = function()
-		        		if device == "win32" then
-		        			self:Reload()
-		        		end
+	        			self:Reload()
 		        	end,
 		        },
 		    },
@@ -449,34 +445,8 @@ function SceneBase:RegisterTouchEvent()
 end
 
 function SceneBase:Reload()
-	function reload(str_file)
-		dofile(str_file)
-		print("Reload\t["..str_file.."]")
+	if device == "win32" then
+		ReloadScript()
+		self:SysMsg("脚本重载完毕", "green")
 	end
-	print("开始重载脚本...")
-	reload("framework/scene/scene_base.lua")
-	reload("framework/scene/scene_mgr.lua")
-	reload("framework/physics_mgr.lua")	
-	reload("framework/lib.lua")
-	reload("framework/menu.lua")
-	reload("framework/ui.lua")
-	reload("framework/define.lua")
-
-	reload("script/scene/demo_scene.lua")
-	reload("script/scene/game_scene.lua")
-	reload("script/scene/construct_scene.lua")
-	reload("script/physics/physics_lib.lua")
-	reload("script/construct/movement/spider.lua")
-	reload("script/construct/construct.lua")
-
-	reload("script/battle/battle_logic.lua")
-	
-	reload("script/game_mgr.lua")
-
-	reload("script/misc_math.lua")
-	reload("script/define.lua")
-	
-
-	
-	print("脚本重载完毕")
 end

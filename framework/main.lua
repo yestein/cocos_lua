@@ -17,6 +17,8 @@ end
 
 require("framework/preload.lua")
 require("script/preload.lua")
+PreloadScript()
+
 function cclog(...)
     print(string.format(...))
 end
