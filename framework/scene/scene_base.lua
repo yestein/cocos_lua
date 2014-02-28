@@ -17,35 +17,38 @@ local SceneBase = SceneMgr._SceneBase
 SceneBase.MAX_SCALE = 3.0
 SceneBase.SCALE_RATE = 0.005
 
-local tb_visible_size = CCDirector:getInstance():getVisibleSize()
+local visible_size = cc.Director:getInstance():getVisibleSize()
 
-function SceneBase:DeclareListenEvent(str_event, str_func)
-	self.tb_event_listen[str_event] = str_func
+function SceneBase:DeclareListenEvent(event_type, fun_name)
+	self.event_listener[event_type] = fun_name
 end
 
-function SceneBase:Init(str_scene_name)
+function SceneBase:Init(scene_name)
 
-	self.str_scene_name = str_scene_name
-	self.cc_scene = cc.Scene:create()
-	self.tb_cc_layer = {}
-	self.tb_reg_event = {}
+	self.scene_name = scene_name
+	self.cc_scene_obj = cc.Scene:create()
+	if not self.property then
+		self.property = {}
+	end
+	self.layer_list = {}
+	self.reg_event_list = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
 	self.min_height_scale = 0
 	
-	self:SetWidth(tb_visible_size.width)
-	self:SetHeight(tb_visible_size.height)
+	self:SetWidth(visible_size.width)
+	self:SetHeight(visible_size.height)
 
 	self:RegisterEventListen()
-	Ui:InitScene(str_scene_name, self.cc_scene)
+	Ui:InitScene(scene_name, self.cc_scene_obj)
 	self:AddReturnMenu()
 	local layer_main = self:CreateLayer("main", SceneMgr.ZOOM_LEVEL_WORLD)
 	layer_main:setAnchorPoint(cc.p(0, 0))
 	self.scale = 1
 
-	local min_width_scale = tb_visible_size.width / self:GetWidth()
-	local min_height_scale = tb_visible_size.height / self:GetHeight()
+	local min_width_scale = visible_size.width / self:GetWidth()
+	local min_height_scale = visible_size.height / self:GetHeight()
 
 	self.min_scale = min_width_scale > min_height_scale and min_width_scale or min_height_scale
 
@@ -69,52 +72,52 @@ function SceneBase:Uninit()
 	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
 	self:_Uninit()
 	self.scale = nil
-	local cc_layer_main = self:GetLayer("main")
-	self.cc_scene:removeChild(cc_layer_main)
+	local layer_main = self:GetLayer("main")
+	self.cc_scene_obj:removeChild(layer_main)
 	self:RemoveReturnMenu()
-	Ui:UninitScene(self.str_scene_name)
+	Ui:UninitScene(self.scene_name)
 	self:UnregisterEventListen()
-	self.tb_reg_event = nil
-	self.tb_cc_layer = nil
-	self.cc_scene = nil
-	self.str_scene_name = nil
+	self.reg_event_list = nil
+	self.layer_list = nil
+	self.cc_scene_obj = nil
+	self.scene_name = nil
 end
 
-function SceneBase:CreateLayer(str_layer_name, z_level)
-	if self.tb_cc_layer[str_layer_name] then
-		cclog("Layer [%s] create Failed! Already Exists", str_layer_name)
+function SceneBase:CreateLayer(layer_name, z_level)
+	if self.layer_list[layer_name] then
+		cclog("Layer [%s] create Failed! Already Exists", layer_name)
 		return nil
 	end
-	local cc_layer = cc.Layer:create()
-	assert(self:AddLayer(str_layer_name, cc_layer, z_level) == 1)
-	return cc_layer
+	local layer = cc.Layer:create()
+	assert(self:AddLayer(layer_name, layer, z_level) == 1)
+	return layer
 end
 
-function SceneBase:AddLayer(str_layer_name, cc_layer, z_level)
-	if self.tb_cc_layer[str_layer_name] then
-		cclog("Layer [%s] create Failed! Already Exists", str_layer_name)
+function SceneBase:AddLayer(layer_name, layer, z_level)
+	if self.layer_list[layer_name] then
+		cclog("Layer [%s] create Failed! Already Exists", layer_name)
 		return nil
 	end
 	if z_level then 
 		if z_level > 0 then
-			self.cc_scene:addChild(cc_layer, z_level)
+			self.cc_scene_obj:addChild(layer, z_level)
 		end
 	else
-		self.cc_scene:addChild(cc_layer)
+		self.cc_scene_obj:addChild(layer)
 	end
-	self.tb_cc_layer[str_layer_name] = cc_layer
+	self.layer_list[layer_name] = layer
 	return 1
 end
 
-function SceneBase:GetLayer(str_layer_name)
-	return self.tb_cc_layer[str_layer_name]
+function SceneBase:GetLayer(layer_name)
+	return self.layer_list[layer_name]
 end
 
 function SceneBase:RegisterEventListen()
-	for str_event, str_func in pairs(self.tb_event_listen) do
-		if not self.tb_reg_event[str_event] then
-			local id_reg = Event:RegistEvent(str_event, self[str_func], self)
-			self.tb_reg_event[str_event] = id_reg
+	for event_type, func in pairs(self.event_listener) do
+		if not self.reg_event_list[event_type] then
+			local id_reg = Event:RegistEvent(event_type, self[func], self)
+			self.reg_event_list[event_type] = id_reg
 		else
 			assert(false)
 		end
@@ -122,10 +125,10 @@ function SceneBase:RegisterEventListen()
 end
 
 function SceneBase:UnregisterEventListen()
-	for str_event, id_reg in pairs(self.tb_reg_event) do
-		Event:UnRegistEvent(str_event, id_reg)
+	for event_type, id_reg in pairs(self.reg_event_list) do
+		Event:UnRegistEvent(event_type, id_reg)
 	end
-	self.tb_reg_event = {}
+	self.reg_event_list = {}
 end
 
 function SceneBase:GetUI()
@@ -133,33 +136,33 @@ function SceneBase:GetUI()
 end
 
 function SceneBase:GetClassName()
-	return self.str_class_name
+	return self.class_name
 end
 
 function SceneBase:GetName()
-	return self.str_scene_name
+	return self.scene_name
 end
 
 function SceneBase:GetCCObj()
-	return self.cc_scene
+	return self.cc_scene_obj
 end
 
-function SceneBase:SysMsg(szMsg, str_color)
-	local tb_ui = self:GetUI()
-	if tb_ui then
-		Ui:SysMsg(tb_ui, szMsg, str_color)
+function SceneBase:SysMsg(msg, color_name)
+	local ui_frame = self:GetUI()
+	if ui_frame then
+		Ui:SysMsg(ui_frame, msg, color_name)
 	end
 end
 
 function SceneBase:SetWidth(width)
 	self.width = width
-	self.min_width_scale = tb_visible_size.width / width
+	self.min_width_scale = visible_size.width / width
 
 	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
 end
 function SceneBase:SetHeight(height)
 	self.height = height
-	self.min_height_scale = tb_visible_size.height / height
+	self.min_height_scale = visible_size.height / height
 
 	self.min_scale = self.min_width_scale > self.min_height_scale and self.min_width_scale or self.min_height_scale
 end
@@ -173,25 +176,25 @@ function SceneBase:GetHeight()
 end
 
 function SceneBase:MoveCamera(x, y)
-	local layer_x, layer_y = tb_visible_size.width / 2 - x, tb_visible_size.height / 2 - y
+	local layer_x, layer_y = visible_size.width / 2 - x, visible_size.height / 2 - y
 	return self:MoveMainLayer(layer_x, layer_y)
 end
 
 function SceneBase:MoveMainLayer(position_x, position_y)
-	local cc_layer_main = self:GetLayer("main")
-	assert(cc_layer_main)
+	local layer_main = self:GetLayer("main")
+	assert(layer_main)
 	if self:IsLimitDrag() == 1 then
         position_x, position_y = self:GetModifyPosition(position_x, position_y)
     end
-    cc_layer_main:setPosition(position_x, position_y)
+    layer_main:setPosition(position_x, position_y)
 end
 
 function SceneBase:GetModifyPosition(position_x, position_y)
-	local min_x, max_x = tb_visible_size.width - (self:GetWidth() * self.scale), 0
+	local min_x, max_x = visible_size.width - (self:GetWidth() * self.scale), 0
 	if min_x > max_x then
 		min_x, max_x = max_x, min_x
 	end
-    local min_y, max_y = tb_visible_size.height - (self:GetHeight() * self.scale),  0
+    local min_y, max_y = visible_size.height - (self:GetHeight() * self.scale),  0
     if min_y > max_y then
     	min_y, max_y = max_y, min_y
     end
@@ -214,7 +217,7 @@ function SceneBase:GetScale()
 end
 
 function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
-	local cc_layer_main = self:GetLayer("main")
+	local layer_main = self:GetLayer("main")
 	if scale < self.min_scale then
 		scale = self.min_scale
 	elseif self.scale > self.MAX_SCALE then
@@ -225,7 +228,7 @@ function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 	end
 
 	self.scale = scale
-	cc_layer_main:setScale(scale)
+	layer_main:setScale(scale)
 	
 	if zoom_x and zoom_y then
 		self:MoveCamera(zoom_x * self:GetWidth() * scale + zoom_offset_x, zoom_y * self:GetHeight() * scale + zoom_offset_y)
@@ -233,64 +236,69 @@ function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 end
 
 function SceneBase:AddReturnMenu()
-	local str_name = self:GetName()
-	local tbVisibleSize = CCDirector:getInstance():getVisibleSize()
-	local layerMenu = MenuMgr:CreateMenu(str_name)
-    layerMenu:setPosition(tbVisibleSize.width, tbVisibleSize.height)
-    self.cc_scene:addChild(layerMenu, SceneMgr.ZOOM_LEVEL_MENU)
-    local tbElement = nil
-    if str_name ~= "MainScene" then
-	    tbElement = {
+	local scene_name = self:GetName()
+	local menu_name = scene_name
+	local visible_size = CCDirector:getInstance():getVisibleSize()
+	local layerMenu = MenuMgr:CreateMenu(menu_name)
+    layerMenu:setPosition(visible_size.width, visible_size.height)
+    self.cc_scene_obj:addChild(layerMenu, SceneMgr.ZOOM_LEVEL_MENU)
+    local element_list = nil
+    if scene_name ~= "MainScene" then
+	    element_list = {
 		    [1] = {
 		        [1] = {
-					szItemName = "返回主菜单",
-		        	fnCallBack = function()
-		        		SceneMgr:DestroyScene(str_name)
-		        		local cc_scene = SceneMgr:GetSceneObj("MainScene")
-		        		CCDirector:getInstance():replaceScene(cc_scene)
+					item_name = "返回主菜单",
+		        	callback_function = function()
+		        		SceneMgr:DestroyScene(scene_name)
+		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
+		        		CCDirector:getInstance():replaceScene(cc_scene_obj)
 		        	end,
 		        },
 		        [2] = {
-					szItemName = "重载脚本和场景",
-		        	fnCallBack = function()
+					item_name = "重载脚本和场景",
+		        	callback_function = function()
 	        			self:Reload()
-		        		SceneMgr:DestroyScene(str_name)
-		        		local cc_scene = SceneMgr:GetSceneObj("MainScene")
-		        		CCDirector:getInstance():replaceScene(cc_scene)
-						local tbScene = GameMgr:LoadScene(str_name)
+		        		SceneMgr:DestroyScene(scene_name)
+		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
+		        		CCDirector:getInstance():replaceScene(cc_scene_obj)
+						local tbScene = GameMgr:LoadScene(scene_name)
 						tbScene:SysMsg("重载完毕", "green")
 		        	end,
 		        },
 		    },
 		}
 	elseif device == "win32" then
-		tbElement = {
+		element_list = {
 		    [1] = {
 		        [1] = {
-					szItemName = "重载脚本",
-		        	fnCallBack = function()
+					item_name = "重载脚本",
+		        	callback_function = function()
 	        			self:Reload()
 		        	end,
 		        },
 		    },
 		}
 	end
-	if tbElement then
-	    MenuMgr:UpdateByString(str_name, tbElement, 
-	    	{szFontName = Def.szMenuFontName, nSize = 30, szAlignType = "right", nIntervalX = 20}
+	if element_list then
+	    MenuMgr:UpdateByString(menu_name, element_list, 
+	    	{font_name = Def.menu_font_name, font_size = 30, align_type = "right", interval_x = 20}
 	    )
 	end
 end
 
 function SceneBase:RemoveReturnMenu()
-	local str_name = self:GetName()
-	MenuMgr:DestroyMenu(str_name)
+	local menu_name = self:GetName()
+	MenuMgr:DestroyMenu(menu_name)
 end
 
 function SceneBase:IsDebugPhysics()
 	if self.property and self.property.debug_physics == 1 then
 		return 1
 	end
+end
+
+function SceneBase:SetTouchEnable(can_touch)
+	self.property.can_touch = can_touch
 end
 
 function SceneBase:CanTouch()
@@ -329,7 +337,7 @@ function SceneBase:CanScale()
 end
 
 function SceneBase:RegisterTouchEvent()
-	local cc_layer_main = self:GetLayer("main")
+	local layer_main = self:GetLayer("main")
 
 	local touch_begin_points = {}
     local touch_start_points = {}
@@ -344,7 +352,7 @@ function SceneBase:RegisterTouchEvent()
     		touch_start_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
     		current_touches = current_touches + 1
     	end
-        local layer_x, layer_y = cc_layer_main:getPosition()            
+        local layer_x, layer_y = layer_main:getPosition()            
         if current_touches == 1 then
         	if self.OnTouchBegan then
         		local x, y = touches[1], touches[2]
@@ -364,7 +372,7 @@ function SceneBase:RegisterTouchEvent()
         	end
         	touch_distance = Lib:GetDistance(x1, y1, x2, y2)
 	       	zoom_x , zoom_y = ((x1 + x2) / 2 - layer_x) / (self:GetWidth() * self.scale), ((y1 + y2) / 2 - layer_y) / (self:GetHeight() * self.scale)
-	       	zoom_offset_x, zoom_offset_y = tb_visible_size.width / 2 - (x1 + x2) / 2 , tb_visible_size.height / 2 - (y1 + y2) / 2
+	       	zoom_offset_x, zoom_offset_y = visible_size.width / 2 - (x1 + x2) / 2 , visible_size.height / 2 - (y1 + y2) / 2
         end
         return true
     end
@@ -373,7 +381,7 @@ function SceneBase:RegisterTouchEvent()
     	if current_touches == 1 then
     		local x, y = touches[1], touches[2]
     		local touch_begin_point = touch_begin_points[touches[3]]
-            local layer_x, layer_y = cc_layer_main:getPosition()
+            local layer_x, layer_y = layer_main:getPosition()
             local bool_pick = 0
         	if self.OnTouchMoved then
         		local scale = self:GetScale()
@@ -413,7 +421,7 @@ function SceneBase:RegisterTouchEvent()
 
     local function onTouchEnded(touches)
     	-- print("end", #touches, touches[3], touches[6])
-        local layer_x, layer_y = cc_layer_main:getPosition()
+        local layer_x, layer_y = layer_main:getPosition()
     	if current_touches == 1 then
 	        if self.OnTouchEnded then
 	        	local x, y = touches[1], touches[2]
@@ -442,8 +450,8 @@ function SceneBase:RegisterTouchEvent()
         end
     end
 
-    cc_layer_main:registerScriptTouchHandler(onTouch, true)
-    cc_layer_main:setTouchEnabled(true)
+    layer_main:registerScriptTouchHandler(onTouch, true)
+    layer_main:setTouchEnabled(true)
 end
 
 function SceneBase:Reload()

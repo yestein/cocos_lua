@@ -10,9 +10,9 @@ if not Def then
 	Def = {}
 end
 
-Def.szMenuFontName = "MarkerFelt-Thin"
+Def.menu_font_name = "MarkerFelt-Thin"
 if device == "win32" then
-	Def.szMenuFontName = "Microsoft Yahei"
+	Def.menu_font_name = "Microsoft Yahei"
 end
 
 Def.ZOOM_LEVEL_WORLD = 1
@@ -22,7 +22,7 @@ Def.ZOOM_LEVEL_PERFORMANCE = 4
 Def.ZOOM_LEVEL_MENU = 5
 Def.ZOOM_LEVEL_SUB_MENU = 6
 
-Def.tbColor = {
+Def.color_list = {
 	["black"] = cc.c3b(0, 0, 0),
 	["red"]   = cc.c3b(255, 0, 0),
 	["green"] = cc.c3b(0, 255, 0),

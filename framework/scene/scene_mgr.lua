@@ -10,8 +10,8 @@ if not SceneMgr then
     SceneMgr = {}
 end
 
-if not SceneMgr.tb_class_logic_scene then
-    SceneMgr.tb_class_logic_scene = {}
+if not SceneMgr.scene_class_list then
+    SceneMgr.scene_class_list = {}
 end
 
 SceneMgr.ZOOM_LEVEL_WORLD = 1
@@ -19,41 +19,41 @@ SceneMgr.ZOOM_LEVEL_TITLE = 3
 SceneMgr.ZOOM_LEVEL_MENU = 5
 
 function SceneMgr:Init()
-	self.tb_logic_scene = {}
+	self.logic_scene_list = {}
     return 1
 end
 
 function SceneMgr:Uninit()
-	self.tb_logic_scene = {}
+	self.logic_scene_list = {}
 end
 
 function SceneMgr:OnLoop(delta)
-    for str_scene_name, tb_scene in pairs(self.tb_logic_scene) do
-        if tb_scene.OnLoop then
-            tb_scene:OnLoop(delta)
+    for scene_name, logic_scene in pairs(self.logic_scene_list) do
+        if logic_scene.OnLoop then
+            logic_scene:OnLoop(delta)
         end
     end
 end
 
-function SceneMgr:GetScene(str_name)
-	return self.tb_logic_scene[str_name]
+function SceneMgr:GetScene(scene_name)
+	return self.logic_scene_list[scene_name]
 end
 
-function SceneMgr:GetSceneObj(str_name)
-    local tb_logic_scene = self:GetScene(str_name)
-    if tb_logic_scene then
-        return tb_logic_scene:GetCCObj()
+function SceneMgr:GetSceneObj(scene_name)
+    local logic_scene_list = self:GetScene(scene_name)
+    if logic_scene_list then
+        return logic_scene_list:GetCCObj()
     end
 end
 
-function SceneMgr:GetClass(str_class_name, bool_create)
-    if not SceneMgr.tb_class_logic_scene[str_class_name] and bool_create then
-        local tb_class = Lib:NewClass(self._SceneBase)
-        tb_class.str_class_name = str_class_name
-        tb_class.tb_event_listen = {}
-        SceneMgr.tb_class_logic_scene[str_class_name] = tb_class
+function SceneMgr:GetClass(class_name, is_need_create)
+    if not SceneMgr.scene_class_list[class_name] and is_need_create then
+        local scene_class = Lib:NewClass(self._SceneBase)
+        scene_class.class_name = class_name
+        scene_class.event_listener = {}
+        SceneMgr.scene_class_list[class_name] = scene_class
     end
-    return SceneMgr.tb_class_logic_scene[str_class_name]    
+    return SceneMgr.scene_class_list[class_name]    
 end
 
 
@@ -61,20 +61,20 @@ if _DEBUG then
     --检查是否所有的继承类都实现了该实现的方法
     function SceneMgr:CheckAllClass()
 
-        function check(tb_class, str_function)
-            if not tb_class[str_function] then
-                cclog("[%s] no function[%s]", tb_class.str_class_name, str_function)
+        function check(scene_class, fun_name)
+            if not scene_class[fun_name] then
+                cclog("[%s] no function[%s]", scene_class.str_class_name, fun_name)
                 return 0
             end
             return 1
         end
 
-        for str_class_name, tb_class in pairs(SceneMgr.tb_class_logic_scene) do
-            if check(tb_class, "_Init") ~= 1 then
+        for str_class_name, scene_class in pairs(SceneMgr.scene_class_list) do
+            if check(scene_class, "_Init") ~= 1 then
                 return 0
             end
 
-            if check(tb_class, "_Uninit") ~= 1 then
+            if check(scene_class, "_Uninit") ~= 1 then
                 return 0
             end
         end
@@ -82,30 +82,30 @@ if _DEBUG then
     end
 end
 
-function SceneMgr:CreateScene(str_name, str_class_name)
-	if self.tb_logic_scene[str_name] then
-		cclog("Create Scene [%s] Failed! Already Exists", str_name)
+function SceneMgr:CreateScene(scene_name, scene_template_name)
+	if self.logic_scene_list[scene_name] then
+		cclog("Create Scene [%s] Failed! Already Exists", scene_name)
 		return
 	end
-    if not str_class_name then
-        str_class_name = str_name
+    if not scene_template_name then
+        scene_template_name = scene_name
     end
-    local tb_class = SceneMgr:GetClass(str_class_name)
-    if not tb_class then
-        return cclog("Error! No Scene Class [%s] !", str_class_name)
+    local scene_template = SceneMgr:GetClass(scene_template_name)
+    if not scene_template then
+        return cclog("Error! No Scene Class [%s] !", scene_template_name)
     end
-	local tb_logic_scene = Lib:NewClass(tb_class)
-    self.tb_logic_scene[str_name] = tb_logic_scene
-    tb_logic_scene:Init(str_name)
-	return tb_logic_scene
+	local logic_scene_list = Lib:NewClass(scene_template)
+    self.logic_scene_list[scene_name] = logic_scene_list
+    logic_scene_list:Init(scene_name)
+	return logic_scene_list
 end
 
-function SceneMgr:DestroyScene(str_name)
-    if not self.tb_logic_scene[str_name] then
-        cclog("Create Scene [%s] Failed! Not Exists", str_name)
+function SceneMgr:DestroyScene(scene_name)
+    if not self.logic_scene_list[scene_name] then
+        cclog("Create Scene [%s] Failed! Not Exists", scene_name)
         return
     end
-    self.tb_logic_scene[str_name]:Uninit()
-    self.tb_logic_scene[str_name] = nil
-    return tb_logic_scene
+    self.logic_scene_list[scene_name]:Uninit()
+    self.logic_scene_list[scene_name] = nil
+    return logic_scene_list
 end

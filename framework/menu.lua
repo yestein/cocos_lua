@@ -11,320 +11,319 @@ if not MenuMgr then
 end
 
 function MenuMgr:Init()
-	self.tbMenu = {}
+	self.menu_list = {}
 	return 1
 end
 
 function MenuMgr:Uninit()
-	self.tbMenu = {}
+	self.menu_list = {}
 end
 
-function MenuMgr:CreateMenu(szName, szBgImg)
-	if self.tbMenu[szName] then
-		cclog("CreateMenu[%s] Failed Already Exists", szName)
-		return self.tbMenu[szName].ccmenuObj
+function MenuMgr:CreateMenu(menu_name, background_image_path)
+	if self.menu_list[menu_name] then
+		cclog("CreateMenu[%s] Failed Already Exists", menu_name)
+		return self.menu_list[menu_name].layer
 	end
 
-	local layerMenu = CCLayer:create()
-	local tbBgSize = nil
-	if szBgImg then
-		local spriteBG = CCSprite:create(szBgImg)
-		if spriteBG then
-			layerMenu:addChild(spriteBG, 1, 100)
-			spriteBG:setPosition(0, 0)
-			spriteBG:setAnchorPoint({0.5, 0.5})
-			tbBgSize = spriteBG:getTextureRect().size
+	local layer_menu = CCLayer:create()
+	local background_size = nil
+	if background_image_path then
+		local background_sprite = CCSprite:create(background_image_path)
+		if background_sprite then
+			layer_menu:addChild(background_sprite, 1, 100)
+			background_sprite:setPosition(0, 0)
+			background_sprite:setAnchorPoint({0.5, 0.5})
+			background_size = background_sprite:getTextureRect().size
 		end
 	end
 
-	self.tbMenu[szName] ={ ccmenuObj = layerMenu, tbBgSize = tbBgSize}
+	self.menu_list[menu_name] = {layer = layer_menu, background_size = background_size}
 
-    return layerMenu
+    return layer_menu
 end
 
-function MenuMgr:DestroyMenu(szName)
-	self.tbMenu[szName] = nil
+function MenuMgr:DestroyMenu(menu_name)
+	self.menu_list[menu_name] = nil
 end
 
-function MenuMgr:UpdateByImage(szName, tbElementList, tbParam)
-	local tbMenu = self:GetMenu(szName)
-	if not tbMenu then
-		cclog("CreateMenu[%s] is not Exists", szName)
+function MenuMgr:UpdateByImage(menu_name, element_list, params)
+	local menu_list = self:GetMenu(menu_name)
+	if not menu_list then
+		cclog("CreateMenu[%s] is not Exists", menu_name)
 		return 0
 	end
 
-	local szAlignType = tbParam.szAlignType or "left"
-	local nIntervalX = tbParam.nIntervalX or 15
-	local nIntervalY = tbParam.nIntervalY or 0
+	local align_type = params.align_type or "left"
+	local interval_x = params.interval_x or 15
+	local interval_y = params.interval_y or 0
 	
-	local menuArray = {}
-	local layerMenu = tbMenu.ccmenuObj
-	if layerMenu:getChildByTag(1) then
-		layerMenu:removeChildByTag(1, true)
+	local menu_array = {}
+	local layer_menu = menu_list.layer
+	if layer_menu:getChildByTag(1) then
+		layer_menu:removeChildByTag(1, true)
 	end
 
-	local tbVisibleSize = CCDirector:getInstance():getVisibleSize()
-	local itemHeight = nil
-	local nY = 0
-	local nMaxWidth = 0
-	local nSumWidth = 0
-	for nRow, tbRow in ipairs(tbElementList) do
-		nSumWidth = 0
-		local nX = 0
-		if nRow ~= 1 then
-			nY = nY - nIntervalY
+	
+	local item_height = nil
+	local y = 0
+	local max_width = 0
+	local width_sum = 0
+	for row, row_elements in ipairs(element_list) do
+		width_sum = 0
+		local x = 0
+		if row ~= 1 then
+			y = y - interval_y
 		end
-		local tbRowMenu = {}
-		for nCol, tbElement in ipairs(tbRow) do
+		local row_menu_list = {}
+		for column, element in ipairs(row_elements) do
 			local menu = cc.MenuItemImage:create(
-				tbElement.szNormal,
-				tbElement.szSelected,
-				tbElement.szDisabled
+				element.normal_image,
+				element.selected_image,
+				element.disabled_image
 			)
-			menu:registerScriptTapHandler(tbElement.fnCallBack)
-			local itemWidth = menu:getContentSize().width
-			if not itemHeight then
-		    	itemHeight = menu:getContentSize().height
+			menu:registerScriptTapHandler(element.callback_function)
+			local item_width = menu:getContentSize().width
+			if not item_height then
+		    	item_height = menu:getContentSize().height
 		    end
 
-			if szAlignType == "right" then
-				if nCol ~= 1 then
-					nX = nX - nIntervalX
-					nSumWidth = nSumWidth + nIntervalX
+			if align_type == "right" then
+				if column ~= 1 then
+					x = x - interval_x
+					width_sum = width_sum + interval_x
 				end
-		    	nX = nX - itemWidth / 2
-		    	nSumWidth = nSumWidth + itemWidth
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-		    	nX = nX - itemWidth / 2
+		    	x = x - item_width / 2
+		    	width_sum = width_sum + item_width
+		    	menu:setPosition(x, y - item_height / 2)
+		    	x = x - item_width / 2
 		    else
-		    	if nCol ~= 1 then
-		    		nX = nX + nIntervalX
-		    		nSumWidth = nSumWidth + nIntervalX
+		    	if column ~= 1 then
+		    		x = x + interval_x
+		    		width_sum = width_sum + interval_x
 		    	end
-		    	nX = nX + itemWidth / 2
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-				nX = nX + itemWidth / 2
-				nSumWidth = nSumWidth + itemWidth
+		    	x = x + item_width / 2
+		    	menu:setPosition(x, y - item_height / 2)
+				x = x + item_width / 2
+				width_sum = width_sum + item_width
 		    end
-		    tbRowMenu[#tbRowMenu + 1] = menu
-	    	menuArray[#menuArray+ 1] = menu
+		    row_menu_list[#row_menu_list + 1] = menu
+	    	menu_array[#menu_array+ 1] = menu
 	    end
-	    if szAlignType == "center" then
-	    	local nOffsetX = math.floor(nX / 2)
-	    	for _, menu in ipairs(tbRowMenu) do
-	    		local nMenuX, nMenuY = menu:getPosition()
-	    		menu:setPosition(nMenuX - nOffsetX, nMenuY)
+	    if align_type == "center" then
+	    	local offset_x = math.floor(x / 2)
+	    	for _, menu in ipairs(row_menu_list) do
+	    		local menu_x, menu_y = menu:getPosition()
+	    		menu:setPosition(menu_x - offset_x, menu_y)
 	    	end
 		end
-		nY = nY - itemHeight
-		if nSumWidth > nMaxWidth then
-			nMaxWidth = nSumWidth
+		y = y - item_height
+		if width_sum > max_width then
+			max_width = width_sum
 		end
 	end
-	local menuTools = cc.Menu:create(unpack(menuArray))
-    if szAlignType == "center" and itemHeight then
-		local nOffsetY = math.floor(-nY / 2)
-		menuTools:setPosition(0, nOffsetY)
+	local menu_tools = cc.Menu:create(unpack(menu_array))
+    if align_type == "center" and item_height then
+		local nOffsetY = math.floor(-y / 2)
+		menu_tools:setPosition(0, nOffsetY)
 	else
-    	menuTools:setPosition(0, 0)
+    	menu_tools:setPosition(0, 0)
     end
-    local pBG = layerMenu:getChildByTag(100)
-    if pBG then
-    	local tbBgSize = tbMenu.tbBgSize
-    	pBG:setScaleX((nMaxWidth + 20) / tbBgSize.width)
-    	pBG:setScaleY((10 - nY) / tbBgSize.height)
+    local background_sprite = layer_menu:getChildByTag(100)
+    if background_sprite then
+    	local background_size = menu_list.background_size
+    	background_sprite:setScaleX((max_width + 20) / background_size.width)
+    	background_sprite:setScaleY((10 - y) / background_size.height)
     end
-    layerMenu:addChild(menuTools, 1, 1)
+    layer_menu:addChild(menu_tools, 1, 1)
     return 1
 end
 
-function MenuMgr:UpdateBySprite(szName, tbElementList, tbParam)
-	local tbMenu = self:GetMenu(szName)
-	if not tbMenu then
-		cclog("CreateMenu[%s] is not Exists", szName)
+function MenuMgr:UpdateBySprite(menu_name, element_list, params)
+	local menu_list = self:GetMenu(menu_name)
+	if not menu_list then
+		cclog("CreateMenu[%s] is not Exists", menu_name)
 		return 0
 	end
 
-	local szAlignType = tbParam.szAlignType or "left"
-	local nIntervalX = tbParam.nIntervalX or 15
-	local nIntervalY = tbParam.nIntervalY or 0
+	local align_type = params.align_type or "left"
+	local interval_x = params.interval_x or 15
+	local interval_y = params.interval_y or 0
 	
-	local menuArray = {}
-	local layerMenu = tbMenu.ccmenuObj
-	if layerMenu:getChildByTag(1) then
-		layerMenu:removeChildByTag(1, true)
+	local menu_array = {}
+	local layer_menu = menu_list.layer
+	if layer_menu:getChildByTag(1) then
+		layer_menu:removeChildByTag(1, true)
 	end
 
-	local tbVisibleSize = CCDirector:getInstance():getVisibleSize()
-	local itemHeight = nil
-	local nY = 0
-	local nMaxWidth = 0
-	local nSumWidth = 0
-	for nRow, tbRow in ipairs(tbElementList) do
-		nSumWidth = 0
-		local nX = 0
-		if nRow ~= 1 then
-			nY = nY - nIntervalY
+	local item_height = nil
+	local y = 0
+	local max_width = 0
+	local width_sum = 0
+	for row, tbRow in ipairs(element_list) do
+		width_sum = 0
+		local x = 0
+		if row ~= 1 then
+			y = y - interval_y
 		end
-		local tbRowMenu = {}
-		for nCol, tbElement in ipairs(tbRow) do
-			local texture = CCTextureCache:getInstance():addImage(tbElement.szImage)
-			local rectNormal = cc.rect(unpack(tbElement.tbRect["normal"]))
-			local frameNormal = CCSpriteFrame:createWithTexture(texture, rectNormal)
-			local spriteNormal = CCSprite:createWithSpriteFrame(frameNormal)
+		local row_menu_list = {}
+		for column, element in ipairs(tbRow) do
+			local texture = CCTextureCache:getInstance():addImage(element.szImage)
+			local rect_normal = cc.rect(unpack(element.tbRect["normal"]))
+			local sprite_frame_normal = CCSpriteFrame:createWithTexture(texture, rect_normal)
+			local sprite_normal = CCSprite:createWithSpriteFrame(sprite_frame_normal)
 
-			local rectSelected = cc.rect(unpack(tbElement.tbRect["selected"]))
-			local frameSelected = CCSpriteFrame:createWithTexture(texture, rectSelected)
-			local spriteSelected = CCSprite:createWithSpriteFrame(frameSelected)
-			local menu = CCMenuItemSprite:create(spriteNormal, spriteSelected)
-			menu:registerScriptTapHandler(tbElement.fnCallBack)
-			local itemWidth = menu:getContentSize().width
-			if not itemHeight then
-		    	itemHeight = menu:getContentSize().height
+			local rect_selected = cc.rect(unpack(element.tbRect["selected"]))
+			local sprite_frame_selected = CCSpriteFrame:createWithTexture(texture, rect_selected)
+			local sprite_selected = CCSprite:createWithSpriteFrame(sprite_frame_selected)
+			local menu = CCMenuItemSprite:create(sprite_normal, sprite_selected)
+			menu:registerScriptTapHandler(element.callback_function)
+
+			local item_width = menu:getContentSize().width
+			if not item_height then
+		    	item_height = menu:getContentSize().height
 		    end
 
-			if szAlignType == "right" then
-				if nCol ~= 1 then
-					nX = nX - nIntervalX
-					nSumWidth = nSumWidth + nIntervalX
+			if align_type == "right" then
+				if column ~= 1 then
+					x = x - interval_x
+					width_sum = width_sum + interval_x
 				end
-		    	nX = nX - itemWidth / 2
-		    	nSumWidth = nSumWidth + itemWidth
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-		    	nX = nX - itemWidth / 2
+		    	x = x - item_width / 2
+		    	width_sum = width_sum + item_width
+		    	menu:setPosition(x, y - item_height / 2)
+		    	x = x - item_width / 2
 		    else
-		    	if nCol ~= 1 then
-		    		nX = nX + nIntervalX
-		    		nSumWidth = nSumWidth + nIntervalX
+		    	if column ~= 1 then
+		    		x = x + interval_x
+		    		width_sum = width_sum + interval_x
 		    	end
-		    	nX = nX + itemWidth / 2
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-				nX = nX + itemWidth / 2
-				nSumWidth = nSumWidth + itemWidth
+		    	x = x + item_width / 2
+		    	menu:setPosition(x, y - item_height / 2)
+				x = x + item_width / 2
+				width_sum = width_sum + item_width
 		    end
-		    tbRowMenu[#tbRowMenu + 1] = menu
-	    	menuArray[#menuArray+ 1] = menu
+		    row_menu_list[#row_menu_list + 1] = menu
+	    	menu_array[#menu_array+ 1] = menu
 	    end
-	    if szAlignType == "center" then
-	    	local nOffsetX = math.floor(nX / 2)
-	    	for _, menu in ipairs(tbRowMenu) do
-	    		local nMenuX, nMenuY = menu:getPosition()
-	    		menu:setPosition(nMenuX - nOffsetX, nMenuY)
+	    if align_type == "center" then
+	    	local offset_x = math.floor(x / 2)
+	    	for _, menu in ipairs(row_menu_list) do
+	    		local menu_x, menu_y = menu:getPosition()
+	    		menu:setPosition(menu_x - offset_x, menu_y)
 	    	end
 		end
-		nY = nY - itemHeight
-		if nSumWidth > nMaxWidth then
-			nMaxWidth = nSumWidth
+		y = y - item_height
+		if width_sum > max_width then
+			max_width = width_sum
 		end
 	end
-	local menuTools = cc.Menu:create(unpack(menuArray))
-    if szAlignType == "center" and itemHeight then
-		local nOffsetY = math.floor(-nY / 2)
-		menuTools:setPosition(0, nOffsetY)
+	local menu_tools = cc.Menu:create(unpack(menu_array))
+    if align_type == "center" and item_height then
+		local nOffsetY = math.floor(-y / 2)
+		menu_tools:setPosition(0, nOffsetY)
 	else
-    	menuTools:setPosition(0, 0)
+    	menu_tools:setPosition(0, 0)
     end
-    local pBG = layerMenu:getChildByTag(100)
-    if pBG then
-    	local tbBgSize = tbMenu.tbBgSize
-    	pBG:setScaleX((nMaxWidth + 20) / tbBgSize.width)
-    	pBG:setScaleY((10 - nY) / tbBgSize.height)
+    local background_sprite = layer_menu:getChildByTag(100)
+    if background_sprite then
+    	local background_size = menu_list.background_size
+    	background_sprite:setScaleX((max_width + 20) / background_size.width)
+    	background_sprite:setScaleY((10 - y) / background_size.height)
     end
-    layerMenu:addChild(menuTools, 1, 1)
+    layer_menu:addChild(menu_tools, 1, 1)
     return 1
 end
 
-function MenuMgr:UpdateByString(szName, tbElementList, tbParam)
-	local szFontName = tbParam.szFontName or ""
-	local nSize = tbParam.nSize or 16
-	local szAlignType = tbParam.szAlignType or "left"
-	local nIntervalX = tbParam.nIntervalX or 15
-	local nIntervalY = tbParam.nIntervalY or 0
+function MenuMgr:UpdateByString(menu_name, element_list, params)
+	local font_name = params.font_name or ""
+	local font_size = params.font_size or 16
+	local align_type = params.align_type or "left"
+	local interval_x = params.interval_x or 15
+	local interval_y = params.interval_y or 0
 
-	local tbMenu = self:GetMenu(szName)
-	if not tbMenu then
-		cclog("CreateMenu[%s] is not Exists", szName)
+	local menu_list = self:GetMenu(menu_name)
+	if not menu_list then
+		cclog("CreateMenu[%s] is not Exists", menu_name)
 		return 0
 	end
-	local menuArray = {}
-	local layerMenu = tbMenu.ccmenuObj
-	if layerMenu:getChildByTag(1) then
-		layerMenu:removeChildByTag(1, true)
+	local menu_array = {}
+	local layer_menu = menu_list.layer
+	if layer_menu:getChildByTag(1) then
+		layer_menu:removeChildByTag(1, true)
 	end
 
-	local tbVisibleSize = CCDirector:getInstance():getVisibleSize()
-	local itemHeight = nil
-	local nY = 0
-	local nMaxWidth = 0
-	local nSumWidth = 0
-	for nRow, tbRow in ipairs(tbElementList) do
-		nSumWidth = 0
-		local nX = 0
-		if nRow ~= 1 then
-			nY = nY - nIntervalY
+	local item_height = nil
+	local y = 0
+	local max_width = 0
+	local width_sum = 0
+	for row, row_elements in ipairs(element_list) do
+		width_sum = 0
+		local x = 0
+		if row ~= 1 then
+			y = y - interval_y
 		end
-		local tbRowMenu = {}
-		for nCol, tbElement in ipairs(tbRow) do
-			local ccLabel = CCLabelTTF:create(tbElement.szItemName or "错误的菜单项", szFontName, nSize)
+		local row_menu_list = {}
+		for column, element in ipairs(row_elements) do
+			local ccLabel = CCLabelTTF:create(element.item_name or "错误的菜单项", font_name, font_size)
 			local menu = CCMenuItemLabel:create(ccLabel)
-			menu:registerScriptTapHandler(tbElement.fnCallBack)
-			local itemWidth = menu:getContentSize().width
-			if not itemHeight then
-		    	itemHeight = menu:getContentSize().height
+			menu:registerScriptTapHandler(element.callback_function)
+			local item_width = menu:getContentSize().width
+			if not item_height then
+		    	item_height = menu:getContentSize().height
 		    end
 
-			if szAlignType == "right" then
-				if nCol ~= 1 then
-					nX = nX - nIntervalX
-					nSumWidth = nSumWidth + nIntervalX
+			if align_type == "right" then
+				if column ~= 1 then
+					x = x - interval_x
+					width_sum = width_sum + interval_x
 				end
-		    	nX = nX - itemWidth / 2
-		    	nSumWidth = nSumWidth + itemWidth
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-		    	nX = nX - itemWidth / 2
+		    	x = x - item_width / 2
+		    	width_sum = width_sum + item_width
+		    	menu:setPosition(x, y - item_height / 2)
+		    	x = x - item_width / 2
 		    else
-		    	if nCol ~= 1 then
-		    		nX = nX + nIntervalX
-		    		nSumWidth = nSumWidth + nIntervalX
+		    	if column ~= 1 then
+		    		x = x + interval_x
+		    		width_sum = width_sum + interval_x
 		    	end
-		    	nX = nX + itemWidth / 2
-		    	menu:setPosition(nX, nY - itemHeight / 2)
-				nX = nX + itemWidth / 2
-				nSumWidth = nSumWidth + itemWidth
+		    	x = x + item_width / 2
+		    	menu:setPosition(x, y - item_height / 2)
+				x = x + item_width / 2
+				width_sum = width_sum + item_width
 		    end
-		    tbRowMenu[#tbRowMenu + 1] = menu
-	    	menuArray[#menuArray + 1] = menu
+		    row_menu_list[#row_menu_list + 1] = menu
+	    	menu_array[#menu_array + 1] = menu
 	    end
-	    if szAlignType == "center" then
-	    	local nOffsetX = math.floor(nX / 2)
-	    	for _, menu in ipairs(tbRowMenu) do
-	    		local nMenuX, nMenuY = menu:getPosition()
-	    		menu:setPosition(nMenuX - nOffsetX, nMenuY)
+	    if align_type == "center" then
+	    	local offset_x = math.floor(x / 2)
+	    	for _, menu in ipairs(row_menu_list) do
+	    		local menu_x, menu_y = menu:getPosition()
+	    		menu:setPosition(menu_x - offset_x, menu_y)
 	    	end
 		end
-		nY = nY - itemHeight
-		if nSumWidth > nMaxWidth then
-			nMaxWidth = nSumWidth
+		y = y - item_height
+		if width_sum > max_width then
+			max_width = width_sum
 		end
 	end
-	local menuTools = cc.Menu:create(unpack(menuArray))
-	if szAlignType == "center" and itemHeight then
-		local nOffsetY = math.floor(-nY / 2)
-		menuTools:setPosition(0, nOffsetY)
+	local menu_tools = cc.Menu:create(unpack(menu_array))
+	if align_type == "center" and item_height then
+		local nOffsetY = math.floor(-y / 2)
+		menu_tools:setPosition(0, nOffsetY)
 	else
-    	menuTools:setPosition(0, 0)
+    	menu_tools:setPosition(0, 0)
     end
-    local pBG = layerMenu:getChildByTag(100)
-    if pBG then
-    	local tbBgSize = tbMenu.tbBgSize
-    	pBG:setScaleX((nMaxWidth + 20) / tbBgSize.width)
-    	pBG:setScaleY((10 - nY) / tbBgSize.height)
+    local background_sprite = layer_menu:getChildByTag(100)
+    if background_sprite then
+    	local background_size = menu_list.background_size
+    	background_sprite:setScaleX((max_width + 20) / background_size.width)
+    	background_sprite:setScaleY((10 - y) / background_size.height)
     end
-    layerMenu:addChild(menuTools, 1, 1)
+    layer_menu:addChild(menu_tools, 1, 1)
 
     return 1
 end
 
-function MenuMgr:GetMenu(szName)
-	return self.tbMenu[szName]
+function MenuMgr:GetMenu(menu_name)
+	return self.menu_list[menu_name]
 end

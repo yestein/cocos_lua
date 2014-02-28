@@ -16,15 +16,15 @@ local MetaTable = {
 		if v then
 			return v
 		end
-		local tbBase = rawget(table, "_tbBase")
-		return tbBase[key]
+		local base_class = rawget(table, "_tbBase")
+		return base_class[key]
 	end
 }
 
-function Lib:NewClass(tbBase)
-	local tbNew = { _tbBase = tbBase }
-	setmetatable(tbNew, MetaTable)
-	return tbNew
+function Lib:NewClass(base_class)
+	local new_class = { _tbBase = base_class }
+	setmetatable(new_class, MetaTable)
+	return new_class
 end
 
 function Lib:ShowTB1(tb)
@@ -34,11 +34,11 @@ function Lib:ShowTB1(tb)
 end
 
 function Lib:CopyTB1(tb)
-	local tbRet = {}
+	local table_copy = {}
 	for k, v in pairs(tb) do
-		tbRet[k] = v
+		table_copy[k] = v
 	end
-	return tbRet
+	return table_copy
 end
 
 function Lib.ShowStack(s)
@@ -46,55 +46,55 @@ function Lib.ShowStack(s)
 	return s
 end
 
-function Lib:SafeCall(tbCallBack)
+function Lib:SafeCall(callback)
 	local function InnerCall()
-		tbCallBack[1](unpack(tbCallBack, 2))
+		callback[1](unpack(callback, 2))
 	end
 	return xpcall(InnerCall, Lib.ShowStack)
 end
 
-function Lib:MergeTable(tbDest, tbSrc)
-	for _, v in ipairs(tbSrc) do
-		tbDest[#tbDest + 1] = v
+function Lib:MergeTable(table_dest, table_src)
+	for _, v in ipairs(table_src) do
+		table_dest[#table_dest + 1] = v
 	end
 end
 
-function Lib:ShowTBN(tb, n)
+function Lib:ShowTBN(table_raw, n)
 
-	local function showTB(tbValue, nDeepth, nMaxDeep)
-		if nDeepth > n or nDeepth > 4 then
+	local function showTB(table, deepth, max_deepth)
+		if deepth > n or deepth > 4 then
 			return
 		end
-		local szBlank = ""
-		for i = 1, nDeepth - 1 do
-			szBlank = szBlank .. "\t"
+		local str_blank = ""
+		for i = 1, deepth - 1 do
+			str_blank = str_blank .. "\t"
 		end
-		for k, v in pairs(tbValue) do
+		for k, v in pairs(table) do
 			if type(v) ~= "table" then
-				print(string.format("%s[%s] = %s", szBlank, tostring(k), tostring(v)))
+				print(string.format("%s[%s] = %s", str_blank, tostring(k), tostring(v)))
 			else
-				print(string.format("%s[%s] = ", szBlank, tostring(k)))
-				showTB(v, nDeepth + 1)
+				print(string.format("%s[%s] = ", str_blank, tostring(k)))
+				showTB(v, deepth + 1)
 			end
 		end
 	end
-	showTB(tb, 1)
+	showTB(table_raw, 1)
 end
 
-function Lib:GetDistanceSquare(nLogicX_A, nLogicY_A, nLogicX_B, nLogicY_B)
+function Lib:GetDistanceSquare(x1, y1, x2, y2)
 
-	local nDistanceX = nLogicX_A - nLogicX_B
-	local nDistanceY = nLogicY_A - nLogicY_B
+	local distance_x = x1 - x2
+	local distance_y = y1 - y2
 	
-	return (nDistanceY * nDistanceY) + (nDistanceX * nDistanceX)
+	return (distance_y * distance_y) + (distance_x * distance_x)
 end
 
-function Lib:GetDistance(nLogicX_A, nLogicY_A, nLogicX_B, nLogicY_B)
+function Lib:GetDistance(x1, y1, x2, y2)
 
-	local nDistanceX = nLogicX_A - nLogicX_B
-	local nDistanceY = nLogicY_A - nLogicY_B
+	local distance_x = x1 - x2
+	local distance_y = y1 - y2
 	
-	return math.sqrt((nDistanceY * nDistanceY) + (nDistanceX * nDistanceX))
+	return math.sqrt((distance_y * distance_y) + (distance_x * distance_x))
 end
 
 function Lib:GetDiamondPosition(row, column, cell_width, cell_height, start_x, start_y)

@@ -15,68 +15,68 @@ function CPPEvent(...)
 end
 
 function Event:Preload()
-	self.tbGlobalEvent = {}
+	self.global_event_list = {}
 end
 
-function Event:RegistWatcher(tbBlackEventList, fnCallBack)
-	self.tbEventBlackList = tbBlackEventList
-	self.fnWatcherCallBack = fnCallBack
+function Event:RegistWatcher(event_black_list, watcher_call_back_function)
+	self.event_black_list = event_black_list
+	self.watcher_call_back_function = watcher_call_back_function
 end
 
-function Event:RegistEvent(szEvent, fnCallBack, ...)
-	if not szEvent or not fnCallBack then
+function Event:RegistEvent(event_type, function_call_back, ...)
+	if not event_type or not function_call_back then
 		assert(false)
 		return
 	end
-	if not self.tbGlobalEvent[szEvent] then
-		self.tbGlobalEvent[szEvent] = {}
+	if not self.global_event_list[event_type] then
+		self.global_event_list[event_type] = {}
 	end
-	local tbCallBack = self.tbGlobalEvent[szEvent]
-	local nRegisterId = #tbCallBack + 1
-	tbCallBack[nRegisterId] = {fnCallBack, {...}}
-	return nRegisterId
+	local call_back_list = self.global_event_list[event_type]
+	local register_id = #call_back_list + 1
+	call_back_list[register_id] = {function_call_back, {...}}
+	return register_id
 end
 
-function Event:UnRegistEvent(szEvent, nRegisterId)
-	if not szEvent or not nRegisterId then
+function Event:UnRegistEvent(event_type, register_id)
+	if not event_type or not register_id then
 		assert(false)
 		return
 	end
-	if not self.tbGlobalEvent[szEvent] then
+	if not self.global_event_list[event_type] then
 		return 0
 	end
-	local tbCallBack = self.tbGlobalEvent[szEvent]
-	if not tbCallBack[nRegisterId] then
+	local call_back_list = self.global_event_list[event_type]
+	if not call_back_list[register_id] then
 		return 0
 	end
-	tbCallBack[nRegisterId] = nil
+	call_back_list[register_id] = nil
 	return 1
 end
 
-function Event:FireEvent(szEvent, ...)
-	self:CallBack(self.tbGlobalEvent[szEvent], ...)
-	if self.fnWatcherCallBack then
-		if not self.tbEventBlackList or not self.tbEventBlackList[szEvent] then
-			self.fnWatcherCallBack(szEvent, ...)
+function Event:FireEvent(event_type, ...)
+	self:CallBack(self.global_event_list[event_type], ...)
+	if self.watcher_call_back_function then
+		if not self.event_black_list or not self.event_black_list[event_type] then
+			self.watcher_call_back_function(event_type, ...)
 		end
 	end
 end
 
 
-function Event:CallBack(tbEvent, ...)
-	if not tbEvent then
+function Event:CallBack(event_list, ...)
+	if not event_list then
 		return
 	end
-	local tbCopyEvent = Lib:CopyTB1(tbEvent)
-	for nRegisterId, tbCallFunc in pairs(tbCopyEvent) do
-		if tbEvent[nRegisterId] then
-			local fnCallBack = tbCallFunc[1]
-			local tbPackArg = tbCallFunc[2]
+	local event_list_copy = Lib:CopyTB1(event_list)
+	for register_id, callback in pairs(event_list_copy) do
+		if event_list[register_id] then
+			local call_back_function = callback[1]
+			local call_back_args = callback[2]
 
-			if #tbPackArg > 0 then
-				Lib:SafeCall({fnCallBack, unpack(tbPackArg), ...})
+			if #call_back_args > 0 then
+				Lib:SafeCall({call_back_function, unpack(call_back_args), ...})
 			else
-				Lib:SafeCall({fnCallBack, ...})
+				Lib:SafeCall({call_back_function, ...})
 			end
 		end
 	end
