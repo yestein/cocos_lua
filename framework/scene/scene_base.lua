@@ -147,13 +147,6 @@ function SceneBase:GetCCObj()
 	return self.cc_scene_obj
 end
 
-function SceneBase:SysMsg(msg, color_name)
-	local ui_frame = self:GetUI()
-	if ui_frame then
-		Ui:SysMsg(ui_frame, msg, color_name)
-	end
-end
-
 function SceneBase:SetWidth(width)
 	self.width = width
 	self.min_width_scale = visible_size.width / width
@@ -458,5 +451,26 @@ function SceneBase:Reload()
 	if device == "win32" then
 		ReloadScript()
 		self:SysMsg("脚本重载完毕", "green")
+	end
+end
+
+function SceneBase:SysMsg(msg, color_name)
+	local ui_frame = self:GetUI()
+	if ui_frame then
+		Ui:SysMsg(ui_frame, msg, color_name)
+	end
+end
+
+function SceneBase:SetSysMsgSize(font_size)
+	local ui_frame = self:GetUI()
+	if ui_frame then
+		Ui:SetSysMsgSize(ui_frame, font_size)
+	end
+end
+
+function SceneBase:SetSysMsgFont(font_name)
+	local ui_frame = self:GetUI()
+	if ui_frame then
+		Ui:SetSysMsgFont(ui_frame, font_name)
 	end
 end

@@ -31,4 +31,8 @@ Def.color_list = {
 	["yellow"] = cc.c3b(255, 255, 0),
 }
 
+function Def:GetColor(color_name)
+	return self.color_list[color_name]
+end
+
 

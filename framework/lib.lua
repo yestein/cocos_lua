@@ -27,6 +27,24 @@ function Lib:NewClass(base_class)
 	return new_class
 end
 
+function Lib:Show2DTB(tb, row, column)
+	local title = "\t"
+	for i = 1, column do
+		title = title.."\t"..i
+	end
+	print(title)
+	print("-----------------------------------------------------------------------------------------------")
+	for i = 1, row do
+		local msg = i.."\t|"
+		if tb[row] then
+			for j = 1, column do
+				msg = msg .."\t"..tostring(tb[i][j])
+			end
+			print(msg)
+		end
+	end
+end
+
 function Lib:ShowTB1(tb)
 	for k, v in pairs(tb) do
 		print(string.format("[%s] = %s", tostring(k), tostring(v)))
@@ -59,10 +77,14 @@ function Lib:MergeTable(table_dest, table_src)
 	end
 end
 
+function Lib:ShowTB(table)
+	return self:ShowTBN(table, 7)
+end
+
 function Lib:ShowTBN(table_raw, n)
 
 	local function showTB(table, deepth, max_deepth)
-		if deepth > n or deepth > 4 then
+		if deepth > n or deepth > max_deepth then
 			return
 		end
 		local str_blank = ""
@@ -74,11 +96,11 @@ function Lib:ShowTBN(table_raw, n)
 				print(string.format("%s[%s] = %s", str_blank, tostring(k), tostring(v)))
 			else
 				print(string.format("%s[%s] = ", str_blank, tostring(k)))
-				showTB(v, deepth + 1)
+				showTB(v, deepth + 1, max_deepth - 1)
 			end
 		end
 	end
-	showTB(table_raw, 1)
+	showTB(table_raw, 1, 7)
 end
 
 function Lib:GetDistanceSquare(x1, y1, x2, y2)
