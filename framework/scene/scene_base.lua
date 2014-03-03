@@ -329,6 +329,10 @@ function SceneBase:CanScale()
 	return 0
 end
 
+function SceneBase:IsMove()
+	return self.is_move
+end
+
 function SceneBase:RegisterTouchEvent()
 	local layer_main = self:GetLayer("main")
 
@@ -352,6 +356,7 @@ function SceneBase:RegisterTouchEvent()
         		local scale = self:GetScale()
         		self:OnTouchBegan((x - layer_x) / scale, (y - layer_y) / scale)
         	end
+        	self.is_move = nil
         elseif current_touches == 2 and self:CanScale() == 1 then
         	local x1, y1, x2, y2
         	for id, touch_info in pairs(touch_begin_points) do  		
@@ -376,6 +381,7 @@ function SceneBase:RegisterTouchEvent()
     		local touch_begin_point = touch_begin_points[touches[3]]
             local layer_x, layer_y = layer_main:getPosition()
             local bool_pick = 0
+            self.is_move = 1
         	if self.OnTouchMoved then
         		local scale = self:GetScale()
         		
@@ -421,6 +427,7 @@ function SceneBase:RegisterTouchEvent()
 	        	local scale = self:GetScale()
 	    		self:OnTouchEnded((x - layer_x) / scale, (y - layer_y) / scale)
 	    	end
+	    	self.is_move = nil
 	    elseif current_touches == 2 then
 	        touch_distance = nil
 	        zoom_x, zoom_y = nil
@@ -431,6 +438,7 @@ function SceneBase:RegisterTouchEvent()
     		touch_start_points[touches[i + 2]] = nil
     		current_touches = current_touches - 1
     	end
+    	
     end
 
     local function onTouch(eventType, touches)
