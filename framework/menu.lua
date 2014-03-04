@@ -167,15 +167,12 @@ function MenuMgr:UpdateBySprite(menu_name, element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(tbRow) do
-			local texture = CCTextureCache:getInstance():addImage(element.szImage)
-			local rect_normal = cc.rect(unpack(element.tbRect["normal"]))
-			local sprite_frame_normal = CCSpriteFrame:createWithTexture(texture, rect_normal)
-			local sprite_normal = CCSprite:createWithSpriteFrame(sprite_frame_normal)
-
-			local rect_selected = cc.rect(unpack(element.tbRect["selected"]))
-			local sprite_frame_selected = CCSpriteFrame:createWithTexture(texture, rect_selected)
-			local sprite_selected = CCSprite:createWithSpriteFrame(sprite_frame_selected)
-			local menu = CCMenuItemSprite:create(sprite_normal, sprite_selected)
+			local menu = CCMenuItemSprite:create(element.sprite_normal, element.sprite_selected)
+			local normal_rect = element.sprite_normal:getBoundingBox()
+			local select_rect = element.sprite_selected:getBoundingBox()
+			local offset_x = (normal_rect.width - select_rect.width) / 2
+			local offset_y = (normal_rect.height - select_rect.height) / 2
+           element.sprite_selected:setPosition(offset_x, offset_y)
 			menu:registerScriptTapHandler(element.callback_function)
 
 			local item_width = menu:getContentSize().width
@@ -322,6 +319,18 @@ function MenuMgr:UpdateByString(menu_name, element_list, params)
     layer_menu:addChild(menu_tools, 1, 1)
 
     return 1
+end
+
+function MenuMgr:SetVisible(menu_name, is_visible)
+	local menu_list = self:GetMenu(menu_name)
+	local layer_menu = menu_list.layer
+	layer_menu:setVisible(is_visible)
+end
+
+function MenuMgr:IsVisible(menu_name)
+	local menu_list = self:GetMenu(menu_name)
+	local layer_menu = menu_list.layer
+	return layer_menu:isVisible()
 end
 
 function MenuMgr:GetMenu(menu_name)
