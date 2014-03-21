@@ -18,6 +18,10 @@ function Event:Preload()
 	self.global_event_list = {}
 end
 
+function Event:Debug()
+	Lib:ShowTB(self.global_event_list)
+end
+
 function Event:RegistWatcher(event_black_list, watcher_call_back_function)
 	self.event_black_list = event_black_list
 	self.watcher_call_back_function = watcher_call_back_function
@@ -25,6 +29,7 @@ end
 
 function Event:RegistEvent(event_type, function_call_back, ...)
 	if not event_type or not function_call_back then
+		print(event_type, function_call_back)
 		assert(false)
 		return
 	end

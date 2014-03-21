@@ -24,11 +24,12 @@ end
 function ObjPool:Add(obj_template, ...)
 	local obj = Lib:NewClass(obj_template)
 	local id = self.next_id
-	assert(obj:Init(id, ...) == 1)
-	self.obj_pool[id] = obj
-	self.next_id = self.next_id + 1
-	Event:FireEvent(self.obj_name.."Add", id)
-	return obj, id
+	if obj:Init(id, ...) == 1 then
+		self.obj_pool[id] = obj
+		self.next_id = self.next_id + 1
+		Event:FireEvent(self.obj_name.."Add", id, ...)
+		return obj, id
+	end
 end
 
 function ObjPool:Remove(id)
@@ -49,4 +50,17 @@ function ObjPool:GetById(id)
 		return
 	end
 	return self.obj_pool[id]
+end
+
+function ObjPool:ResetId()
+	self.next_id = 1
+end
+
+function ObjPool:RemoveAll(callback)
+	for id, obj in pairs(self.obj_pool) do
+		if callback then
+			callback(id, obj)
+		end
+		self:Remove(id)
+	end
 end

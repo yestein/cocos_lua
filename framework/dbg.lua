@@ -38,3 +38,11 @@ end
 function Debug.Print(...)
 	print(...)
 end
+
+function Debug.Printf(Fmt, ...)
+	if select("#", ...) <= 0 then
+		print(Fmt)
+	else
+		print(string.format(Fmt, ...))
+	end
+end

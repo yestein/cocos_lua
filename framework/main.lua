@@ -32,13 +32,18 @@ local function MainLoop(delta)
 	tbModule = Physics
 	xpcall(ModulLoop, __G__TRACKBACK__)
 
-	tbModule = SceneMgr
+	tbModule = GameMgr
 	xpcall(ModulLoop, __G__TRACKBACK__)
 
-	tbModule = GameMgr
+	tbModule = SceneMgr
 	xpcall(ModulLoop, __G__TRACKBACK__)
 end
 
+if device == "win32" then
+	function OnWin32End()
+		Exit()
+	end
+end
 
 local function main()
 	-- avoid memory leak
@@ -67,9 +72,28 @@ local function main()
     MenuMgr:Init()
     Physics:Init()
     Ui:Init()
+    CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
 
     GameMgr:Init()
 end
 
+--This function will be called when the app is inactive. When comes a phone call,it's be invoked too
+function DidEnterBackground()
+	-- body
+end
+
+--this function will be called when the app is active again
+function WillEnterForeground()
+	-- body
+end
+
+function Exit()
+	GameMgr:Uninit()
+	Ui:Uninit()
+	Physics:Uninit()
+	MenuMgr:Uninit()
+	SceneMgr:Uninit()
+	Net:Uninit()
+end
 xpcall(main, __G__TRACKBACK__)

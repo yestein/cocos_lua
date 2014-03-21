@@ -22,6 +22,9 @@ if GamePhysicsWorld then
 	PhysicsWorld = GamePhysicsWorld:GetInstance()
 end
 
+function Physics:Uninit()
+end
+
 function Physics:Init()
 	if not PhysicsWorld then
 		return

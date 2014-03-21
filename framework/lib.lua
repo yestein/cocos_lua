@@ -59,6 +59,14 @@ function Lib:CopyTB1(tb)
 	return table_copy
 end
 
+function Lib:CountTB(tb)
+	local count = 0
+	for k, v in pairs(tb) do
+		count = count + 1
+	end
+	return count
+end
+
 function Lib.ShowStack(s)
 	print(debug.traceback(s,2))
 	return s
@@ -96,11 +104,11 @@ function Lib:ShowTBN(table_raw, n)
 				print(string.format("%s[%s] = %s", str_blank, tostring(k), tostring(v)))
 			else
 				print(string.format("%s[%s] = ", str_blank, tostring(k)))
-				showTB(v, deepth + 1, max_deepth - 1)
+				showTB(v, deepth + 1, max_deepth)
 			end
 		end
 	end
-	showTB(table_raw, 1, 7)
+	showTB(table_raw, 1, n)
 end
 
 function Lib:GetDistanceSquare(x1, y1, x2, y2)
@@ -154,6 +162,9 @@ function Lib:Table2Str(table)
 
 		if type(v) == "table" then
 			table_string = table_string .. self:Table2Str(v)..",\n"
+		elseif type(v) == "string" then
+			-- TODO: string escape
+			table_string = table_string .. string.format("%q", v) .. ",\n"
 		else
 			table_string = table_string .. tostring(v)..",\n"
 		end
@@ -184,4 +195,65 @@ function Lib:LoadFile(file_path)
 	local content = file:read("*all")
 	file:close()
 	return content
+end
+
+function Lib:AssignmentPoint(p1, p2)
+	p1.x = p2.x
+	p1.y = p2.y
+end
+
+function Lib:Random(left, right)
+	return math.random(left, right)
+end
+
+function Lib:RandomInt(left, right)
+	return math.floor(math.random(left, right))
+end
+
+function Lib:GetReadOnly(tb)
+	local tbReadOnly = {}
+	local mt = {
+		__index = tb,
+		__newindex = function(tb, key, value)
+			assert(false, "Error!Attempt to update a read-only table!!")
+		end
+	}
+	setmetatable(tbReadOnly, mt)
+	return tbReadOnly
+end
+
+local TIME_AREA = {
+	["Beijing"] = 8 * 3600,
+} 
+function Lib:GetWorldTime(area)
+	if not area then
+		area = "Beijing"
+	end
+	assert(TIME_AREA[area])
+	local seconds = os.time()
+	return seconds + TIME_AREA[area]
+end
+
+function Lib:RegistTimer(sec, call_back)
+	local call_back_param = {
+		call_back = call_back,
+
+	}
+	local function timer_call_back()
+		local ret, next_interval = Lib:SafeCall(call_back_param.call_back)
+		if not ret then
+			CCDirector:getInstance():getScheduler():unscheduleScriptEntry(call_back_param.entry_id)
+			return
+		end
+		-- 显式重复调用
+		if next_interval == -1 then
+			return
+		end
+		CCDirector:getInstance():getScheduler():unscheduleScriptEntry(call_back_param.entry_id)
+		if next_interval and next_interval > 0 then
+			copy_call_back.entry_id = CCDirector:getInstance():getScheduler():scheduleScriptFunc(timer_call_back, next_interval, false)
+		end
+	end
+
+	call_back_param.entry_id = CCDirector:getInstance():getScheduler():scheduleScriptFunc(timer_call_back, sec, false)
 end

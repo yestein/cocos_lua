@@ -10,7 +10,7 @@ if not SceneMgr then
 	SceneMgr = {}
 end
 if not SceneMgr._SceneBase then
-	SceneMgr._SceneBase = {}
+	SceneMgr._SceneBase = Lib:NewClass(EventListener)
 end
 
 local SceneBase = SceneMgr._SceneBase
@@ -18,10 +18,6 @@ SceneBase.MAX_SCALE = 3.0
 SceneBase.SCALE_RATE = 0.005
 
 local visible_size = cc.Director:getInstance():getVisibleSize()
-
-function SceneBase:DeclareListenEvent(event_type, fun_name)
-	self.event_listener[event_type] = fun_name
-end
 
 function SceneBase:Init(scene_name)
 
@@ -32,6 +28,10 @@ function SceneBase:Init(scene_name)
 	end
 	self.layer_list = {}
 	self.reg_event_list = {}
+	-- character table
+    self.character_list = {}
+
+    self.represent_character_list = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
@@ -52,8 +52,10 @@ function SceneBase:Init(scene_name)
 
 	self.min_scale = min_width_scale > min_height_scale and min_width_scale or min_height_scale
 
+	if self.cocos_ui then
+    	Ui:PreloadCocosUI(self:GetName(), self.cocos_ui)
+    end
 	self:_Init()
-
 
 	if self:CanTouch() == 1 then
 		self:RegisterTouchEvent()
@@ -65,11 +67,15 @@ function SceneBase:Init(scene_name)
 
 		layer_main:addChild(layer_debug_phyiscs, 10)
     end
+
 	Event:FireEvent("SceneCreate", self:GetClassName(), self:GetName())
 end
 
 function SceneBase:Uninit()
 	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
+	for id, _ in pairs(self.character_list) do
+		CharacterMgr:Remove(id)
+	end
 	self:_Uninit()
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
@@ -113,24 +119,6 @@ function SceneBase:GetLayer(layer_name)
 	return self.layer_list[layer_name]
 end
 
-function SceneBase:RegisterEventListen()
-	for event_type, func in pairs(self.event_listener) do
-		if not self.reg_event_list[event_type] then
-			local id_reg = Event:RegistEvent(event_type, self[func], self)
-			self.reg_event_list[event_type] = id_reg
-		else
-			assert(false)
-		end
-	end
-end
-
-function SceneBase:UnregisterEventListen()
-	for event_type, id_reg in pairs(self.reg_event_list) do
-		Event:UnRegistEvent(event_type, id_reg)
-	end
-	self.reg_event_list = {}
-end
-
 function SceneBase:GetUI()
 	return Ui:GetSceneUi(self:GetName())
 end
@@ -145,6 +133,10 @@ end
 
 function SceneBase:GetCCObj()
 	return self.cc_scene_obj
+end
+
+function SceneBase:GetCharacterList()
+	return self.character_list
 end
 
 function SceneBase:SetWidth(width)
@@ -244,7 +236,7 @@ function SceneBase:AddReturnMenu()
 		        	callback_function = function()
 		        		SceneMgr:DestroyScene(scene_name)
 		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
-		        		CCDirector:getInstance():replaceScene(cc_scene_obj)
+		        		CCDirector:getInstance():popScene()
 		        	end,
 		        },
 		        [2] = {
@@ -254,7 +246,7 @@ function SceneBase:AddReturnMenu()
 		        		SceneMgr:DestroyScene(scene_name)
 		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
 		        		CCDirector:getInstance():replaceScene(cc_scene_obj)
-						local tbScene = GameMgr:LoadScene(scene_name)
+						local tbScene = SceneMgr:LoadScene(scene_name)
 						tbScene:SysMsg("重载完毕", "green")
 		        	end,
 		        },
@@ -345,11 +337,13 @@ function SceneBase:RegisterTouchEvent()
     local function onTouchBegan(touches)
     	-- print("began", #touches, touches[3], touches[6])
     	for i = 1, #touches, 3 do
-    		touch_begin_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
-    		touch_start_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
-    		current_touches = current_touches + 1
+    		if not touch_begin_points[touches[i + 2]] then
+	    		touch_begin_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
+	    		touch_start_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
+	    		current_touches = current_touches + 1
+	    	end
     	end
-        local layer_x, layer_y = layer_main:getPosition()            
+        local layer_x, layer_y = layer_main:getPosition()
         if current_touches == 1 then
         	if self.OnTouchBegan then
         		local x, y = touches[1], touches[2]
@@ -434,9 +428,11 @@ function SceneBase:RegisterTouchEvent()
 	        zoom_offset_x, zoom_offset_y = nil, nil
         end
         for i = 1, #touches, 3 do
-    		touch_begin_points[touches[i + 2]] = nil
-    		touch_start_points[touches[i + 2]] = nil
-    		current_touches = current_touches - 1
+        	if touch_begin_points[touches[i + 2]] then
+	    		touch_begin_points[touches[i + 2]] = nil
+	    		touch_start_points[touches[i + 2]] = nil
+	    		current_touches = current_touches - 1
+	    	end
     	end
     	
     end
@@ -481,4 +477,49 @@ function SceneBase:SetSysMsgFont(font_name)
 	if ui_frame then
 		Ui:SetSysMsgFont(ui_frame, font_name)
 	end
+end
+
+function SceneBase:CallCharacter(template_id, x, y)
+	local character = CharacterMgr:CreateCharacter(template_id)
+	character:SetPosition(cc.p(x, y))
+	self:AddCharacter(character)
+	return character
+end
+
+function SceneBase:AddCharacter(character)
+	local id = character:GetId()
+	self.character_list[id] = character
+	character:SetSceneName(self:GetName())
+	self:OnAddCharacter(character)
+end
+
+function SceneBase:OnAddCharacter(character)
+	
+end
+
+function SceneBase:GetRepresentCharacter(id)
+	return self.represent_character_list[id]
+end
+
+function SceneBase:RemoveCharacter(character)
+	local id = character:GetId()
+	self.character_list[id] = nil
+	CharacterMgr:Remove(id)
+end
+
+function SceneBase:OnLoop(delta)
+	for _, represent_character in pairs(self.represent_character_list) do
+		represent_character:OnLoop()
+	end
+	if self._OnLoop then
+		self:_OnLoop(delta)
+	end
+end
+
+function SceneBase:LoadCocosUI(json_path)
+	local layer = Ui:GetLayer(self:GetUI())
+	return Ui:LoadJson(layer, json_path)
+end
+
+function SceneBase:RefreshCharacterZOrder(character)
 end

@@ -32,6 +32,7 @@ end
 
 AddPreloadFile("framework/lib.lua")
 AddPreloadFile("framework/event.lua")
+AddPreloadFile("framework/event_listener.lua")
 AddPreloadFile("framework/dbg.lua")
 AddPreloadFile("framework/menu.lua")
 AddPreloadFile("framework/physics_mgr.lua")
@@ -42,3 +43,5 @@ AddPreloadFile("framework/scene/scene_mgr.lua")
 AddPreloadFile("framework/logic/obj_base.lua")
 AddPreloadFile("framework/logic/obj_pool.lua")
 AddPreloadFile("script/game_mgr.lua")
+
+AddPreloadFile("framework/effects/fly_text.lua")

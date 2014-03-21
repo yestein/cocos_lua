@@ -24,6 +24,9 @@ function SceneMgr:Init()
 end
 
 function SceneMgr:Uninit()
+    for scene_name, logic_scene in pairs(self.logic_scene_list) do
+        logic_scene:_Uninit()
+    end
 	self.logic_scene_list = {}
 end
 
@@ -108,4 +111,14 @@ function SceneMgr:DestroyScene(scene_name)
     self.logic_scene_list[scene_name]:Uninit()
     self.logic_scene_list[scene_name] = nil
     return logic_scene_list
+end
+
+function SceneMgr:LoadScene(scene_name)
+    local scene = self:GetScene(scene_name)
+    if not scene then
+        scene = self:CreateScene(scene_name, scene_name)
+    end
+    local cc_scene = scene:GetCCObj()
+    CCDirector:getInstance():pushScene(cc_scene)
+    return scene
 end

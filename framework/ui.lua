@@ -10,7 +10,7 @@ if not Ui then
     Ui = {}
 end
 
-Ui.MSG_MAX_COUNT = 3
+Ui.MSG_MAX_COUNT = 7
 
 --keep same with "cocos\gui\UIWidget.h"
 Ui.TOUCH_EVENT_BEGAN    = 0
@@ -23,6 +23,11 @@ if device == "win32" then
     title_font_name = "Microsoft Yahei"
 end
 local visible_size = CCDirector:getInstance():getVisibleSize()
+
+function Ui:Uninit()
+    self.scene_ui_list = {}
+    return 1
+end
 
 function Ui:Init()
     self.scene_ui_list = {}
@@ -38,6 +43,8 @@ function Ui:InitScene(scene_name, cc_scene)
     local ui_frame = {}
 	ui_frame.element_list = {
         ["LabelTTF"] = {},
+        ["LabelBMFont"] = {},
+        ["Label"] = {},
     }
     ui_frame.sysmsg_list = {}
     
@@ -47,6 +54,7 @@ function Ui:InitScene(scene_name, cc_scene)
     for i = 1, Ui.MSG_MAX_COUNT do
         local cc_labelttf_sysmsg = CCLabelTTF:create("系统提示", title_font_name, 18)
         cc_layer_ui:addChild(cc_labelttf_sysmsg)
+        cc_labelttf_sysmsg:setZOrder(Def.ZOOM_LEVEL_SYSMSG)
         local tbMsgRect = cc_labelttf_sysmsg:getTextureRect()
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height / 2 - (2 - i) * tbMsgRect.height)
         cc_labelttf_sysmsg:setVisible(false)
@@ -59,7 +67,10 @@ function Ui:InitScene(scene_name, cc_scene)
     ui_frame.cc_scene = cc_scene
     ui_frame.cc_layer_ui = cc_layer_ui
 
+
+
     self.scene_ui_list[scene_name] = ui_frame
+
 end
 
 function Ui:UninitScene(scene_name)
@@ -105,7 +116,7 @@ function Ui:GetTypeElement(ui_frame, element_type)
     return tb_ret
 end
 
-function Ui:AddElement(ui_frame, element_type, element_name, position_x, position_y, text_content, str_fontname, num_font_size)
+function Ui:AddElement(ui_frame, element_type, element_name, position_x, position_y, element)
     local element_list = self:GetTypeElement(ui_frame, element_type)
     if not element_list then
         return
@@ -114,12 +125,11 @@ function Ui:AddElement(ui_frame, element_type, element_name, position_x, positio
         cclog("[%s][%s]Already Exists", element_type, element_name)
         return
     end
-    local cc_labelttf = cc.LabelTTF:create(text_content or "", str_fontname or "Arial", num_font_size or 24);
-    ui_frame.cc_layer_ui:addChild(cc_labelttf)
+    ui_frame.cc_layer_ui:addChild(element)
     if position_x and position_y then
-        cc_labelttf:setPosition(position_x, position_y)
+        element:setPosition(position_x, position_y)
     end
-    element_list[element_name] = cc_labelttf
+    element_list[element_name] = element
 end
 
 function Ui:GetElement(ui_frame, element_type, element_name)
@@ -152,8 +162,8 @@ function Ui:SetVisible(ui_frame, element_type, element_name, is_visible)
     element:setVisible(is_show)
 end
 
-function Ui:SetText(ui_frame, labelttf_name, text_content)
-    local cc_labelttf = self:GetElement(ui_frame, "LabelTTF", labelttf_name)
+function Ui:SetText(ui_frame, element_type, labelttf_name, text_content)
+    local cc_labelttf = self:GetElement(ui_frame, element_type, labelttf_name)
     if not cc_labelttf then
         assert(false)
         return
@@ -212,7 +222,106 @@ end
 
 function Ui:LoadJson(cc_layer, json_file_path)
     local ui_layer = ccs.UILayer:create()
-    ui_layer:addWidget(ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path))
+    local root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
+    local widget_rect = root_widget:getSize()
+    ui_layer:addWidget(root_widget)
     cc_layer:addChild(ui_layer)
-    return ui_layer
+    return ui_layer, root_widget
+end
+
+function Ui:PreloadCocosUI(scene_name, ui_list)
+    local ui_frame = self:GetSceneUi(scene_name)
+    if ui_list and ui_frame then
+        if not ui_frame.cocos_widget then
+            ui_frame.cocos_widget = {}
+        end
+        local layer = self:GetLayer(ui_frame)
+        for ui_file, data in pairs(ui_list) do
+            local ccs_ui_layer, root_widget = self:LoadJson(layer, ui_file)
+            local widget_rect = root_widget:getSize()
+            root_widget:setScaleX(visible_size.width / widget_rect.width)
+            root_widget:setScaleY(visible_size.height / widget_rect.height)
+            if data.hide == 1 then
+                ccs_ui_layer:setVisible(false)
+                self:SetCocosLayerEnabled(ccs_ui_layer, false)
+            end
+            local ui_name = data.name
+            ui_frame.cocos_widget[ui_name] = {}
+            ui_frame.cocos_widget[ui_name].layer = ccs_ui_layer
+            local button_list = data.button
+            ui_frame.cocos_widget[ui_name].button = {}
+            ui_frame.cocos_widget[ui_name].widget2button = {}
+            local button_widget_list = ui_frame.cocos_widget[ui_name].button
+            local widget2button = ui_frame.cocos_widget[ui_name].widget2button
+
+            local function OnButtonEvent(node, event)
+                local widget_button = tolua.cast(node, "UIButton")
+                local scene = SceneMgr:GetScene(scene_name)
+                local button_name = widget2button[widget_button:getName()]
+                if scene.OnCocosButtonEvent then
+                    scene:OnCocosButtonEvent(ui_name, button_name, event)
+                end
+            end
+            for button_name, widget_name in pairs(button_list) do
+                 local widget_button = ccs_ui_layer:getWidgetByName(widget_name)
+                 assert(widget2button)
+                 widget_button:addTouchEventListener(OnButtonEvent)
+                 widget2button[widget_name] = button_name
+                 button_widget_list[button_name] = tolua.cast(widget_button, "UIButton")
+            end
+
+            local labelbmfont_list = data.labelbmfont
+            ui_frame.cocos_widget[ui_name].labelbmfont = {}
+            ui_frame.cocos_widget[ui_name].widget2labelbmfont = {}
+            local labelbmfont_widget_list = ui_frame.cocos_widget[ui_name].labelbmfont
+            local widget2labelbmfont = ui_frame.cocos_widget[ui_name].widget2labelbmfont
+            for labelbmfont_name, widget_name in pairs(labelbmfont_list) do
+                 local widget_labelbmfont = ccs_ui_layer:getWidgetByName(widget_name)
+                 assert(widget_labelbmfont)
+                 widget2labelbmfont[widget_name] = labelbmfont_name
+                 labelbmfont_widget_list[labelbmfont_name] = tolua.cast(widget_labelbmfont, "UILabelBMFont")
+            end
+
+            local ui_widget = ui_frame.cocos_widget[ui_name]
+            ui_widget.label = {}
+            ui_widget.widget2label = {}
+            for label_name, widget_name in pairs(data.label or {}) do
+                ui_widget.label[label_name] = tolua.cast(assert(ccs_ui_layer:getWidgetByName(widget_name)), "UILabel")
+                ui_widget.widget2label[widget_name] = label_name
+            end
+        end
+    end
+end
+
+function Ui:SetCocosLayerEnabled(layer, is_enable)
+    local root_widget = layer:getRootWidget()
+    root_widget:setEnabled(is_enable)
+end
+
+function Ui:GetCocosLayer(ui_frame, ui_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] then
+        return ui_frame.cocos_widget[ui_name].layer
+    end
+end
+
+function Ui:GetCocosButton(ui_frame, ui_name, button_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].button then
+        return ui_frame.cocos_widget[ui_name].button[button_name]
+    end
+end
+
+function Ui:GetCocosLabelbmfont(ui_frame, ui_name, labelbmfont_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].labelbmfont then
+        return ui_frame.cocos_widget[ui_name].labelbmfont[labelbmfont_name]
+    end
+end
+
+function Ui:GetCocosLabel(ui_frame, ui_name, label_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].label then
+        return ui_frame.cocos_widget[ui_name].label[label_name]
+    end
 end

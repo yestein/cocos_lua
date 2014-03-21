@@ -22,6 +22,8 @@ Def.ZOOM_LEVEL_PERFORMANCE = 4
 Def.ZOOM_LEVEL_MENU = 5
 Def.ZOOM_LEVEL_SUB_MENU = 6
 
+Def.ZOOM_LEVEL_SYSMSG = 1000
+
 Def.color_list = {
 	["black"] = cc.c3b(0, 0, 0),
 	["red"]   = cc.c3b(255, 0, 0),
