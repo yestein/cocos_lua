@@ -28,10 +28,6 @@ function SceneBase:Init(scene_name)
 	end
 	self.layer_list = {}
 	self.reg_event_list = {}
-	-- character table
-    self.character_list = {}
-
-    self.represent_character_list = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
@@ -73,9 +69,7 @@ end
 
 function SceneBase:Uninit()
 	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
-	for id, _ in pairs(self.character_list) do
-		CharacterMgr:Remove(id)
-	end
+
 	self:_Uninit()
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
@@ -133,10 +127,6 @@ end
 
 function SceneBase:GetCCObj()
 	return self.cc_scene_obj
-end
-
-function SceneBase:GetCharacterList()
-	return self.character_list
 end
 
 function SceneBase:SetWidth(width)
@@ -479,47 +469,7 @@ function SceneBase:SetSysMsgFont(font_name)
 	end
 end
 
-function SceneBase:CallCharacter(template_id, x, y)
-	local character = CharacterMgr:CreateCharacter(template_id)
-	character:SetPosition(cc.p(x, y))
-	self:AddCharacter(character)
-	return character
-end
-
-function SceneBase:AddCharacter(character)
-	local id = character:GetId()
-	self.character_list[id] = character
-	character:SetSceneName(self:GetName())
-	self:OnAddCharacter(character)
-end
-
-function SceneBase:OnAddCharacter(character)
-	
-end
-
-function SceneBase:GetRepresentCharacter(id)
-	return self.represent_character_list[id]
-end
-
-function SceneBase:RemoveCharacter(character)
-	local id = character:GetId()
-	self.character_list[id] = nil
-	CharacterMgr:Remove(id)
-end
-
-function SceneBase:OnLoop(delta)
-	for _, represent_character in pairs(self.represent_character_list) do
-		represent_character:OnLoop()
-	end
-	if self._OnLoop then
-		self:_OnLoop(delta)
-	end
-end
-
 function SceneBase:LoadCocosUI(json_path)
 	local layer = Ui:GetLayer(self:GetUI())
 	return Ui:LoadJson(layer, json_path)
-end
-
-function SceneBase:RefreshCharacterZOrder(character)
 end

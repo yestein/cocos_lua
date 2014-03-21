@@ -258,5 +258,3 @@ function FlyText:VerticalShakeWithIcon(sprite, custom_font_path, icon_name, text
 	jumped_text:runAction(cc.Sequence:create(unpack(action_list_text)))
 	icon:runAction(cc.Sequence:create(unpack(action_list_icon)))
 end
-
-
