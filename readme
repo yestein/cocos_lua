@@ -1,0 +1,23 @@
+!!!!!This framework was written in the cocos2d-x 3.0 alpha1, and do not test if it can work in other vision at present.
+
+How to Use this lua-framework for cocos2d-x?
+
+Step 1: Create a Project with Lua by project-creator which supplied by Cosos2d-x.
+Step 2: Copy the whole folder to the resourse folder of project.
+Step 3: Enter the "framework" folder, execute the "install.py"
+(Step 4: Add the folder "framework" and "script" into your xcode project resource)
+
+Now, You can start your journey by editing the "script/game_mgr.lua" and "preload.lua" ^_^.
+
+
+PS:
+1. "preload.lua" declare the script files and orders which you want to load. You can add file like this:
+...
+	AddPreloadFile("script/main_scene.lua")
+...
+or you can find the samples in "framework/preload.lua"
+
+
+2. "game_mgr.lua" contains 2 function which called "GameMgr:Init" and "GameMgr:OnLoop".
+function "GameMgr:Init" will be called once when the game was luanched success.
+function "GameMgr:OnLoop" will be called everty time on game loop.(defalut 60fps)
