@@ -42,6 +42,7 @@ function Ui:InitScene(scene_name, cc_scene)
     
     local ui_frame = {}
 	ui_frame.element_list = {
+        ["Menu"] = {},
         ["LabelTTF"] = {},
         ["LabelBMFont"] = {},
         ["Label"] = {},
@@ -62,7 +63,7 @@ function Ui:InitScene(scene_name, cc_scene)
     end
     ui_frame.index_sysmsg = 1
 
-    cc_scene:addChild(cc_layer_ui, SceneMgr.ZOOM_LEVEL_TITLE)
+    cc_scene:addChild(cc_layer_ui, Def.ZOOM_LEVEL_TITLE)
 
     ui_frame.cc_scene = cc_scene
     ui_frame.cc_layer_ui = cc_layer_ui
@@ -160,24 +161,6 @@ end
 function Ui:SetVisible(ui_frame, element_type, element_name, is_visible)
     local element = self:GetElement(ui_frame, element_type, element_name)
     element:setVisible(is_show)
-end
-
-function Ui:SetText(ui_frame, element_type, labelttf_name, text_content)
-    local cc_labelttf = self:GetElement(ui_frame, element_type, labelttf_name)
-    if not cc_labelttf then
-        assert(false)
-        return
-    end
-    cc_labelttf:setString(text_content)
-end
-
-function Ui:SetColor(ui_frame, labelttf_name, color_name)
-    local cc_labelttf = self:GetElement(ui_frame, "LabelTTF", labelttf_name)
-    if not cc_labelttf then
-        assert(false)
-        return
-    end
-    cc_labelttf:setColor(Def.color_list[color_name])
 end
 
 function Ui:SetSysMsgSize(ui_frame, font_size)

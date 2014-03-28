@@ -21,6 +21,14 @@ Debug.watch_event_black_list = {
 
 }
 
+function Debug:SetEventLogPath(file_path)
+	if file_path then
+		self.fp = io.open(file_path, "w")
+	elseif self.fp then
+		io.close(self.fp)
+	end
+end
+
 function Debug:AddBlackEvent(event_type)
 	self.watch_event_black_list[event_type] = 1
 end
@@ -36,7 +44,16 @@ function Debug:Init(nMode)
 end
 
 function Debug.Print(...)
-	print(...)
+	local text = os.date("%Y-%m-%d %H:%M:%S")
+	text = string.format("[%s]", text)
+	for _, v in ipairs({...}) do
+		text = text .. "\t" .. tostring(v)
+	end
+	if Debug.fp then
+		Debug.fp:write(text)
+	else
+		print(text)
+	end
 end
 
 function Debug.Printf(Fmt, ...)

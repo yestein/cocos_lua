@@ -197,19 +197,6 @@ function Lib:LoadFile(file_path)
 	return content
 end
 
-function Lib:AssignmentPoint(p1, p2)
-	p1.x = p2.x
-	p1.y = p2.y
-end
-
-function Lib:Random(left, right)
-	return math.random(left, right)
-end
-
-function Lib:RandomInt(left, right)
-	return math.floor(math.random(left, right))
-end
-
 function Lib:GetReadOnly(tb)
 	local tbReadOnly = {}
 	local mt = {

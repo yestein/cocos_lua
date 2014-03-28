@@ -69,7 +69,6 @@ local function main()
     if _DEBUG then
     	assert(SceneMgr:CheckAllClass() == 1)
     end
-    MenuMgr:Init()
     Physics:Init()
     Ui:Init()
     CCDirector:getInstance():setDisplayStats(true)
@@ -92,7 +91,6 @@ function Exit()
 	GameMgr:Uninit()
 	Ui:Uninit()
 	Physics:Uninit()
-	MenuMgr:Uninit()
 	SceneMgr:Uninit()
 	Net:Uninit()
 end

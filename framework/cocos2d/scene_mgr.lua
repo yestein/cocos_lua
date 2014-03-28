@@ -14,38 +14,36 @@ if not SceneMgr.scene_class_list then
     SceneMgr.scene_class_list = {}
 end
 
-SceneMgr.ZOOM_LEVEL_WORLD = 1
-SceneMgr.ZOOM_LEVEL_TITLE = 3
-SceneMgr.ZOOM_LEVEL_MENU = 5
-
 function SceneMgr:Init()
-	self.logic_scene_list = {}
+    self.current_scene_list = {}
+	self.scene_list = {}
     return 1
 end
 
 function SceneMgr:Uninit()
-    for scene_name, logic_scene in pairs(self.logic_scene_list) do
-        logic_scene:_Uninit()
+    for scene_name, scene in pairs(self.scene_list) do
+        scene:_Uninit()
     end
-	self.logic_scene_list = {}
+    self.current_scene_list = nil
+	self.scene_list = {}
 end
 
 function SceneMgr:OnLoop(delta)
-    for scene_name, logic_scene in pairs(self.logic_scene_list) do
-        if logic_scene.OnLoop then
-            logic_scene:OnLoop(delta)
+    for scene_name, scene in pairs(self.scene_list) do
+        if scene.OnLoop then
+            scene:OnLoop(delta)
         end
     end
 end
 
 function SceneMgr:GetScene(scene_name)
-	return self.logic_scene_list[scene_name]
+	return self.scene_list[scene_name]
 end
 
 function SceneMgr:GetSceneObj(scene_name)
-    local logic_scene_list = self:GetScene(scene_name)
-    if logic_scene_list then
-        return logic_scene_list:GetCCObj()
+    local scene = self:GetScene(scene_name)
+    if scene then
+        return scene:GetCCObj()
     end
 end
 
@@ -86,7 +84,7 @@ if _DEBUG then
 end
 
 function SceneMgr:CreateScene(scene_name, scene_template_name)
-	if self.logic_scene_list[scene_name] then
+	if self.scene_list[scene_name] then
 		cclog("Create Scene [%s] Failed! Already Exists", scene_name)
 		return
 	end
@@ -97,20 +95,41 @@ function SceneMgr:CreateScene(scene_name, scene_template_name)
     if not scene_template then
         return cclog("Error! No Scene Class [%s] !", scene_template_name)
     end
-	local logic_scene_list = Lib:NewClass(scene_template)
-    self.logic_scene_list[scene_name] = logic_scene_list
-    logic_scene_list:Init(scene_name)
-	return logic_scene_list
+	local scene = Lib:NewClass(scene_template)
+    self.scene_list[scene_name] = scene
+    scene:Init(scene_name)
+	return scene
 end
 
 function SceneMgr:DestroyScene(scene_name)
-    if not self.logic_scene_list[scene_name] then
+    if not self.scene_list[scene_name] then
         cclog("Create Scene [%s] Failed! Not Exists", scene_name)
         return
     end
-    self.logic_scene_list[scene_name]:Uninit()
-    self.logic_scene_list[scene_name] = nil
-    return logic_scene_list
+    local delete_index = nil
+    for index, name in ipairs(self.current_scene_list) do
+        if name == scene_name then
+            delete_index = index
+            break
+        end
+    end
+    if delete_index then
+        table.remove(self.current_scene_list, delete_index)
+    end
+    self.scene_list[scene_name]:Uninit()
+    self.scene_list[scene_name] = nil
+    return scene_list
+end
+
+function SceneMgr:FirstLoadScene(scene_name)
+    local scene = self:GetScene(scene_name)
+    if not scene then
+        scene = self:CreateScene(scene_name, scene_name)
+    end
+
+    table.insert(self.current_scene_list, scene:GetName())
+    local cc_scene = scene:GetCCObj()
+    CCDirector:getInstance():runWithScene(cc_scene)
 end
 
 function SceneMgr:LoadScene(scene_name)
@@ -118,7 +137,16 @@ function SceneMgr:LoadScene(scene_name)
     if not scene then
         scene = self:CreateScene(scene_name, scene_name)
     end
+
+    table.insert(self.current_scene_list, scene:GetName())
     local cc_scene = scene:GetCCObj()
     CCDirector:getInstance():pushScene(cc_scene)
     return scene
+end
+
+function SceneMgr:GetCurrentSceneName()
+    local count = #self.current_scene_list
+    if count > 0 then
+        return self.current_scene_list[count]
+    end
 end

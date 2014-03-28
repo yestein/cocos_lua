@@ -7,7 +7,7 @@
 --=======================================================================
 
 if not ObjBase then
-	ObjBase = {}
+	ObjBase = Lib:NewClass(LogicNode)
 end
 
 function ObjBase:Init(id, ...)
@@ -20,7 +20,7 @@ function ObjBase:Uninit()
 	if self:_Uninit() ~= 1 then
 		return 0
 	end
-
+	self:UninitChild()
 	self.id = nil
 	return 1
 end

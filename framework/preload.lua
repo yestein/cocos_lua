@@ -32,16 +32,22 @@ end
 
 AddPreloadFile("framework/lib.lua")
 AddPreloadFile("framework/event.lua")
-AddPreloadFile("framework/event_listener.lua")
 AddPreloadFile("framework/dbg.lua")
-AddPreloadFile("framework/menu.lua")
+
 AddPreloadFile("framework/physics_mgr.lua")
-AddPreloadFile("framework/ui.lua")
 AddPreloadFile("framework/define.lua")
-AddPreloadFile("framework/scene/scene_base.lua")
-AddPreloadFile("framework/scene/scene_mgr.lua")
+
+AddPreloadFile("framework/logic/logic_node.lua")
+AddPreloadFile("framework/logic/event_listener.lua")
+AddPreloadFile("framework/logic/module_base.lua")
 AddPreloadFile("framework/logic/obj_base.lua")
 AddPreloadFile("framework/logic/obj_pool.lua")
-AddPreloadFile("script/game_mgr.lua")
+
+AddPreloadFile("framework/cocos2d/ui.lua")
+AddPreloadFile("framework/cocos2d/menu.lua")
+AddPreloadFile("framework/cocos2d/scene_base.lua")
+AddPreloadFile("framework/cocos2d/scene_mgr.lua")
 
 AddPreloadFile("framework/effects/fly_text.lua")
+
+AddPreloadFile("script/game_mgr.lua")

@@ -9,15 +9,16 @@
 if not SceneMgr then
 	SceneMgr = {}
 end
-if not SceneMgr._SceneBase then
-	SceneMgr._SceneBase = Lib:NewClass(EventListener)
-end
-
-local SceneBase = SceneMgr._SceneBase
-SceneBase.MAX_SCALE = 3.0
-SceneBase.SCALE_RATE = 0.005
 
 local visible_size = cc.Director:getInstance():getVisibleSize()
+
+if not SceneMgr._SceneBase then
+	SceneMgr._SceneBase = Lib:NewClass(LogicNode)
+end
+local SceneBase = SceneMgr._SceneBase
+
+local MAX_SCALE = 3.0
+local SCALE_RATE = 0.005
 
 function SceneBase:Init(scene_name)
 
@@ -32,14 +33,16 @@ function SceneBase:Init(scene_name)
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
 	self.min_height_scale = 0
+
+	self.max_scale = MAX_SCALE
+	self.scale_rate = 
 	
 	self:SetWidth(visible_size.width)
 	self:SetHeight(visible_size.height)
 
-	self:RegisterEventListen()
 	Ui:InitScene(scene_name, self.cc_scene_obj)
 	self:AddReturnMenu()
-	local layer_main = self:CreateLayer("main", SceneMgr.ZOOM_LEVEL_WORLD)
+	local layer_main = self:CreateLayer("main", Def.ZOOM_LEVEL_WORLD)
 	layer_main:setAnchorPoint(cc.p(0, 0))
 	self.scale = 1
 
@@ -51,6 +54,8 @@ function SceneBase:Init(scene_name)
 	if self.cocos_ui then
     	Ui:PreloadCocosUI(self:GetName(), self.cocos_ui)
     end
+
+    self:RegisterEventListen()
 	self:_Init()
 
 	if self:CanTouch() == 1 then
@@ -71,12 +76,13 @@ function SceneBase:Uninit()
 	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
 
 	self:_Uninit()
+	self:UnregisterEventListen()
+
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
 	self.cc_scene_obj:removeChild(layer_main)
 	self:RemoveReturnMenu()
 	Ui:UninitScene(self.scene_name)
-	self:UnregisterEventListen()
 	self.reg_event_list = nil
 	self.layer_list = nil
 	self.cc_scene_obj = nil
@@ -115,6 +121,11 @@ end
 
 function SceneBase:GetUI()
 	return Ui:GetSceneUi(self:GetName())
+end
+
+function SceneBase:GetUILayer()
+	local ui_frame = Ui:GetSceneUi(self:GetName())
+	return Ui:GetLayer(ui_frame)
 end
 
 function SceneBase:GetClassName()
@@ -195,8 +206,8 @@ function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 	local layer_main = self:GetLayer("main")
 	if scale < self.min_scale then
 		scale = self.min_scale
-	elseif self.scale > self.MAX_SCALE then
-		self.scale = self.MAX_SCALE
+	elseif self.scale > self.max_scale then
+		self.scale = self.max_scale
 	end
 	if self.scale == scale then
 		return
@@ -210,13 +221,15 @@ function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 	end
 end
 
+function SceneBase:SetMaxScale(max_scale)
+	self.max_scale = max_scale
+end
+
+function SceneBase:SetScaleRate(scale_rate)
+	self.scale_rate = scale_rate
+end
+
 function SceneBase:AddReturnMenu()
-	local scene_name = self:GetName()
-	local menu_name = scene_name
-	local visible_size = CCDirector:getInstance():getVisibleSize()
-	local layerMenu = MenuMgr:CreateMenu(menu_name)
-    layerMenu:setPosition(visible_size.width, visible_size.height)
-    self.cc_scene_obj:addChild(layerMenu, SceneMgr.ZOOM_LEVEL_MENU)
     local element_list = nil
     if scene_name ~= "MainScene" then
 	    element_list = {
@@ -224,8 +237,8 @@ function SceneBase:AddReturnMenu()
 		        [1] = {
 					item_name = "返回主菜单",
 		        	callback_function = function()
-		        		SceneMgr:DestroyScene(scene_name)
-		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
+		        		local current_scene_name = SceneMgr:GetCurrentSceneName()
+		        		SceneMgr:DestroyScene(current_scene_name)
 		        		CCDirector:getInstance():popScene()
 		        	end,
 		        },
@@ -233,11 +246,12 @@ function SceneBase:AddReturnMenu()
 					item_name = "重载脚本和场景",
 		        	callback_function = function()
 	        			self:Reload()
-		        		SceneMgr:DestroyScene(scene_name)
-		        		local cc_scene_obj = SceneMgr:GetSceneObj("MainScene")
-		        		CCDirector:getInstance():replaceScene(cc_scene_obj)
-						local tbScene = SceneMgr:LoadScene(scene_name)
-						tbScene:SysMsg("重载完毕", "green")
+	        			local current_scene_name = SceneMgr:GetCurrentScene()
+		        		SceneMgr:DestroyScene(current_scene_name)
+		        		CCDirector:getInstance():popScene()
+
+						local scene = SceneMgr:LoadScene(current_scene_name)
+						scene:SysMsg("重载完毕", "green")
 		        	end,
 		        },
 		    },
@@ -255,15 +269,18 @@ function SceneBase:AddReturnMenu()
 		}
 	end
 	if element_list then
-	    MenuMgr:UpdateByString(menu_name, element_list, 
+	    local menu_array = Menu:GenerateByString(element_list, 
 	    	{font_name = Def.menu_font_name, font_size = 30, align_type = "right", interval_x = 20}
 	    )
+	    local ui_frame = self:GetUI()
+	    local menu_tools = cc.Menu:create(unpack(menu_array))
+	    Ui:AddElement(ui_frame, "Menu", "ReturnMenu", visible_size.width, visible_size.height, menu_tools)
 	end
 end
 
 function SceneBase:RemoveReturnMenu()
-	local menu_name = self:GetName()
-	MenuMgr:DestroyMenu(menu_name)
+	local ui_frame = self:GetUI()
+	Ui:RemoveElement(ui_frame, "Menu", "ReturnMenu")
 end
 
 function SceneBase:IsDebugPhysics()
@@ -393,9 +410,9 @@ function SceneBase:RegisterTouchEvent()
         			break
         		end
         	end
-        	local distance = Lib:GetDistance(x1, y1, x2, y2)
+        	local distance = Lib:GetDistance(x1, y1, x2, y2) * self.scale
         	if touch_distance then
-	        	local change_scale = self.scale + (distance - touch_distance) * self.SCALE_RATE
+	        	local change_scale = self.scale + (distance - touch_distance) * self.scale_rate
 	        	self:SetScale(change_scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
 	        end
 	        touch_distance = distance
