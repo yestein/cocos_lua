@@ -21,6 +21,10 @@ function ModuleMgr:NewModule(module_name)
 	return class_module
 end
 
+function ModuleMgr:GetModule(module_name)
+	return self.module_list[module_name]
+end
+
 function ModuleMgr:ForEachActiveModule(func)
 	for module, active_func in pairs(self.active_module) do
 		func(module, active_func)

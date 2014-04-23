@@ -237,19 +237,14 @@ function SceneBase:AddReturnMenu()
 		        [1] = {
 					item_name = "返回主菜单",
 		        	callback_function = function()
-		        		local current_scene_name = SceneMgr:GetCurrentSceneName()
-		        		SceneMgr:DestroyScene(current_scene_name)
-		        		CCDirector:getInstance():popScene()
+		        		SceneMgr:UnLoadCurrentScene()
 		        	end,
 		        },
 		        [2] = {
 					item_name = "重载脚本和场景",
 		        	callback_function = function()
 	        			self:Reload()
-	        			local current_scene_name = SceneMgr:GetCurrentScene()
-		        		SceneMgr:DestroyScene(current_scene_name)
-		        		CCDirector:getInstance():popScene()
-
+	        			SceneMgr:UnLoadCurrentScene()
 						local scene = SceneMgr:LoadScene(current_scene_name)
 						scene:SysMsg("重载完毕", "green")
 		        	end,

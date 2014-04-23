@@ -150,3 +150,9 @@ function SceneMgr:GetCurrentSceneName()
         return self.current_scene_list[count]
     end
 end
+
+function SceneMgr:UnLoadCurrentScene()
+    local current_scene_name = self:GetCurrentSceneName()
+    self:DestroyScene(current_scene_name)
+    CCDirector:getInstance():popScene()
+end

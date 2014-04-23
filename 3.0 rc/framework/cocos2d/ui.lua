@@ -194,7 +194,7 @@ function Ui:SysMsg(ui_frame, text_content, color_name)
             cc_labelttf_sysmsg:setColor(color)
             cc_labelttf_sysmsg:runAction(CCFadeOut:create(3))
         end
-        local tbMsgRect = cc_labelttf_sysmsg:getTextureRect()
+        local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height - (self.MSG_MAX_COUNT - i + 1) * tbMsgRect.height)
     end
     ui_frame.index_sysmsg = ui_frame.index_sysmsg + 1
