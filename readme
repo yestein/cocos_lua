@@ -18,6 +18,6 @@ PS:
 or you can find the samples in "framework/preload.lua"
 
 
-2. "game_mgr.lua" contains 2 function which called "GameMgr:Init" and "GameMgr:OnLoop".
+2. "game_mgr.lua" contains 1 function which called "GameMgr:_Init"
 function "GameMgr:Init" will be called once when the game was luanched success.
-function "GameMgr:OnLoop" will be called everty time on game loop.(defalut 60fps)
+
