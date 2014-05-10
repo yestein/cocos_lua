@@ -12,11 +12,13 @@ end
 
 function ObjBase:Init(id, ...)
 	self.id = id
-
+	self:RegisterEventListen()
+	
 	return self:_Init(...) 
 end
 
 function ObjBase:Uninit()
+	self:UnregisterEventListen()
 	if self:_Uninit() ~= 1 then
 		return 0
 	end
