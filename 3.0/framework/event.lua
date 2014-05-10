@@ -27,6 +27,11 @@ function Event:RegistWatcher(event_black_list, watcher_call_back_function)
 	self.watcher_call_back_function = watcher_call_back_function
 end
 
+function Event:UnRegistWatcher()
+	self.event_black_list = nil
+	self.watcher_call_back_function = nil
+end
+
 function Event:RegistEvent(event_type, function_call_back, ...)
 	if not event_type or not function_call_back then
 		print(event_type, function_call_back)

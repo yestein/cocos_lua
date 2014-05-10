@@ -55,7 +55,7 @@ function ObjPool:Add(obj_template, ...)
 	if obj:Init(id, ...) == 1 then
 		self.obj_pool[id] = obj
 		self:UpdateNextId()
-		Event:FireEvent(self.obj_name.."Add", id, ...)
+		Event:FireEvent(self.obj_name..".ADD", id, ...)
 		return obj, id
 	end
 end
@@ -65,7 +65,7 @@ function ObjPool:Remove(id)
 		return 0
 	end
 
-	Event:FireEvent(self.obj_name.."Remove", id)
+	Event:FireEvent(self.obj_name..".REMOVE", id)
 	if self.obj_pool[id]:Uninit() ~= 1 then
 		return 0
 	end

@@ -33,23 +33,45 @@ function Debug:AddBlackEvent(event_type)
 	self.watch_event_black_list[event_type] = 1
 end
 
-function Debug:Init(nMode)
-	if nMode == self.MODE_BLACK_LIST then
+function Debug:Init(mode)
+	return self:SetMode(mode)
+end
+
+function Debug:SetMode(mode)
+	self.mode = mode
+	if mode == self.MODE_BLACK_LIST then
 		Event:RegistWatcher(Debug.watch_event_black_list, self.Print)
-	elseif nMode == self.MODE_WHITE_LIST then
+	elseif mode == self.MODE_WHITE_LIST then
+		self.event_watch_list = {}
 		for _, event_type in ipairs(Debug.watch_event_list) do
-			Event:RegistEvent(event_type, self.Print, event_type)
+			self.event_watch_list[event_type] = Event:RegistEvent(event_type, self.Print, event_type)
 		end
 	end
 end
 
+function Debug:ChangeMode(mode)
+	if self.mode == mode then
+		return
+	end
+	if self.mode == self.MODE_BLACK_LIST then
+		Event:UnRegistWatcher()
+	elseif self.mode == self.MODE_WHITE_LIST then
+		for event_type, id in pairs(self.event_watch_list) do
+			Event:UnRegistEvent(event_type, id)
+		end
+		self.event_watch_list = {}
+	end
+	self:SetMode(mode)
+end
+
 function Debug.Print(...)
-	local text = os.date("%Y-%m-%d %H:%M:%S")
-	text = string.format("[%s]", text)
+	local text = ""
 	for _, v in ipairs({...}) do
 		text = text .. "\t" .. tostring(v)
 	end
 	if Debug.fp then
+		local time_text = os.date("%Y-%m-%d %H:%M:%S")
+		local content = string.format("[%s]%s", time_text, text)
 		Debug.fp:write(text)
 	else
 		print(text)
