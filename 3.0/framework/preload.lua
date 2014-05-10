@@ -12,6 +12,10 @@ function AddPreloadFile(script_file)
 	g_script_list[#g_script_list + 1] = script_file
 end
 
+function AddProjectScript(script_file)
+	return AddPreloadFile(PROJECT_PATH.."/"..script_file)
+end
+
 function PreloadScript()
 	for _, script_file in ipairs(g_script_list) do
 		require(script_file)
