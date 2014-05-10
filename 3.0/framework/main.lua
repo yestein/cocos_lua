@@ -18,8 +18,9 @@ end
 cc.FileUtils:getInstance():addSearchPath("src")
 cc.FileUtils:getInstance():addSearchPath("res")
 
+require("project.lua")
 require("framework/preload.lua")
-require("script/preload.lua")
+require(PROJECT_PATH.."/preload.lua")
 PreloadScript()
 
 function cclog(...)

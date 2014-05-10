@@ -8,6 +8,11 @@ GameMgrContent = (
 "end\n\n"
 )
 
+ProjectFile = "../project.lua"
+ProjectContent = (
+"PROJECT_PATH = \"script\""
+)
+
 PreloadFile = "../script/preload.lua"
 PreloadContent = (
 "--Sample\n"
@@ -33,6 +38,10 @@ def install():
 	assert os.path.isfile(AppDelegateFile) == 1
 	replaceString(AppDelegateFile, "src/main.lua", "src/framework/main.lua")
 
+	if os.path.isfile(ProjectFile) != 1:
+		fp = open(ProjectFile, "w")
+		fp.writelines(ProjectContent)
+		fp.close()
 	if os.path.isdir("../script") != 1:
 		os.mkdir("../script")
 	if os.path.isfile(GameMgrFile) != 1:

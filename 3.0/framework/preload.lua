@@ -49,5 +49,4 @@ AddPreloadFile("framework/cocos2d/scene_base.lua")
 AddPreloadFile("framework/cocos2d/scene_mgr.lua")
 
 AddPreloadFile("framework/effects/fly_text.lua")
-
-AddPreloadFile("script/game_mgr.lua")
+AddPreloadFile(PROJECT_PATH.."/game_mgr.lua")
