@@ -75,7 +75,7 @@ function Menu:GenerateByImage(element_list, params)
 			max_width = width_sum
 		end
 	end
-	return menu_array
+	return menu_array, max_width, item_height - y
 end
 
 function Menu:GenerateByString(element_list, params)
@@ -99,9 +99,9 @@ function Menu:GenerateByString(element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(row_elements) do
-			local ccLabel = CCLabelTTF:create(element.item_name or "错误的菜单项", font_name, font_size)
+			local ccLabel = CCLabelTTF:create(element["item_name"] or "错误的菜单项", font_name, font_size)
 			local menu = CCMenuItemLabel:create(ccLabel)
-			menu:registerScriptTapHandler(element.callback_function)
+			menu:registerScriptTapHandler(element["callback_function"])
 			local item_width = menu:getContentSize().width
 			if not item_height then
 		    	item_height = menu:getContentSize().height
@@ -141,7 +141,7 @@ function Menu:GenerateByString(element_list, params)
 			max_width = width_sum
 		end
 	end
-	return menu_array
+	return menu_array, max_width, item_height - y
 end
 
 function Menu:GenerateBySprite(element_list, params)
@@ -205,6 +205,6 @@ function Menu:GenerateBySprite(element_list, params)
 			max_width = width_sum
 		end
 	end
-	return menu_array
+	return menu_array, max_width, item_height - y
 end
 

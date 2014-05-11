@@ -78,7 +78,6 @@ function LogicNode:RegisterEventListen()
 	if not self.reg_event_list then
 		self.reg_event_list = {}
 	end
-	Lib:ShowTB(self.event_listener)
 	for event_type, func in pairs(self.event_listener) do
 		if not self.reg_event_list[event_type] then
 			local id_reg = Event:RegistEvent(event_type, self[func], self)

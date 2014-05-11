@@ -41,7 +41,7 @@ function SceneBase:Init(scene_name)
 	self:SetHeight(visible_size.height)
 
 	Ui:InitScene(scene_name, self.cc_scene_obj)
-	self:AddReturnMenu()
+	--self:AddReturnMenu()
 	local layer_main = self:CreateLayer("main", Def.ZOOM_LEVEL_WORLD)
 	layer_main:setAnchorPoint(cc.p(0, 0))
 	self.scale = 1

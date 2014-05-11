@@ -221,6 +221,13 @@ function Lib:GetWorldTime(area)
 	return seconds + TIME_AREA[area]
 end
 
+function Lib:GetWritablePath()
+	if not self.writeable_path then
+		self.writeable_path = cc.FileUtils:getInstance():getWritablePath()
+	end
+	return self.writeable_path
+end
+
 function Lib:RegistTimer(sec, call_back)
 	local call_back_param = {
 		call_back = call_back,
