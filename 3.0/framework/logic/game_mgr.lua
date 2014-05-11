@@ -24,7 +24,7 @@ function GameMgr:Init()
 	self.accumulate = 0
 
 	self:SetFPS(25)
-
+	GM:Init()
 	self:_Init()
 end
 

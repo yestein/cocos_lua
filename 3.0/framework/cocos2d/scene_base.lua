@@ -81,7 +81,7 @@ function SceneBase:Uninit()
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
 	self.cc_scene_obj:removeChild(layer_main)
-	self:RemoveReturnMenu()
+	--self:RemoveReturnMenu()
 	Ui:UninitScene(self.scene_name)
 	self.reg_event_list = nil
 	self.layer_list = nil
