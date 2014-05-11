@@ -139,7 +139,6 @@ function Ui:GetElement(ui_frame, element_type, element_name)
         return
     end
     if not element_list[element_name] then
-        cclog("[%s][%s] not Exists", element_type, element_name)
         return
     end
     return element_list[element_name]
@@ -154,7 +153,7 @@ function Ui:RemoveElement(ui_frame, element_type, element_name)
         cclog("[%s][%s] not Exists", element_type, element_name)
         return 0
     end
-    tu_ui.cc_layer_ui:removeChiled(element_list[element_name], true)
+    ui_frame.cc_layer_ui:removeChild(element_list[element_name], true)
     element_list[element_name] = nil
 end
 
