@@ -25,6 +25,16 @@ function ModuleMgr:GetModule(module_name)
 	return self.module_list[module_name]
 end
 
+function ModuleMgr:GetSaveData()
+	local save_data = {}
+	for module_name, class_module in pairs(self.module_list) do
+		if class_module.GetSaveData then
+			save_data[module_name] = class_module:GetSaveData()
+		end
+	end
+	return save_data
+end
+
 function ModuleMgr:ForEachActiveModule(func)
 	for module, active_func in pairs(self.active_module) do
 		func(module, active_func)

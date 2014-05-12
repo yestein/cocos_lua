@@ -42,10 +42,10 @@ function Ui:InitScene(scene_name, cc_scene)
     
     local ui_frame = {}
 	ui_frame.element_list = {
-        ["Menu"] = {},
-        ["LabelTTF"] = {},
-        ["LabelBMFont"] = {},
-        ["Label"] = {},
+        ["MENU"] = {},
+        ["LABELTTF"] = {},
+        ["LABELBMFONT"] = {},
+        ["LABEL"] = {},
     }
     ui_frame.sysmsg_list = {}
     

@@ -151,6 +151,13 @@ function SceneMgr:GetCurrentSceneName()
     end
 end
 
+function SceneMgr:GetCurrentScene()
+    local current_scene_name = self:GetCurrentSceneName()
+    if current_scene_name then
+        return self:GetScene(current_scene_name)
+    end
+end
+
 function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
