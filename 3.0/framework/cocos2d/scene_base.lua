@@ -20,6 +20,24 @@ local SceneBase = SceneMgr._SceneBase
 local MAX_SCALE = 3.0
 local SCALE_RATE = 0.005
 
+function SceneBase:Uninit()
+	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
+
+	self:_Uninit()
+	self:UnregisterEventListen()
+
+	self.scale = nil
+	local layer_main = self:GetLayer("main")
+	self.cc_scene_obj:removeChild(layer_main)
+	--self:RemoveReturnMenu()
+	Ui:UninitScene(self.scene_name)
+	self.reg_event_list = nil
+	self.obj_list = nil
+	self.layer_list = nil
+	self.cc_scene_obj = nil
+	self.scene_name = nil
+end
+
 function SceneBase:Init(scene_name)
 
 	self.scene_name = scene_name
@@ -28,6 +46,7 @@ function SceneBase:Init(scene_name)
 		self.property = {}
 	end
 	self.layer_list = {}
+	self.obj_list = {}
 	self.reg_event_list = {}
 
 	-- 场景默认设为屏幕大小
@@ -72,23 +91,6 @@ function SceneBase:Init(scene_name)
 	Event:FireEvent("SceneCreate", self:GetClassName(), self:GetName())
 end
 
-function SceneBase:Uninit()
-	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
-
-	self:_Uninit()
-	self:UnregisterEventListen()
-
-	self.scale = nil
-	local layer_main = self:GetLayer("main")
-	self.cc_scene_obj:removeChild(layer_main)
-	--self:RemoveReturnMenu()
-	Ui:UninitScene(self.scene_name)
-	self.reg_event_list = nil
-	self.layer_list = nil
-	self.cc_scene_obj = nil
-	self.scene_name = nil
-end
-
 function SceneBase:CreateLayer(layer_name, z_level)
 	if self.layer_list[layer_name] then
 		cclog("Layer [%s] create Failed! Already Exists", layer_name)
@@ -117,6 +119,42 @@ end
 
 function SceneBase:GetLayer(layer_name)
 	return self.layer_list[layer_name]
+end
+
+function SceneBase:AddObj(layer_name, obj_name, obj)
+	local layer = self:GetLayer(layer_name)
+	if not self.obj_list[layer_name] then
+		self.obj_list[layer_name] = {}
+	end
+	if self.obj_list[layer_name][obj_name] then
+		cclog("Obj[%s][%s] Already Exisits", tostring(layer_name), tostring(obj_name))
+		return 0
+	end
+	layer:addChild(obj)
+	self.obj_list[layer_name][obj_name] = obj
+	return 1
+end
+
+function SceneBase:GetObj(layer_name, obj_name)
+	if not self.obj_list[layer_name] then
+		return nil
+	end
+	return self.obj_list[layer_name][obj_name]
+end
+
+function SceneBase:RemoveObj(layer_name, obj_name, is_cleanup)
+	local layer = self:GetLayer(layer_name)
+	if not layer then
+		cclog("No Layer[%s]", tostring(layer_name))
+		return 0
+	end
+	if not self.obj_list[layer_name] or not self.obj_list[layer_name][obj_name] then
+		cclog("No Obj[%s][%s]", tostring(layer_name),  tostring(obj_name))
+		return 0
+	end
+	layer:removeChild(obj, is_cleanup or true)
+	self.obj_list[layer_name][obj_name] = nil
+	return 1
 end
 
 function SceneBase:GetUI()

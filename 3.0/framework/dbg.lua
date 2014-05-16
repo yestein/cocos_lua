@@ -74,7 +74,7 @@ function Debug.Print(...)
 		local content = string.format("[%s]%s", time_text, text)
 		Debug.fp:write(text)
 	else
-		print(text)
+		print("[Event]"..text)
 	end
 end
 

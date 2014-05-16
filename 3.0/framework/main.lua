@@ -78,7 +78,7 @@ local function main()
     CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("Current Project", PROJECT_PATH)
-    GameMgr:Init()
+     GameMgr:Init()
 end
 
 --This function will be called when the app is inactive. When comes a phone call,it's be invoked too

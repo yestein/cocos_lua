@@ -49,6 +49,7 @@ AddPreloadFile("framework/logic/obj_pool.lua")
 AddPreloadFile("framework/logic/editor/gm.lua")
 
 
+AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")
 AddPreloadFile("framework/cocos2d/menu.lua")
 AddPreloadFile("framework/cocos2d/scene_base.lua")

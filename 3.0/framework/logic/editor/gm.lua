@@ -31,8 +31,8 @@ function GM:ExecuteAction(action_name, ...)
 end
 
 function GM:AddAction(action_name, func)
-	if not self.actions[action_name] then
-		print(action_name)
+	if self.actions[action_name] then
+		print("Action [" .. action_name .. "] Already Exist!")
 	end
 	assert(not self.actions[action_name])
 	self.actions[action_name] = func
