@@ -46,9 +46,19 @@ function MoveNode:OnActive(frame)
 	if self:IsArriveTarget() == 1 then
 		return
 	end
-	if self.x == self.next_pos.x and self.y == self.next_pos.y 
-	if frame % 5 == 0 then
-
+	if self:IsHaveNextPos() ~= 1 then
+		return
+	end
+	if frame % 10 == 0 then
+		self:MoveTo(self.next_pos.x, self.next_pos.y)
+		if self:IsArriveTarget() == 1 then
+			self.target_pos.x = -1
+			self.target_pos.y = -1
+			self.next_pos.x = -1
+			self.next_pos.y = -1
+		else
+			self:GenerateNextPos()
+		end
 	end
 end
 
@@ -63,24 +73,31 @@ function MoveNode:GoTo(x, y)
 	if self.x == x and self.y == y then
 		return
 	end
+	local event_name = self:GetParent():GetNodeName()..".GOTO"
+	Event:FireEvent(event_name, self:GetParent():GetId(), self.x, self.y, x, y)
 	self.target_pos.x = x
 	self.target_pos.y = y
+	if self.target_pos.x > self.x then
+		self:SetDirection("right")
+	else
+		self:SetDirection("left")
+	end
+	self:GenerateNextPos()
 end
 
 function MoveNode:GenerateNextPos()
 	if self:IsHaveTarget() ~= 1 then
 		return
 	end
-	local distance = Lib:GetDistanceSquare(self.x, self.y, self.target_pos.x, self.target_pos.y)
-	if distance <= speed then
+	local distance = Lib:GetDistance(self.x, self.y, self.target_pos.x, self.target_pos.y)
+	if distance <= self.speed then
 		self.next_pos.x = self.target_pos.x
 		self.next_pos.y = self.target_pos.y
 		return
 	end
-
-	local rate = speed / distance
-	local offset_x = math.floor((self.target_pos.x - self.x) * rate)
-	local offset_y = math.floor((self.target_pos.y - self.y) * rate)
+	local rate = self.speed / distance
+	local offset_x = math.ceil((self.target_pos.x - self.x) * rate)
+	local offset_y = math.ceil((self.target_pos.y - self.y) * rate)
 
 	self.next_pos.x = self.x + offset_x
 	self.next_pos.y = self.y + offset_y
