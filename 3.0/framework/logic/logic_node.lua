@@ -8,10 +8,25 @@
 
 if not LogicNode then
 	LogicNode = {
-		max_order = 1,
+		max_order = 0,
 		child_list = {},
 		child_list_order = {},
 	}
+end
+
+function NewLogicNode(name)
+	assert(name)
+	local node = Lib:NewClass(LogicNode)
+	node:SetNodeName(name)
+	return node
+end
+
+function LogicNode:SetNodeName(name)
+	self.__name = name
+end
+
+function LogicNode:GetNodeName()
+	return self.__name
 end
 
 function LogicNode:UninitChild()
@@ -43,22 +58,27 @@ function LogicNode:GetChild(child_name)
 	return self.child_list[child_name]
 end
 
+function LogicNode:ForEachChild(callback, ...)
+	for child_name, child_node in pairs(self.child_list) do
+		callback(child_name, child_node, ...)
+	end
+end
+
 function LogicNode:ReceiveMessage(msg, ...)
 	if type(self[msg]) == "function" then
-		local result = self[msg](self, ...)
-		if result == 1 then
-			return result
-		end
+		return self[msg](self, ...)
 	end
 	if not self.child_list then
 		return
 	end
+	
 	for i = 1, self.max_order do
-		local child = self.child_list_order[order]
+		local child = self.child_list_order[i]
 		if child and child.ReceiveMessage then
-			local result = child:ReceiveMessage(msg, ...)
-			if result == 1 then
-				return result
+
+			local result = {child:ReceiveMessage(msg, ...)}
+			if #result > 0 then
+				return unpack(result)
 			end
 		end
 	end

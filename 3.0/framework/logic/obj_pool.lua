@@ -57,6 +57,8 @@ function ObjPool:Add(obj_template, ...)
 		self:UpdateNextId()
 		Event:FireEvent(self.obj_name..".ADD", id, ...)
 		return obj, id
+	else
+		cclog("Add Error")
 	end
 end
 
