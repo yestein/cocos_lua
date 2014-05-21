@@ -17,6 +17,7 @@ end
 
 cc.FileUtils:getInstance():addSearchPath("src")
 cc.FileUtils:getInstance():addSearchPath("res")
+__platform = cc.Application:getInstance():getTargetPlatform()
 
 require("project.lua")
 require("framework/preload.lua")
@@ -43,7 +44,7 @@ local function MainLoop(delta)
 	xpcall(ModulLoop, __G__TRACKBACK__)
 end
 
-if device == "win32" then
+if __platform == cc.PLATFORM_OS_WINDOWS then
 	function OnWin32End()
 		Exit()
 	end
@@ -78,7 +79,8 @@ local function main()
     CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("Current Project", PROJECT_PATH)
-     GameMgr:Init()
+    print("Platform: ", __platform)
+    GameMgr:Init()
 end
 
 --This function will be called when the app is inactive. When comes a phone call,it's be invoked too

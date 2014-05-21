@@ -54,7 +54,7 @@ function ModuleMgr:UnregisterActive(module_name)
 end
 
 if not ModuleBase then
-	ModuleBase = Lib:NewClass(LogicNode)
+	ModuleBase = NewLogicNode("MODULE")
 end
 
 function ModuleBase:Init(...)

@@ -11,7 +11,7 @@ if not Def then
 end
 
 Def.menu_font_name = "MarkerFelt-Thin"
-if device == "win32" then
+if __platform == cc.PLATFORM_OS_WINDOWS then
 	Def.menu_font_name = "Microsoft Yahei"
 end
 

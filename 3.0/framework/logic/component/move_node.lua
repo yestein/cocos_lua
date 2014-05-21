@@ -7,7 +7,7 @@
 --=======================================================================
 
 if not MoveNode then
-	MoveNode = Lib:NewClass(LogicNode)
+	MoveNode = NewLogicNode("MOVE")
 end
 
 local move_offset = {
@@ -23,20 +23,20 @@ local move_offset = {
 
 function MoveNode:Uninit()
 	self.x         = nil
-	self.y         = nil
-	
+	self.y         = nil	
 	self.speed     = nil
-	self.direction = nil
 
 	self.next_pos   = nil
 	self.target_pos = nil
 end
 
-function MoveNode:Init(x, y, direction, speed)
-	self.x         = x
-	self.y         = y
-	self.direction = direction
-	self.speed     = speed
+function MoveNode:Init(x, y, speed)
+	self.x           = x
+	self.y           = y
+	self.speed       = speed
+	self.cur_speed_x = 0
+	self.cur_speed_y = 0
+	self.is_run      = 0
 
 	self.next_pos   = {x = -1, y = -1}
 	self.target_pos = {x = -1, y = -1}
@@ -49,40 +49,76 @@ function MoveNode:OnActive(frame)
 	if self:IsHaveNextPos() ~= 1 then
 		return
 	end
-	if frame % 10 == 0 then
+	if frame % 5 == 0 then
 		self:MoveTo(self.next_pos.x, self.next_pos.y)
 		if self:IsArriveTarget() == 1 then
-			self.target_pos.x = -1
-			self.target_pos.y = -1
-			self.next_pos.x = -1
-			self.next_pos.y = -1
+			self:Stop()
 		else
 			self:GenerateNextPos()
 		end
 	end
 end
 
+function MoveNode:IsRun()
+	return self.is_run
+end
+
+function MoveNode:Stop()
+	self.target_pos.x = -1
+	self.target_pos.y = -1
+	self.next_pos.x   = -1
+	self.next_pos.y   = -1
+	self.cur_speed_x  = 0
+	self.cur_speed_y  = 0
+	self.is_run       = 0
+	self:GetParent():SetActionState("normal")
+	local event_name = self:GetParent():GetNodeName()..".STOP"
+	Event:FireEvent(event_name, self:GetParent():GetId())
+end
+
 function MoveNode:MoveTo(x, y)
+	x = math.floor(x)
+	y = math.floor(y)
 	local event_name = self:GetParent():GetNodeName()..".MOVETO"
-	Event:FireEvent(event_name, self:GetParent():GetId(), self.x, self.y, x, y)
+	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
+	local old_speed_x = self.cur_speed_x
+	local old_speed_y = self.cur_speed_y
+	self.cur_speed_x = x - self.x
+	self.cur_speed_y = y - self.y
+
+	if old_speed_x == 0 and old_speed_y == 0 then
+		self.is_run = 1
+		self:GetParent():SetActionState("run")
+		local event_name = self:GetParent():GetNodeName()..".RUN"
+		Event:FireEvent(event_name, self:GetParent():GetId())
+	end
+	if self.cur_speed_x > 0 then
+		self:GetParent():SetDirection("right")
+	else
+		self:GetParent():SetDirection("left")
+	end
 	self.x = x
 	self.y = y
 end
 
 function MoveNode:GoTo(x, y)
+	x = math.floor(x)
+	y = math.floor(y)
+	local owner = self:GetParent()
+	if owner:GetActionState() ~= "normal" then
+		owner:InsertCommand({"GoTo", x, y}, 1)
+		return
+	end
 	if self.x == x and self.y == y then
 		return
 	end
-	local event_name = self:GetParent():GetNodeName()..".GOTO"
-	Event:FireEvent(event_name, self:GetParent():GetId(), self.x, self.y, x, y)
+	local event_name = owner:GetNodeName()..".GOTO"
+	Event:FireEvent(event_name, owner:GetId(), x, y)
 	self.target_pos.x = x
 	self.target_pos.y = y
-	if self.target_pos.x > self.x then
-		self:SetDirection("right")
-	else
-		self:SetDirection("left")
-	end
 	self:GenerateNextPos()
+	--self:MoveTo(self.next_pos.x, self.next_pos.y)
+	--self:GenerateNextPos()
 end
 
 function MoveNode:GenerateNextPos()
@@ -101,14 +137,6 @@ function MoveNode:GenerateNextPos()
 
 	self.next_pos.x = self.x + offset_x
 	self.next_pos.y = self.y + offset_y
-end
-
-function MoveNode:SetDirection(direction)
-	if self.direction ~= direction then
-		self.direction = direction
-		local event_name = self:GetParent():GetNodeName()..".CHANGE_DIRECTION"
-		Event:FireEvent(event_name, self:GetParent():GetId(), direction)
-	end
 end
 
 function MoveNode:MoveByDirection(direction)
@@ -133,8 +161,8 @@ function MoveNode:GetSpeed()
 	return self.speed
 end
 
-function MoveNode:GetDirection()
-	return self.direction
+function MoveNode:GetCurSpeed()
+	return self.cur_speed_x, self.cur_speed_y
 end
 
 function MoveNode:IsHaveTarget()

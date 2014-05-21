@@ -10,7 +10,7 @@ if not FlyText then
 	FlyText = {}
 end
 
-function FlyText:RandomJumped(sprite, custom_font_path, text, param)
+function FlyText:RandomJumped(target_obj, custom_font_path, text, param)
 	if not param then
 		param = {}
 	end
@@ -19,14 +19,14 @@ function FlyText:RandomJumped(sprite, custom_font_path, text, param)
 	if param.text_scale then
 		jumped_text:setScale(param.text_scale)
 	end
-	local sprite_rect = sprite:getBoundingBox()
+	local sprite_rect = target_obj:getBoundingBox()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 0.75
 	jumped_text:setPosition(sprite_rect.width * percent_x, sprite_rect.height * percent_y)
 
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
-	sprite:addChild(jumped_text)
+	target_obj:addChild(jumped_text)
 
 	local up_speed = param.up_speed or 800
 	local up_min_x = param.up_min_x or 5
@@ -88,20 +88,25 @@ function FlyText:RandomJumped(sprite, custom_font_path, text, param)
 	jumped_text:runAction(cc.Sequence:create(unpack(action_list)))
 end
 
-function FlyText:RandomJumpedFade(sprite, custom_font_path, text, param)
+function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, param)
 	if not param then
 		param = {}
 	end
-	
-	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
-	local sprite_rect = sprite:getBoundingBox()
+	local jumped_text = nil
+	if custom_font_path then
+		jumped_text = cc.LabelBMFont:create(text, custom_font_path)
+	else
+		jumped_text = cc.LabelTTF:create(text, "Microsoft Yahei", 60)
+	end
+	local obj_rect = target_obj:getBoundingBox()
+	local x, y = target_obj:getPosition()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 0.75
-	jumped_text:setPosition(sprite_rect.width * percent_x, sprite_rect.height * percent_y)
+	jumped_text:setPosition(x + obj_rect.width * percent_x, y + obj_rect.height * percent_y)
 
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
-	sprite:addChild(jumped_text)
+	layer:addChild(jumped_text)
 
 	local jump_time = param.jump_time or 1
 	local delay_time = param.delay_time or 0
@@ -132,7 +137,7 @@ function FlyText:RandomJumpedFade(sprite, custom_font_path, text, param)
 	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))
 end
 
-function FlyText:VerticalShake(sprite, custom_font_path, text, param)
+function FlyText:VerticalShake(target_obj, custom_font_path, text, param)
 	if not param then
 		param = {}
 	end
@@ -140,13 +145,13 @@ function FlyText:VerticalShake(sprite, custom_font_path, text, param)
 	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
-	sprite:addChild(jumped_text)
+	target_obj:addChild(jumped_text)
 
-	local sprite_rect = sprite:getBoundingBox()
+	local obj_rect = target_obj:getBoundingBox()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 1
-	local text_x = sprite_rect.width * percent_x
-	local text_y = sprite_rect.height * percent_y
+	local text_x = obj_rect.width * percent_x
+	local text_y = obj_rect.height * percent_y
 	jumped_text:setPosition(text_x, text_y)
 
 	local up_time = param.up_time or 0
@@ -185,7 +190,7 @@ function FlyText:VerticalShake(sprite, custom_font_path, text, param)
 	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))
 end
 
-function FlyText:VerticalShakeWithIcon(sprite, custom_font_path, icon_name, text, param)
+function FlyText:VerticalShakeWithIcon(target_obj, custom_font_path, icon_name, text, param)
 	if not param then
 		param = {}
 	end
@@ -197,16 +202,16 @@ function FlyText:VerticalShakeWithIcon(sprite, custom_font_path, icon_name, text
 
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
-	sprite:addChild(jumped_text)
+	target_obj:addChild(jumped_text)
 
 
 	local icon = cc.Sprite:createWithSpriteFrameName(icon_name)
 	if param.icon_scale then
 		icon:setScale(param.icon_scale)
 	end
-	sprite:addChild(icon)
+	target_obj:addChild(icon)
 
-	local sprite_rect = sprite:getBoundingBox()
+	local sprite_rect = target_obj:getBoundingBox()
 	local icon_rect = icon:getBoundingBox()
 	local text_rect = jumped_text:getBoundingBox()
 	local percent_x = param.percent_x or 0.5

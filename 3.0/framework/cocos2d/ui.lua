@@ -10,7 +10,7 @@ if not Ui then
     Ui = {}
 end
 
-Ui.MSG_MAX_COUNT = 7
+Ui.MSG_MAX_COUNT = 5
 
 --keep same with "cocos\gui\UIWidget.h"
 Ui.TOUCH_EVENT_BEGAN    = 0
@@ -19,7 +19,7 @@ Ui.TOUCH_EVENT_ENDED    = 2
 Ui.TOUCH_EVENT_CANCELED = 3
 
 local title_font_name = "MarkerFelt-Thin"
-if device == "win32" then
+if __platform == cc.PLATFORM_OS_WINDOWS then
     title_font_name = "Microsoft Yahei"
 end
 local visible_size = CCDirector:getInstance():getVisibleSize()
@@ -53,12 +53,12 @@ function Ui:InitScene(scene_name, cc_scene)
 	local cc_layer_ui = CCLayer:create()        
 
     for i = 1, Ui.MSG_MAX_COUNT do
-        local cc_labelttf_sysmsg = CCLabelTTF:create("系统提示", title_font_name, 18)
+        local cc_labelttf_sysmsg = CCLabelTTF:create("系统提示", title_font_name, 40)
         cc_layer_ui:addChild(cc_labelttf_sysmsg)
         cc_labelttf_sysmsg:setLocalZOrder(Def.ZOOM_LEVEL_SYSMSG)
         local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height / 2 - (2 - i) * tbMsgRect.height)
-        cc_labelttf_sysmsg:setVisible(false)
+        cc_labelttf_sysmsg:setOpacity(0)
         ui_frame.sysmsg_list[i] = cc_labelttf_sysmsg
     end
     ui_frame.index_sysmsg = 1
@@ -188,12 +188,13 @@ function Ui:SysMsg(ui_frame, text_content, color_name)
         local cc_labelttf_sysmsg = ui_frame.sysmsg_list[num_index]
         if i == 1 then
             local color = Def.color_list[color_name]
-            cc_labelttf_sysmsg:setVisible(true)
+            cc_labelttf_sysmsg:setOpacity(255)
             cc_labelttf_sysmsg:setString(text_content)
             cc_labelttf_sysmsg:setColor(color)
+            cc_labelttf_sysmsg:stopAllActions()
             cc_labelttf_sysmsg:runAction(CCFadeOut:create(3))
-        end
-        local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()
+        end        
+        local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()        
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height - (self.MSG_MAX_COUNT - i + 1) * tbMsgRect.height)
     end
     ui_frame.index_sysmsg = ui_frame.index_sysmsg + 1

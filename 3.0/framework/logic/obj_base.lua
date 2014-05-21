@@ -7,7 +7,7 @@
 --=======================================================================
 
 if not ObjBase then
-	ObjBase = Lib:NewClass(LogicNode)
+	ObjBase = NewLogicNode("OBJ")
 end
 
 function ObjBase:Init(id, ...)

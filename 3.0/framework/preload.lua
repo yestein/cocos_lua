@@ -23,10 +23,10 @@ function PreloadScript()
 end
 
 function ReloadScript()
-	if device == "win32" then
+	if __platform == cc.PLATFORM_OS_WINDOWS then
 		print("Reload Lua Script...")
 		for _, script_file in ipairs(g_script_list) do
-			dofile(script_file)
+			dofile("src/"..script_file)
 			print("Reload\t["..script_file.."]")
 		end
 	else
@@ -50,6 +50,7 @@ AddPreloadFile("framework/logic/obj_pool.lua")
 AddPreloadFile("framework/logic/editor/gm.lua")
 
 AddPreloadFile("framework/logic/component/move_node.lua")
+AddPreloadFile("framework/logic/component/cmd_node.lua")
 
 AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")

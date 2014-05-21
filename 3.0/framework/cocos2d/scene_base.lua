@@ -13,7 +13,7 @@ end
 local visible_size = cc.Director:getInstance():getVisibleSize()
 
 if not SceneMgr._SceneBase then
-	SceneMgr._SceneBase = Lib:NewClass(LogicNode)
+	SceneMgr._SceneBase = NewLogicNode("SCENE")
 end
 local SceneBase = SceneMgr._SceneBase
 
@@ -268,52 +268,53 @@ function SceneBase:SetScaleRate(scale_rate)
 end
 
 function SceneBase:AddReturnMenu()
-    local element_list = nil
-    if scene_name ~= "MainScene" then
-	    element_list = {
-		    [1] = {
-		        [1] = {
-					item_name = "返回主菜单",
-		        	callback_function = function()
-		        		SceneMgr:UnLoadCurrentScene()
-		        	end,
-		        },
-		        [2] = {
-					item_name = "重载脚本和场景",
-		        	callback_function = function()
-	        			self:Reload()
-	        			SceneMgr:UnLoadCurrentScene()
-						local scene = SceneMgr:LoadScene(current_scene_name)
-						scene:SysMsg("重载完毕", "green")
-		        	end,
-		        },
-		    },
-		}
-	elseif device == "win32" then
-		element_list = {
-		    [1] = {
-		        [1] = {
-					item_name = "重载脚本",
-		        	callback_function = function()
-	        			self:Reload()
-		        	end,
-		        },
-		    },
-		}
-	end
-	if element_list then
-	    local menu_array = Menu:GenerateByString(element_list, 
-	    	{font_name = Def.menu_font_name, font_size = 30, align_type = "right", interval_x = 20}
-	    )
-	    local ui_frame = self:GetUI()
-	    local menu_tools = cc.Menu:create(unpack(menu_array))
-	    Ui:AddElement(ui_frame, "Menu", "ReturnMenu", visible_size.width, visible_size.height, menu_tools)
-	end
+    local element_list = {
+	    [1] = {
+	        [1] = {
+				item_name = "返回主菜单",
+	        	callback_function = function()
+	        		SceneMgr:UnLoadCurrentScene()
+	        	end,
+	        },
+	    },
+	}
+    local menu_array = Menu:GenerateByString(element_list, 
+    	{font_name = Def.menu_font_name, font_size = 30, align_type = "right", interval_x = 20}
+    )
+    local ui_frame = self:GetUI()
+    local menu_tools = cc.Menu:create(unpack(menu_array))
+    Ui:AddElement(ui_frame, "MENU", "ReturnMenu", visible_size.width, visible_size.height, menu_tools)
+end
+
+function SceneBase:AddReloadMenu(font_size)
+    local element_list = {
+	    [1] = {
+	        [1] = {
+				item_name = "重载脚本",
+	        	callback_function = function()
+	        		self:Reload()
+	        	end,
+	        },
+	   --      [2] = {
+				-- item_name = "重载场景",
+	   --      	callback_function = function()
+				-- 	local scene = SceneMgr:LoadScene(self:GetName())
+				-- 	scene:SysMsg("重载完毕", "green")
+	   --      	end,
+	   --      },
+	    },
+	}
+    local menu_array = Menu:GenerateByString(element_list, 
+    	{font_name = Def.menu_font_name, font_size = font_size or 30, align_type = "left", interval_x = 20}
+    )
+    local ui_frame = self:GetUI()
+    local menu_tools = cc.Menu:create(unpack(menu_array))
+    Ui:AddElement(ui_frame, "MENU", "ReloadMenu", 0, visible_size.height, menu_tools)
 end
 
 function SceneBase:RemoveReturnMenu()
 	local ui_frame = self:GetUI()
-	Ui:RemoveElement(ui_frame, "Menu", "ReturnMenu")
+	Ui:RemoveElement(ui_frame, "MENU", "ReturnMenu")
 end
 
 function SceneBase:IsDebugPhysics()
@@ -492,7 +493,7 @@ function SceneBase:RegisterTouchEvent()
 end
 
 function SceneBase:Reload()
-	if device == "win32" then
+	if __platform == cc.PLATFORM_OS_WINDOWS then
 		ReloadScript()
 		self:SysMsg("脚本重载完毕", "green")
 	end

@@ -37,6 +37,10 @@ function GameMgr:OnLoop(delta)
 	end	
 end
 
+function GameMgr:GetCurrentFrame()
+	return self.num_frame
+end
+
 function GameMgr:OnActive(frame)
 	if self._OnActive then
 		self:_OnActive(frame)
