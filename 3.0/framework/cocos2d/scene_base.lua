@@ -21,14 +21,11 @@ local MAX_SCALE = 3.0
 local SCALE_RATE = 0.005
 
 function SceneBase:_Uninit()
-	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
-
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
 	self.cc_scene_obj:removeChild(layer_main)
 	--self:RemoveReturnMenu()
 	Ui:UninitScene(self.scene_name)
-	self.reg_event_list = nil
 	self.obj_list = nil
 	self.layer_list = nil
 	self.cc_scene_obj = nil
@@ -43,7 +40,6 @@ function SceneBase:_Init(scene_name)
 	end
 	self.layer_list = {}
 	self.obj_list = {}
-	self.reg_event_list = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0

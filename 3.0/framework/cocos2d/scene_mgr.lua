@@ -117,6 +117,7 @@ function SceneMgr:DestroyScene(scene_name)
     if delete_index then
         table.remove(self.current_scene_list, delete_index)
     end
+    Event:FireEvent("SceneDestroy", self.scene_list[scene_name]:GetClassName(), scene_name)
     self.scene_list[scene_name]:Uninit()
     self.scene_list[scene_name] = nil
     return scene_list
