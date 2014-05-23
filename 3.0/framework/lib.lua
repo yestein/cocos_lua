@@ -10,23 +10,6 @@ if not Lib then
 	Lib = {}
 end
 
-local MetaTable = {
-	__index = function(table, key)
-		local v = rawget(table, key)
-		if v then
-			return v
-		end
-		local base_class = rawget(table, "_tbBase")
-		return base_class[key]
-	end
-}
-
-function Lib:NewClass(base_class)
-	local new_class = { _tbBase = base_class }
-	setmetatable(new_class, MetaTable)
-	return new_class
-end
-
 function Lib:Show2DTB(tb, row, column)
 	local title = "\t"
 	for i = 1, column do
@@ -250,4 +233,23 @@ function Lib:RegistTimer(sec, call_back)
 	end
 
 	call_back_param.entry_id = CCDirector:getInstance():getScheduler():scheduleScriptFunc(timer_call_back, sec, false)
+end
+
+function Lib:IsIntersects(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2)
+	local min_x_1 = x_1
+	local max_x_1 = x_1 + width_1
+	local min_y_1 = y_1
+	local max_y_1 = y_1 + height_2
+
+	local min_x_2 = x_2
+	local max_x_2 = x_2 + width_2
+	local min_y_2 = y_2
+	local max_y_2 = y_2 + height_2
+
+    if (max_x_1 < min_x_2) or (max_x_2 < min_x_1)
+     or (max_y_1 < min_y_2) or (max_y_2 < min_y_1) then
+     	return 0
+    end
+
+    return 1
 end

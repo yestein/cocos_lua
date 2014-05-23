@@ -7,28 +7,30 @@
 --=======================================================================
 
 if not LogicNode then
-	LogicNode = {
-		-- max_order = 0,
-		-- child_list = {},
-		-- child_list_order = {},
-		-- event_listener = {},
-		-- reg_event_list = {},
-	}
+	LogicNode = Class:New(nil, "LOGIC_NODE")
 end
 
 function NewLogicNode(name)
 	assert(name)
-	local node = Lib:NewClass(LogicNode)
-	node:SetNodeName(name)
+	local node = Class:New(LogicNode, name)
 	return node
 end
 
-function LogicNode:SetNodeName(name)
-	self.__name = name
+function LogicNode:_Init( ... )	
+	self:RegisterEventListen()
+
+	return 1
 end
 
-function LogicNode:GetNodeName()
-	return self.__name
+function LogicNode:_Uninit( ... )
+
+	self:UninitChild()
+	self:UnregisterEventListen()
+	self.max_order        = nil
+	self.child_list       = nil
+	self.child_list_order = nil
+	self.event_listener   = nil
+	self.reg_event_list   = nil
 end
 
 function LogicNode:UninitChild()

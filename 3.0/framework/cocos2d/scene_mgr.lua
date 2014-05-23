@@ -49,8 +49,7 @@ end
 
 function SceneMgr:GetClass(class_name, is_need_create)
     if not SceneMgr.scene_class_list[class_name] and is_need_create then
-        local scene_class = Lib:NewClass(self._SceneBase)
-        scene_class.class_name = class_name
+        local scene_class = Class:New(self._SceneBase, class_name)
         scene_class.event_listener = {}
         SceneMgr.scene_class_list[class_name] = scene_class
     end
@@ -95,9 +94,11 @@ function SceneMgr:CreateScene(scene_name, scene_template_name)
     if not scene_template then
         return cclog("Error! No Scene Class [%s] !", scene_template_name)
     end
-	local scene = Lib:NewClass(scene_template)
+	local scene = Class:New(scene_template, scene_name)
+    scene.template_name = scene_template_name
     self.scene_list[scene_name] = scene
     scene:Init(scene_name)
+    Event:FireEvent("SceneCreate", scene_template_name, scene_name)
 	return scene
 end
 
@@ -121,24 +122,30 @@ function SceneMgr:DestroyScene(scene_name)
     return scene_list
 end
 
-function SceneMgr:FirstLoadScene(scene_name)
+function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
+    if not scene_name then
+        scene_name = scene_template_name
+    end
+    table.insert(self.current_scene_list, scene_name)
     local scene = self:GetScene(scene_name)
     if not scene then
-        scene = self:CreateScene(scene_name, scene_name)
+        scene = self:CreateScene(scene_name, scene_template_name)
     end
 
-    table.insert(self.current_scene_list, scene:GetName())
     local cc_scene = scene:GetCCObj()
     CCDirector:getInstance():runWithScene(cc_scene)
 end
 
-function SceneMgr:LoadScene(scene_name)
+function SceneMgr:LoadScene(scene_template_name, scene_name)
+    if not scene_name then
+        scene_name = scene_template_name
+    end
+    table.insert(self.current_scene_list, scene_name)
     local scene = self:GetScene(scene_name)
     if not scene then
-        scene = self:CreateScene(scene_name, scene_name)
+        scene = self:CreateScene(scene_name, scene_template_name)
     end
-
-    table.insert(self.current_scene_list, scene:GetName())
+    
     local cc_scene = scene:GetCCObj()
     CCDirector:getInstance():pushScene(cc_scene)
     return scene
@@ -149,6 +156,14 @@ function SceneMgr:GetCurrentSceneName()
     if count > 0 then
         return self.current_scene_list[count]
     end
+end
+
+function SceneMgr:IsRootScene()
+    local count = #self.current_scene_list
+    if count == 1 then
+        return 1
+    end
+    return 0
 end
 
 function SceneMgr:GetCurrentScene()
@@ -162,4 +177,13 @@ function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
     CCDirector:getInstance():popScene()
+end
+
+function SceneMgr:ReloadCurrentScene()
+    local current_scene_name = self:GetCurrentSceneName()
+    local scene = self:GetScene(current_scene_name)
+    local scene_template_name = scene:GetTemplateName()
+    self:DestroyScene(current_scene_name)
+    CCDirector:getInstance():popScene()
+    return self:LoadScene(scene_template_name, current_scene_name)
 end

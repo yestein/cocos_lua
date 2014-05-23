@@ -35,6 +35,7 @@ function ReloadScript()
 end
 
 AddPreloadFile("framework/lib.lua")
+AddPreloadFile("framework/class.lua")
 AddPreloadFile("framework/event.lua")
 AddPreloadFile("framework/dbg.lua")
 
@@ -43,7 +44,7 @@ AddPreloadFile("framework/define.lua")
 
 AddPreloadFile("framework/logic/game_mgr.lua")
 AddPreloadFile("framework/logic/logic_node.lua")
-AddPreloadFile("framework/logic/module_base.lua")
+AddPreloadFile("framework/logic/module_mgr.lua")
 AddPreloadFile("framework/logic/obj_base.lua")
 AddPreloadFile("framework/logic/obj_pool.lua")
 
@@ -57,6 +58,9 @@ AddPreloadFile("framework/cocos2d/ui.lua")
 AddPreloadFile("framework/cocos2d/menu.lua")
 AddPreloadFile("framework/cocos2d/scene_base.lua")
 AddPreloadFile("framework/cocos2d/scene_mgr.lua")
+AddPreloadFile("framework/cocos2d/skelton.lua")
+AddPreloadFile("framework/cocos2d/skelton_ex.lua")
+AddPreloadFile("framework/cocos2d/skelton_pool.lua")
 
 AddPreloadFile("framework/effects/fly_text.lua")
 AddPreloadFile(PROJECT_PATH.."/game_mgr.lua")

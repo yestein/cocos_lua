@@ -20,11 +20,8 @@ local SceneBase = SceneMgr._SceneBase
 local MAX_SCALE = 3.0
 local SCALE_RATE = 0.005
 
-function SceneBase:Uninit()
+function SceneBase:_Uninit()
 	Event:FireEvent("SceneDestroy", self:GetClassName(), self:GetName())
-
-	self:_Uninit()
-	self:UnregisterEventListen()
 
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
@@ -38,8 +35,7 @@ function SceneBase:Uninit()
 	self.scene_name = nil
 end
 
-function SceneBase:Init(scene_name)
-
+function SceneBase:_Init(scene_name)
 	self.scene_name = scene_name
 	self.cc_scene_obj = cc.Scene:create()
 	if not self.property then
@@ -74,10 +70,7 @@ function SceneBase:Init(scene_name)
     	Ui:PreloadCocosUI(self:GetName(), self.cocos_ui)
     end
 
-    self:RegisterEventListen()
-	self:_Init()
-
-	if self:CanTouch() == 1 then
+    if self:CanTouch() == 1 then
 		self:RegisterTouchEvent()
 	end
 
@@ -86,9 +79,23 @@ function SceneBase:Init(scene_name)
         local layer_debug_phyiscs = DebugPhysicsLayer:create()
 
 		layer_main:addChild(layer_debug_phyiscs, 10)
-    end
+    end	
+end
 
-	Event:FireEvent("SceneCreate", self:GetClassName(), self:GetName())
+function SceneBase:SetBackGroundImage(image_name, is_suit4screen)
+	local main_layer = self:GetLayer("main")
+	local background = cc.Sprite:create(image_name)
+	background:setAnchorPoint(cc.p(0, 0))
+	local size = background:getBoundingBox()
+	if is_suit4screen == 1 then
+		local scale1 = visible_size.width / size.width
+		local scale2 = visible_size.height / size.height
+		local scale = scale1 > scale2 and scale1 or scale2
+		background:setScale(scale)
+		size = background:getBoundingBox()
+	end
+	main_layer:addChild(background)
+	return size.width, size.height
 end
 
 function SceneBase:CreateLayer(layer_name, z_level)
@@ -166,8 +173,8 @@ function SceneBase:GetUILayer()
 	return Ui:GetLayer(ui_frame)
 end
 
-function SceneBase:GetClassName()
-	return self.class_name
+function SceneBase:GetTemplateName()
+	return self.template_name
 end
 
 function SceneBase:GetName()
@@ -267,7 +274,7 @@ function SceneBase:SetScaleRate(scale_rate)
 	self.scale_rate = scale_rate
 end
 
-function SceneBase:AddReturnMenu()
+function SceneBase:AddReturnMenu(font_size)
     local element_list = {
 	    [1] = {
 	        [1] = {
@@ -277,9 +284,9 @@ function SceneBase:AddReturnMenu()
 	        	end,
 	        },
 	    },
-	}
+	}	
     local menu_array = Menu:GenerateByString(element_list, 
-    	{font_name = Def.menu_font_name, font_size = 30, align_type = "right", interval_x = 20}
+    	{font_name = Def.menu_font_name, font_size = font_size or 30, align_type = "right", interval_x = 20}
     )
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))
@@ -295,15 +302,19 @@ function SceneBase:AddReloadMenu(font_size)
 	        		self:Reload()
 	        	end,
 	        },
-	   --      [2] = {
-				-- item_name = "重载场景",
-	   --      	callback_function = function()
-				-- 	local scene = SceneMgr:LoadScene(self:GetName())
-				-- 	scene:SysMsg("重载完毕", "green")
-	   --      	end,
-	   --      },
 	    },
 	}
+	if SceneMgr:IsRootScene() ~= 1 then
+		element_list[2] = {
+			{
+				item_name = "重载场景",
+	        	callback_function = function()
+					local scene = SceneMgr:ReloadCurrentScene()
+					scene:SysMsg("场景重载完毕", "green")
+	        	end,
+	        },
+		}
+	end
     local menu_array = Menu:GenerateByString(element_list, 
     	{font_name = Def.menu_font_name, font_size = font_size or 30, align_type = "left", interval_x = 20}
     )

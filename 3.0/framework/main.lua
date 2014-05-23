@@ -29,6 +29,17 @@ function cclog(...)
 end
 
 local function MainLoop(delta)
+	if FetchConsoleCmd then
+		local string = FetchConsoleCmd()
+		if string then
+			local f = loadstring(string)
+			if f then
+				xpcall(f, __G__TRACKBACK__)
+			else
+				cclog("Invalid CMD! %s", string)
+			end
+		end
+	end
 	local tbModule = nil
 	function ModulLoop()
 		tbModule:OnLoop(delta)

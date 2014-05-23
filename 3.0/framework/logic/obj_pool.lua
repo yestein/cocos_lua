@@ -7,10 +7,22 @@
 --=======================================================================
 
 if not ObjPool then
-	ObjPool = {}
+	ObjPool = Class:New()
 end
 
-function ObjPool:Init(obj_name, is_recycle)
+function ObjPool:IsValid()
+	if self.obj_pool then
+		return 1
+	end
+	return 0
+end
+
+function ObjPool:_Uninit()
+	self.obj_pool = nil
+	self.next_id = nil
+end
+
+function ObjPool:_Init(obj_name, is_recycle)
 	self.obj_pool = {}
 	self.next_id = 1
 	self.obj_name = obj_name
@@ -42,15 +54,26 @@ function ObjPool:UpdateNextId()
 		end
 	end
 	self.next_id = self.next_id + 1
-end
-
-function ObjPool:Uninit()
-	self.obj_pool = nil
-	self.next_id = nil
+	while (self.obj_pool[self.next_id]) do
+		self.next_id = self.next_id + 1
+	end
 end
 
 function ObjPool:Add(obj_template, ...)
-	local obj = Lib:NewClass(obj_template)
+	local obj = Class:New(obj_template)
+	local id = self:GetNextId()
+	if obj:Init(id, ...) == 1 then
+		self.obj_pool[id] = obj
+		self:UpdateNextId()
+		Event:FireEvent(self.obj_name..".ADD", id, ...)
+		return obj, id
+	else
+		cclog("Add Error")
+	end
+end
+
+function ObjPool:AddById(obj_template, id, ...)
+	local obj = Class:New(obj_template)
 	local id = self:GetNextId()
 	if obj:Init(id, ...) == 1 then
 		self.obj_pool[id] = obj
@@ -99,7 +122,9 @@ function ObjPool:RemoveAll(callback)
 end
 
 function ObjPool:ForEach(callback, ...)
-	for id, obj in pairs(self.obj_pool) do
-		callback(id, obj, ...)
+	if self.obj_pool then
+		for id, obj in pairs(self.obj_pool) do
+			callback(id, obj, ...)
+		end
 	end
 end

@@ -10,11 +10,12 @@ if not CmdNode then
 	CmdNode = NewLogicNode("CMD")
 end
 
-function CmdNode:Init( ... )
+function CmdNode:_Init( ... )
 	self.command_pool = {}
+	return 1
 end
 
-function CmdNode:Uninit( ... )
+function CmdNode:_Uninit( ... )
 	-- body
 end
 

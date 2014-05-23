@@ -21,7 +21,7 @@ local move_offset = {
 	right_down = {1, -1}, 
 }
 
-function MoveNode:Uninit()
+function MoveNode:_Uninit()
 	self.x         = nil
 	self.y         = nil	
 	self.speed     = nil
@@ -30,16 +30,16 @@ function MoveNode:Uninit()
 	self.target_pos = nil
 end
 
-function MoveNode:Init(x, y, speed)
+function MoveNode:_Init(x, y, speed)
 	self.x           = x
 	self.y           = y
 	self.speed       = speed
 	self.cur_speed_x = 0
 	self.cur_speed_y = 0
-	self.is_run      = 0
 
 	self.next_pos   = {x = -1, y = -1}
 	self.target_pos = {x = -1, y = -1}
+	return 1
 end
 
 function MoveNode:OnActive(frame)
@@ -59,10 +59,6 @@ function MoveNode:OnActive(frame)
 	end
 end
 
-function MoveNode:IsRun()
-	return self.is_run
-end
-
 function MoveNode:Stop()
 	self.target_pos.x = -1
 	self.target_pos.y = -1
@@ -70,16 +66,15 @@ function MoveNode:Stop()
 	self.next_pos.y   = -1
 	self.cur_speed_x  = 0
 	self.cur_speed_y  = 0
-	self.is_run       = 0
 	self:GetParent():SetActionState("normal")
-	local event_name = self:GetParent():GetNodeName()..".STOP"
+	local event_name = self:GetParent():GetClassName()..".STOP"
 	Event:FireEvent(event_name, self:GetParent():GetId())
 end
 
 function MoveNode:MoveTo(x, y)
 	x = math.floor(x)
 	y = math.floor(y)
-	local event_name = self:GetParent():GetNodeName()..".MOVETO"
+	local event_name = self:GetParent():GetClassName()..".MOVETO"
 	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
 	local old_speed_x = self.cur_speed_x
 	local old_speed_y = self.cur_speed_y
@@ -87,9 +82,8 @@ function MoveNode:MoveTo(x, y)
 	self.cur_speed_y = y - self.y
 
 	if old_speed_x == 0 and old_speed_y == 0 then
-		self.is_run = 1
 		self:GetParent():SetActionState("run")
-		local event_name = self:GetParent():GetNodeName()..".RUN"
+		local event_name = self:GetParent():GetClassName()..".RUN"
 		Event:FireEvent(event_name, self:GetParent():GetId())
 	end
 	if self.cur_speed_x > 0 then
@@ -105,20 +99,14 @@ function MoveNode:GoTo(x, y)
 	x = math.floor(x)
 	y = math.floor(y)
 	local owner = self:GetParent()
-	if owner:GetActionState() ~= "normal" then
-		owner:InsertCommand({"GoTo", x, y}, 1)
-		return
-	end
 	if self.x == x and self.y == y then
 		return
 	end
-	local event_name = owner:GetNodeName()..".GOTO"
+	local event_name = owner:GetClassName()..".GOTO"
 	Event:FireEvent(event_name, owner:GetId(), x, y)
 	self.target_pos.x = x
 	self.target_pos.y = y
 	self:GenerateNextPos()
-	--self:MoveTo(self.next_pos.x, self.next_pos.y)
-	--self:GenerateNextPos()
 end
 
 function MoveNode:GenerateNextPos()
@@ -149,7 +137,7 @@ end
 function MoveNode:TransportTo(x, y)
 	self.x = x
 	self.y = y
-	local event_name = self:GetParent():GetNodeName()..".TRANSPORT"
+	local event_name = self:GetParent():GetClassName()..".TRANSPORT"
 	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
 end
 

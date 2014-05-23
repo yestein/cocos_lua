@@ -1,5 +1,5 @@
 --=======================================================================
--- File Name    : module_base.lua
+-- File Name    : module_mgr.lua
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : Thu Mar 27 16:16:44 2014
 -- Description  :
@@ -13,10 +13,13 @@ if not ModuleMgr then
 	}
 end
 
+if not ModuleBase then
+	ModuleBase = Class:New(LogicNode, "MODULE")
+end
+
 function ModuleMgr:NewModule(module_name)
 	assert(not self.module_list[module_name])
-	local class_module = Lib:NewClass(ModuleBase)
-	class_module.__name = module_name
+	local class_module = Class:New(ModuleBase, module_name)
 	self.module_list[module_name] = class_module
 	return class_module
 end
@@ -52,25 +55,3 @@ end
 function ModuleMgr:UnregisterActive(module_name)
 	self.active_module[module_name] = nil
 end
-
-if not ModuleBase then
-	ModuleBase = NewLogicNode("MODULE")
-end
-
-function ModuleBase:Init(...)
-	self:RegisterEventListen()
-	self:_Init(...)
-end
-
-function ModuleBase:Uninit( ... )
-	self:_Uninit(...)
-	self:UninitChild()
-	self:UnregisterEventListen()
-	self.__name = nil
-end
-
-function ModuleBase:GetName()
-	return self.__name
-end
-
-
