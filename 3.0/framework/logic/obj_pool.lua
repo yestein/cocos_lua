@@ -72,18 +72,16 @@ function ObjPool:Add(obj_template, ...)
 	end
 end
 
-function ObjPool:AddById(obj_template, id, ...)
-	local obj = Class:New(obj_template)
-	local id = self:GetNextId()
-	if obj:Init(id, ...) == 1 then
-		self.obj_pool[id] = obj
-		self:UpdateNextId()
-		Event:FireEvent(self.obj_name..".ADD", id, ...)
-		return obj, id
-	else
-		cclog("Add Error")
-	end
-end
+-- function ObjPool:AddById(obj_template, id, ...)
+-- 	local obj = Class:New(obj_template)
+-- 	if obj:Init(id, ...) == 1 then
+-- 		self.obj_pool[id] = obj
+-- 		Event:FireEvent(self.obj_name..".ADD", id, ...)
+-- 		return obj, id
+-- 	else
+-- 		cclog("Add Error")
+-- 	end
+-- end
 
 function ObjPool:Remove(id)
 	if not id or not self.obj_pool[id] then
@@ -124,7 +122,10 @@ end
 function ObjPool:ForEach(callback, ...)
 	if self.obj_pool then
 		for id, obj in pairs(self.obj_pool) do
-			callback(id, obj, ...)
+			local ret = callback(id, obj, ...)
+			if ret == 0 then
+				return
+			end
 		end
 	end
 end

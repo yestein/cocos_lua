@@ -10,6 +10,8 @@ if not MoveNode then
 	MoveNode = NewLogicNode("MOVE")
 end
 
+MoveNode.interval = 0.25
+
 local move_offset = {
 	left       = {-1, 0}, 
 	right      = {1, 0},  
@@ -22,17 +24,15 @@ local move_offset = {
 }
 
 function MoveNode:_Uninit()
-	self.x         = nil
-	self.y         = nil	
+	self.position  = nil
 	self.speed     = nil
 
 	self.next_pos   = nil
 	self.target_pos = nil
 end
 
-function MoveNode:_Init(x, y, speed)
-	self.x           = x
-	self.y           = y
+function MoveNode:_Init(position, speed)
+	self.position    = position
 	self.speed       = speed
 	self.cur_speed_x = 0
 	self.cur_speed_y = 0
@@ -49,7 +49,8 @@ function MoveNode:OnActive(frame)
 	if self:IsHaveNextPos() ~= 1 then
 		return
 	end
-	if frame % 5 == 0 then
+
+	if frame % math.floor(GameMgr:GetFPS() * self.interval ) == 0 then
 		self:MoveTo(self.next_pos.x, self.next_pos.y)
 		if self:IsArriveTarget() == 1 then
 			self:Stop()
@@ -78,8 +79,8 @@ function MoveNode:MoveTo(x, y)
 	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
 	local old_speed_x = self.cur_speed_x
 	local old_speed_y = self.cur_speed_y
-	self.cur_speed_x = x - self.x
-	self.cur_speed_y = y - self.y
+	self.cur_speed_x = x - self.position.x
+	self.cur_speed_y = y - self.position.y
 
 	if old_speed_x == 0 and old_speed_y == 0 then
 		self:GetParent():SetActionState("run")
@@ -91,15 +92,15 @@ function MoveNode:MoveTo(x, y)
 	else
 		self:GetParent():SetDirection("left")
 	end
-	self.x = x
-	self.y = y
+	self.position.x = x
+	self.position.y = y
 end
 
 function MoveNode:GoTo(x, y)
 	x = math.floor(x)
 	y = math.floor(y)
 	local owner = self:GetParent()
-	if self.x == x and self.y == y then
+	if self.position.x == x and self.position.y == y then
 		return
 	end
 	local event_name = owner:GetClassName()..".GOTO"
@@ -113,36 +114,37 @@ function MoveNode:GenerateNextPos()
 	if self:IsHaveTarget() ~= 1 then
 		return
 	end
-	local distance = Lib:GetDistance(self.x, self.y, self.target_pos.x, self.target_pos.y)
+	local x, y = self.position.x, self.position.y
+	local distance = Lib:GetDistance(x, y, self.target_pos.x, self.target_pos.y)
 	if distance <= self.speed then
 		self.next_pos.x = self.target_pos.x
 		self.next_pos.y = self.target_pos.y
 		return
 	end
 	local rate = self.speed / distance
-	local offset_x = math.ceil((self.target_pos.x - self.x) * rate)
-	local offset_y = math.ceil((self.target_pos.y - self.y) * rate)
+	local offset_x = math.ceil((self.target_pos.x - x) * rate)
+	local offset_y = math.ceil((self.target_pos.y - y) * rate)
 
-	self.next_pos.x = self.x + offset_x
-	self.next_pos.y = self.y + offset_y
+	self.next_pos.x = x + offset_x
+	self.next_pos.y = y + offset_y
 end
 
 function MoveNode:MoveByDirection(direction)
 	self:SetDirection(direction)
 	local offset_x, offset_y = unpack(move_offset[direction])
 
-	self:MoveTo(self.x + (offset_x * self.speed), self.y + (offset_y * self.speed))
+	self:MoveTo(self.position.x + (offset_x * self.speed), self.position.y + (offset_y * self.speed))
 end
 
 function MoveNode:TransportTo(x, y)
-	self.x = x
-	self.y = y
+	self.position.x = x
+	self.position.y = y
 	local event_name = self:GetParent():GetClassName()..".TRANSPORT"
 	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
 end
 
 function MoveNode:GetPosition()
-	return self.x, self.y
+	return self:GetParent():GetPosition()
 end
 
 function MoveNode:GetSpeed()
@@ -171,7 +173,7 @@ function MoveNode:IsArriveTarget()
 	if self:IsHaveTarget() ~= 1 then
 		return 0
 	end
-	if self.x ~= self.target_pos.x or self.y ~= self.target_pos.y then
+	if self.position.x ~= self.target_pos.x or self.position.y ~= self.target_pos.y then
 		return 0
 	end
 	return 1
