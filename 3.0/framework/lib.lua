@@ -253,3 +253,9 @@ function Lib:IsIntersects(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height
 
     return 1
 end
+
+function Lib:GetLogFileByTime(prefix)
+	local t = os.date("*t",time)
+	local file_name = string.format("%s_%d_%d_%d_%d_%d.log", prefix, t.year, t.month, t.day, t.hour, t.min)
+	return file_name
+end

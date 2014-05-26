@@ -18,15 +18,13 @@ end
 cc.FileUtils:getInstance():addSearchPath("src")
 cc.FileUtils:getInstance():addSearchPath("res")
 __platform = cc.Application:getInstance():getTargetPlatform()
+__write_path = cc.FileUtils:getInstance():getWritablePath()
+visible_size = cc.Director:getInstance():getVisibleSize()
 
 require("project.lua")
 require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
 PreloadScript()
-
-function cclog(...)
-    print(string.format(...))
-end
 
 local function MainLoop(delta)
 	if FetchConsoleCmd then

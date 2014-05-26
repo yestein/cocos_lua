@@ -21,11 +21,51 @@ Debug.watch_event_black_list = {
 
 }
 
-function Debug:SetEventLogPath(file_path)
-	if file_path then
-		self.fp = io.open(file_path, "w")
-	elseif self.fp then
-		io.close(self.fp)
+function WriteLog(prefix,text)
+	local time_text = os.date("%Y-%m-%d %H:%M:%S")
+	local content = string.format("[%s][%s]%s", time_text, prefix, text)
+	Debug.fp:write(content.."\n")
+	Debug.fp:flush ()
+	if Debug.is_need_display == 1 then
+		print(prefix..text)
+	end
+end
+
+function cclog(...)
+    local text = string.format(...)
+    if Debug.fp then
+    	WriteLog("CCLog", text)
+	else
+		print("[CCLog]"..text)
+	end
+end
+
+function PrintEvent(...)
+	local text = ""
+	for _, v in ipairs({...}) do
+		text = text .. "\t" .. tostring(v)
+	end
+	if Debug.fp then
+		WriteLog("Event", text)
+	else
+		print("[Event]"..text)
+	end
+end
+
+function Debug:EnableLog(is_need_display)
+	if self.fp then
+		self.fp:close()
+	end
+	local log_path = Lib:GetLogFileByTime("log")
+	if log_path then
+		self.fp = io.open(__write_path..log_path, "w")
+	end
+	self.is_need_display = is_need_display
+end
+
+function Debug:CloseLog()
+	if self.fp then
+		self.fp:close()
 	end
 end
 
@@ -40,11 +80,11 @@ end
 function Debug:SetMode(mode)
 	self.mode = mode
 	if mode == self.MODE_BLACK_LIST then
-		Event:RegistWatcher(Debug.watch_event_black_list, self.Print)
+		Event:RegistWatcher(Debug.watch_event_black_list, PrintEvent)
 	elseif mode == self.MODE_WHITE_LIST then
 		self.event_watch_list = {}
 		for _, event_type in ipairs(Debug.watch_event_list) do
-			self.event_watch_list[event_type] = Event:RegistEvent(event_type, self.Print, event_type)
+			self.event_watch_list[event_type] = Event:RegistEvent(event_type, PrintEvent, event_type)
 		end
 	end
 end
@@ -62,20 +102,6 @@ function Debug:ChangeMode(mode)
 		self.event_watch_list = {}
 	end
 	self:SetMode(mode)
-end
-
-function Debug.Print(...)
-	local text = ""
-	for _, v in ipairs({...}) do
-		text = text .. "\t" .. tostring(v)
-	end
-	if Debug.fp then
-		local time_text = os.date("%Y-%m-%d %H:%M:%S")
-		local content = string.format("[%s]%s", time_text, text)
-		Debug.fp:write(text)
-	else
-		print("[Event]"..text)
-	end
 end
 
 function Debug.Printf(Fmt, ...)
