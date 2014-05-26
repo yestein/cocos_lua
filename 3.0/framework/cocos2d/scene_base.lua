@@ -124,39 +124,55 @@ function SceneBase:GetLayer(layer_name)
 	return self.layer_list[layer_name]
 end
 
-function SceneBase:AddObj(layer_name, obj_name, obj)
+function SceneBase:AddObj(layer_name, obj_type, id, obj)
 	local layer = self:GetLayer(layer_name)
 	if not self.obj_list[layer_name] then
 		self.obj_list[layer_name] = {}
 	end
-	if self.obj_list[layer_name][obj_name] then
-		cclog("Obj[%s][%s] Already Exisits", tostring(layer_name), tostring(obj_name))
+	if not self.obj_list[layer_name][obj_type] then
+		self.obj_list[layer_name][obj_type] = {}
+	end
+	if self.obj_list[layer_name][obj_type][id] then
+		cclog("Obj[%s][%s][%s] Already Exisits", tostring(layer_name), tostring(obj_type), tostring(id))
 		return 0
 	end
 	layer:addChild(obj)
-	self.obj_list[layer_name][obj_name] = obj
+	self.obj_list[layer_name][obj_type][id] = obj
 	return 1
 end
 
-function SceneBase:GetObj(layer_name, obj_name)
+function SceneBase:GetObj(layer_name, obj_type, id)
+	local obj_list = self:GetObjList(layer_name, obj_type)
+	if not obj_list then
+		return nil
+	end
+	return obj_list[id]
+end
+
+function SceneBase:GetObjList(layer_name, obj_type)
 	if not self.obj_list[layer_name] then
 		return nil
 	end
-	return self.obj_list[layer_name][obj_name]
+	return self.obj_list[layer_name][obj_type]
 end
 
-function SceneBase:RemoveObj(layer_name, obj_name, is_cleanup)
+function SceneBase:RemoveObj(layer_name, obj_type, id, is_cleanup)
 	local layer = self:GetLayer(layer_name)
 	if not layer then
 		cclog("No Layer[%s]", tostring(layer_name))
 		return 0
 	end
-	if not self.obj_list[layer_name] or not self.obj_list[layer_name][obj_name] then
-		cclog("No Obj[%s][%s]", tostring(layer_name),  tostring(obj_name))
+	if not self.obj_list[layer_name] or not self.obj_list[layer_name][obj_type] then
+		cclog("No ObjType[%s][%s]", tostring(layer_name), tostring(obj_type))
+		return 0
+	end
+	local type_obj = self.obj_list[layer_name][obj_type]
+	if not type_obj[id] then
+		cclog("No ObjType[%s][%s][%s]", tostring(layer_name), tostring(obj_type), tostring(id))
 		return 0
 	end
 	layer:removeChild(obj, is_cleanup or true)
-	self.obj_list[layer_name][obj_name] = nil
+	self.obj_list[layer_name][obj_type][id] = nil
 	return 1
 end
 
@@ -290,16 +306,19 @@ function SceneBase:AddReturnMenu(font_size)
 end
 
 function SceneBase:AddReloadMenu(font_size)
-    local element_list = {
-	    [1] = {
-	        [1] = {
-				item_name = "重载脚本",
-	        	callback_function = function()
-	        		self:Reload()
-	        	end,
-	        },
-	    },
-	}
+    local element_list = {}
+    if __platform == cc.PLATFORM_OS_WINDOWS then
+    	local one = 
+    	{
+    		{
+    			item_name = "重载脚本",
+				callback_function = function()
+					self:Reload()
+				end,
+			},
+		}
+		table.insert(element_list, one)
+	end
 	if SceneMgr:IsRootScene() ~= 1 then
 		element_list[2] = {
 			{

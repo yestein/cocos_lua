@@ -33,8 +33,7 @@ function SkeltonPool:Create(layer_name, id, skelton_name, orgin_direction, param
 		return
 	end
 	local armature = skelton:GetArmature()
-	local obj_name = "skelton"..id
-	self.scene:AddObj(layer_name, obj_name, armature)
+	self.scene:AddObj(layer_name, "skelton", id, armature)
 	self.skelton_list[id] = {skelton, layer_name}
 	return skelton
 end
@@ -49,8 +48,7 @@ end
 function SkeltonPool:RemoveById(id)
 	local skelton, layer_name = self:GetById(id)
 	if skelton then
-		local obj_name = "skelton"..id
-		self.scene:RemoveObj(layer_name, obj_name, true)
+		self.scene:RemoveObj(layer_name, "skelton", id, true)
 		skelton:Uninit()		
 		self.skelton_list[id] = nil
 	end

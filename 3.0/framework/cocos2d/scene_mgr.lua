@@ -98,7 +98,7 @@ function SceneMgr:CreateScene(scene_name, scene_template_name)
     scene.template_name = scene_template_name
     self.scene_list[scene_name] = scene
     scene:Init(scene_name)
-    Event:FireEvent("SceneCreate", scene_template_name, scene_name)
+    Event:FireEvent("SCENE.CREATE", scene_template_name, scene_name)
 	return scene
 end
 
@@ -117,7 +117,7 @@ function SceneMgr:DestroyScene(scene_name)
     if delete_index then
         table.remove(self.current_scene_list, delete_index)
     end
-    Event:FireEvent("SceneDestroy", self.scene_list[scene_name]:GetClassName(), scene_name)
+    Event:FireEvent("SCENE.DESTORY", self.scene_list[scene_name]:GetClassName(), scene_name)
     self.scene_list[scene_name]:Uninit()
     self.scene_list[scene_name] = nil
     return scene_list

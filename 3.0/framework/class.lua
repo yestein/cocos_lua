@@ -51,10 +51,10 @@ end
 
 local function Uninit(self, ...)
 	local uninit_func = rawget(self, "_Uninit")
-	if uninit_func then
-		if Class.is_debug == 1 then
-			print(rawget(self, "__class_name"), " Init..")
-		end
+	if Class.is_debug == 1 then
+		print(rawget(self, "__class_name"), " Uninit..")
+	end
+	if uninit_func then		
 		uninit_func(self, ...)
 	end
 
