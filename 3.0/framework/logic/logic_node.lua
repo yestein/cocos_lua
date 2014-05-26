@@ -29,7 +29,6 @@ function LogicNode:_Uninit( ... )
 	self.max_order        = nil
 	self.child_list       = nil
 	self.child_list_order = nil
-	self.event_listener   = nil
 	self.reg_event_list   = nil
 end
 
