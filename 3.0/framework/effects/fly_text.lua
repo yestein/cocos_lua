@@ -86,6 +86,7 @@ function FlyText:RandomJumped(target_obj, custom_font_path, text, param)
 
 	action_list[#action_list + 1] = cc.RemoveSelf:create()
 	jumped_text:runAction(cc.Sequence:create(unpack(action_list)))
+	jumped_text:setLocalZOrder(1000)
 end
 
 function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, param)
@@ -107,6 +108,7 @@ function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, par
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
 	layer:addChild(jumped_text)
+	jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
 
 	local jump_time = param.jump_time or 1
 	local delay_time = param.delay_time or 0
@@ -134,7 +136,7 @@ function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, par
 	if param.text_scale then
 		action_spawn[#action_spawn + 1] = cc.ScaleTo:create(0.1, param.text_scale)
 	end
-	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))
+	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))	
 end
 
 function FlyText:VerticalShake(target_obj, custom_font_path, text, param)
