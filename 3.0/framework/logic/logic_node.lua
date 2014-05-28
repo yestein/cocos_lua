@@ -23,7 +23,7 @@ function LogicNode:_Init( ... )
 end
 
 function LogicNode:_Uninit( ... )
-
+	self.__uninit = 1
 	self:UninitChild()
 	self:UnregisterEventListen()
 	self.max_order        = nil
@@ -172,6 +172,9 @@ function LogicNode:ReceiveMessage(msg, ...)
 	for _, body in ipairs(result) do
 		local func, owner = unpack(body)
 		func(owner, ...)
+		if self.__uninit == 1 then
+			return
+		end
 	end
 end
 
