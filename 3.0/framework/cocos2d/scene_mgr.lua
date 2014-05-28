@@ -57,7 +57,7 @@ function SceneMgr:GetClass(class_name, is_need_create)
 end
 
 
-if _DEBUG then
+if __Debug then
     --检查是否所有的继承类都实现了该实现的方法
     function SceneMgr:CheckAllClass()
 

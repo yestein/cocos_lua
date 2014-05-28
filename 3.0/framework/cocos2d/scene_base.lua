@@ -171,7 +171,7 @@ function SceneBase:RemoveObj(layer_name, obj_type, id, is_cleanup)
 		cclog("No ObjType[%s][%s][%s]", tostring(layer_name), tostring(obj_type), tostring(id))
 		return 0
 	end
-	layer:removeChild(obj, is_cleanup or true)
+	layer:removeChild(type_obj[id], is_cleanup or true)
 	self.obj_list[layer_name][obj_type][id] = nil
 	return 1
 end
@@ -325,7 +325,7 @@ function SceneBase:AddReloadMenu(font_size)
 				item_name = "重载场景",
 	        	callback_function = function()
 					local scene = SceneMgr:ReloadCurrentScene()
-					scene:SysMsg("场景重载完毕", "green")
+					scene:SysMsg("场景重载完毕", "red")
 	        	end,
 	        },
 		}
@@ -521,7 +521,7 @@ end
 function SceneBase:Reload()
 	if __platform == cc.PLATFORM_OS_WINDOWS then
 		ReloadScript()
-		self:SysMsg("脚本重载完毕", "green")
+		self:SysMsg("脚本重载完毕", "red")
 	end
 end
 
