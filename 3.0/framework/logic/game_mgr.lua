@@ -50,4 +50,5 @@ function GameMgr:OnActive(frame)
 			func(module, frame)
 		end
 	)
+	--TODO Garbage Collect!!!!
 end

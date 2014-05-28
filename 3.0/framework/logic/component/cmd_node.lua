@@ -49,8 +49,8 @@ function CmdNode:InsertCommand(command, delay_frame)
 end
 
 function CmdNode:Execute(command)
+	Event:FireEvent("EXECUTE_CMD", command[1], unpack(command, 2))
 	local func_name = command[1]
 	local parent_obj = self:GetParent()
-	parent_obj:TryCall(func_name, unpack(command, 2))
-	Event:FireEvent("EXECUTE_CMD", command[1], unpack(command, 2))
+	parent_obj:TryCall(func_name, unpack(command, 2))	
 end

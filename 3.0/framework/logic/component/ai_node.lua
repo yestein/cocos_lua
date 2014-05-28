@@ -20,7 +20,7 @@ end
 function AINode:AddAI(ai_name, order)
 	local ai_class = AI:GetClass(ai_name)
 	if not ai_class then
-		cclog("No AI [%s]", ai_name)
+		assert(false, "No AI [%s]", ai_name)
 		return 0
 	end
 	self.ai_list[ai_name] = {class = ai_class, order = order}
