@@ -80,7 +80,7 @@ local function main()
     Debug:Init(Debug.MODE_BLACK_LIST)
     
     SceneMgr:Init()
-    if _DEBUG then
+    if __Debug then
     	assert(SceneMgr:CheckAllClass() == 1)
     end
     Physics:Init()
@@ -89,6 +89,7 @@ local function main()
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("Current Project", PROJECT_PATH)
     print("Platform: ", __platform)
+    print("Debug:", __Debug)
     GameMgr:Init()
 end
 

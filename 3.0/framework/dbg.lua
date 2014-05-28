@@ -21,53 +21,20 @@ Debug.watch_event_black_list = {
 
 }
 
-function WriteLog(prefix,text)
-	local time_text = os.date("%Y-%m-%d %H:%M:%S")
-	local content = string.format("[%s][%s]%s", time_text, prefix, text)
-	Debug.fp:write(content.."\n")
-	Debug.fp:flush ()
-	if Debug.is_need_display == 1 then
-		print(prefix..text)
-	end
-end
-
-function cclog(...)
-    local text = string.format(...)
-    if Debug.fp then
-    	WriteLog("CCLog", text)
-	else
-		print("[CCLog]"..text)
-	end
+function cclog(fmt, ...)
+    Log:Print(Log.LOG_DEBUG, fmt, ...)
+    assert(false)
 end
 
 function PrintEvent(...)
 	local text = ""
-	for _, v in ipairs({...}) do
-		text = text .. "\t" .. tostring(v)
+	local count = select("#", ...)
+	for i = 1, count do
+		text = text .. "\t" .. tostring(select(i, ...))
 	end
-	if Debug.fp then
-		WriteLog("Event", text)
-	else
-		print("[Event]"..text)
-	end
+	Log:Print(Log.LOG_DEBUG, "[Event] %s", text)
 end
 
-function Debug:EnableLog(is_need_display)
-	if self.fp then
-		self.fp:close()
-	end
-	local log_path = Lib:GetLogFileByTime("log")
-	if log_path then
-		self.fp = io.open(__write_path..log_path, "w")
-	end
-	self.is_need_display = is_need_display
-end
-
-function Debug:CloseLog()
-	if self.fp then
-		self.fp:close()
-	end
-end
 
 function Debug:AddBlackEvent(event_type)
 	self.watch_event_black_list[event_type] = 1
@@ -102,12 +69,4 @@ function Debug:ChangeMode(mode)
 		self.event_watch_list = {}
 	end
 	self:SetMode(mode)
-end
-
-function Debug.Printf(Fmt, ...)
-	if select("#", ...) <= 0 then
-		print(Fmt)
-	else
-		print(string.format(Fmt, ...))
-	end
 end
