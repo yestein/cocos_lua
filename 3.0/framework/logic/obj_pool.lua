@@ -89,9 +89,7 @@ function ObjPool:Remove(id)
 	end
 
 	Event:FireEvent(self.obj_name..".REMOVE", id)
-	if self.obj_pool[id]:Uninit() ~= 1 then
-		return 0
-	end
+	self.obj_pool[id]:Uninit()
 	self.obj_pool[id] = nil
 	if self.is_recycle == 1 then
 		self.recycle_id_list[#self.recycle_id_list + 1] = id
