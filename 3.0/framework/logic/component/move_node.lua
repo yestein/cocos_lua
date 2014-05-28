@@ -10,7 +10,7 @@ if not MoveNode then
 	MoveNode = NewLogicNode("MOVE")
 end
 
-MoveNode.interval = 0.25
+MoveNode.interval = 0.1
 
 local move_offset = {
 	left       = {-1, 0}, 
@@ -36,6 +36,7 @@ function MoveNode:_Init(position, speed)
 	self.speed       = speed
 	self.cur_speed_x = 0
 	self.cur_speed_y = 0
+	self.interval_frame = math.floor(self.interval * GameMgr:GetFPS())
 
 	self.next_pos   = {x = -1, y = -1}
 	self.target_pos = {x = -1, y = -1}
@@ -50,7 +51,7 @@ function MoveNode:OnActive(frame)
 		return
 	end
 
-	if frame % math.floor(GameMgr:GetFPS() * self.interval ) == 0 then
+	if (frame - self.move_frame) >= self.interval_frame then
 		self:MoveTo(self.next_pos.x, self.next_pos.y)
 		if self:IsArriveTarget() == 1 then
 			self:Stop()
@@ -67,7 +68,8 @@ function MoveNode:Stop()
 	self.next_pos.y   = -1
 	self.cur_speed_x  = 0
 	self.cur_speed_y  = 0
-	self:GetParent():SetActionState("normal")
+	self.move_frame = nil
+	self:GetParent():TryCall("SetActionState", Character.STATE_NORMAL)
 	local event_name = self:GetParent():GetClassName()..".STOP"
 	Event:FireEvent(event_name, self:GetParent():GetId())
 end
@@ -83,17 +85,18 @@ function MoveNode:MoveTo(x, y)
 	self.cur_speed_y = y - self.position.y
 
 	if old_speed_x == 0 and old_speed_y == 0 then
-		self:GetParent():SetActionState("run")
+		self:GetParent():TryCall("SetActionState", Character.STATE_RUN)
 		local event_name = self:GetParent():GetClassName()..".RUN"
 		Event:FireEvent(event_name, self:GetParent():GetId())
 	end
 	if self.cur_speed_x > 0 then
 		self:GetParent():SetDirection("right")
-	else
+	elseif self.cur_speed_x < 0 then
 		self:GetParent():SetDirection("left")
 	end
 	self.position.x = x
 	self.position.y = y
+	self.move_frame = GameMgr:GetCurrentFrame()
 end
 
 function MoveNode:GoTo(x, y)
@@ -108,6 +111,10 @@ function MoveNode:GoTo(x, y)
 	self.target_pos.x = x
 	self.target_pos.y = y
 	self:GenerateNextPos()
+	if not self.move_frame then
+		self:MoveTo(self.next_pos.x, self.next_pos.y)
+		self:GenerateNextPos()
+	end
 end
 
 function MoveNode:GenerateNextPos()
