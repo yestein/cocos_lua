@@ -45,11 +45,11 @@ function CmdNode:InsertCommand(command, delay_frame)
 		self.command_pool[frame] = {}
 	end
 	table.insert(self.command_pool[frame], command)
-	Event:FireEvent("RECEIVE_CMD", command[1], command, delay_frame)
+	Event:FireEvent("RECEIVE_CMD", self:GetParent():GetId(), command[1], command, delay_frame)
 end
 
 function CmdNode:Execute(command)
-	Event:FireEvent("EXECUTE_CMD", command[1], unpack(command, 2))
+	Event:FireEvent("EXECUTE_CMD", self:GetParent():GetId(), command[1], unpack(command, 2))
 	local func_name = command[1]
 	local parent_obj = self:GetParent()
 	parent_obj:TryCall(func_name, unpack(command, 2))	

@@ -9,7 +9,7 @@
 if not Skelton then
 	Skelton = Class:New(nil, "SKELTON")
 	Skelton.DEFAULT_NAME = {
-		attack = "attack",
+		skill = "attack",
 		normal = "loading",
 		hit    = "smitten",
 		death  = "death",
@@ -19,6 +19,7 @@ if not Skelton then
 end
 
 function NewSkelton(skelton_name, orgin_direction, param)
+	assert(skelton_name)
 	local skelton = Class:New(Skelton)
 	if skelton:Init(skelton_name, orgin_direction, param) ~= 1 then
 		return 
@@ -33,6 +34,7 @@ function Skelton:_Uninit()
 	self.animation_func         = nil
 	self.frame_func             = nil
 	self.current_animation      = nil
+	self.scale 					= nil
 end
 
 function Skelton:_Init(skelton_name, orgin_direction, param)
@@ -41,6 +43,10 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 		return 0
 	end
 
+	self.scale = 1
+	if param and param.scale then
+		self.scale = param.scale
+	end
 	self.orgin_direction = orgin_direction
 	self.armature = armature
 	self.animation_replace_name = {}
@@ -77,6 +83,10 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 
 		if param.replace_animation_name then
 			self.animation_replace_name = param.replace_animation_name
+		end
+
+		if param.scale then
+			self.scale = param.scale
 		end
 	end
 
@@ -125,8 +135,9 @@ end
 
 function Skelton:SetDirection(direction)
 	if direction == self.orgin_direction then
-		self.armature:setScaleX(1)
+		self.armature:setScaleX(self.scale)
 	else
-		self.armature:setScaleX(-1)
+		self.armature:setScaleX(-self.scale)
 	end
+	self.armature:setScaleY(self.scale)
 end
