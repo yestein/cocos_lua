@@ -18,6 +18,7 @@ end
 
 function PreloadScript()
 	for _, script_file in ipairs(g_script_list) do
+		print("loading \""..script_file.."\"")
 		require(script_file)
 	end
 end
@@ -34,11 +35,12 @@ function ReloadScript()
 	end
 end
 
+AddPreloadFile("framework/log.lua")
 AddPreloadFile("framework/lib.lua")
 AddPreloadFile("framework/class.lua")
 AddPreloadFile("framework/event.lua")
 AddPreloadFile("framework/dbg.lua")
-AddPreloadFile("framework/log.lua")
+
 
 AddPreloadFile("framework/physics_mgr.lua")
 AddPreloadFile("framework/define.lua")
