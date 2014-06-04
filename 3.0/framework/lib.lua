@@ -68,12 +68,10 @@ function Lib:MergeTable(table_dest, table_src)
 	end
 end
 
-function Lib:ShowTB(table)
-	return self:ShowTBN(table, 7)
-end
-
-function Lib:ShowTBN(table_raw, n)
-
+function Lib:ShowTB(table_raw, n)
+	if not n then
+		n = 7
+	end
 	local function showTB(table, deepth, max_deepth)
 		if deepth > n or deepth > max_deepth then
 			return

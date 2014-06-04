@@ -75,10 +75,10 @@ function Log:Print(log_level, fmt, ...)
 end
 
 function Log:_Print(log_level, text)
-	if log_level >= self.log_level then
+	if self.log_level and log_level >= self.log_level then
 		self:WriteLog(log_level, text)
 	end
-	if log_level >= self.view_level then
+	if not self.view_level or log_level >= self.view_level then
 		print(text)
 	end
 end

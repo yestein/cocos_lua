@@ -23,7 +23,7 @@ function AINode:AddAI(ai_name, order)
 		assert(false, "No AI [%s]", ai_name)
 		return 0
 	end
-	self.ai_list[ai_name] = {class = ai_class, order = order}
+	self.ai_list[ai_name] = {class = Class:New(ai_class), order = order}
 	self:GenerateOrderList()
 	return 1
 end
@@ -62,6 +62,6 @@ function AINode:OnActive(frame)
 		return
 	end
 	for _, ai_class in pairs(self.order_list) do
-		ai_class.OnActive(self, frame)
+		ai_class:OnActive(frame, self:GetParent())
 	end
 end

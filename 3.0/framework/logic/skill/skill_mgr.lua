@@ -6,19 +6,22 @@
 -- Modify       : 
 --=======================================================================
 
-if not Skill then
-	Skill = {
+if not SkillMgr then
+	SkillMgr = {
 		skill_pool = {},
 	}
 end
 
-function Skill:New(skill_name)
+function SkillMgr:New(skill_name)
 	if not self.skill_pool[skill_name] then
 		self.skill_pool[skill_name] = {}
 	end
 	return self.skill_pool[skill_name]
 end
 
-function Skill:GetClass(skill_name)
-	return self.skill_pool[skill_name]
+function SkillMgr:GetSkill(skill_name)
+	local skill = self.skill_pool[skill_name]
+	if skill then
+		return Lib:GetReadOnly(skill)
+	end
 end

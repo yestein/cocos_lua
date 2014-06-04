@@ -11,9 +11,25 @@ if not AI then
 	}
 end
 
+local AIBase = Class:New(nil, "AI_BASE")
+
+function AIBase:CanActive(frame)
+	if not self.next_active_frame then
+		self.next_active_frame = frame
+	end
+
+	if self.next_active_frame ~= frame then
+		return 0
+	end
+	return 1
+end
+function AIBase:SetNextActive(frame)
+	self.next_active_frame = frame
+end
+
 function AI:New(ai_name)
 	if not self.ai_pool[ai_name] then
-		self.ai_pool[ai_name] = {}
+		self.ai_pool[ai_name] = Class:New(AIBase, ai_name)
 	end
 	return self.ai_pool[ai_name]
 end
