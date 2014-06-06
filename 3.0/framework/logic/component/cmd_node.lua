@@ -46,6 +46,21 @@ function CmdNode:InsertCommand(command, delay_frame)
 	end
 	table.insert(self.command_pool[frame], command)
 	Event:FireEvent("RECEIVE_CMD", self:GetParent():GetId(), command[1], command, delay_frame)
+	return frame
+end
+
+function CmdNode:RemoveCommand(frame)
+	local command_list = self.command_pool[frame]
+	if command_list then
+		Event:FireEvent("CANCEL_CMD", self:GetParent():GetId(), frame)
+		self.command_pool[frame] = nil
+	end
+end
+
+function CmdNode:RemoveAllCmd()
+	for frame, command_list in pairs(self.command_pool) do
+		self:RemoveCommand(frame)
+	end
 end
 
 function CmdNode:Execute(command)

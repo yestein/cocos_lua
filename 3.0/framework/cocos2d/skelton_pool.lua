@@ -45,6 +45,17 @@ function SkeltonPool:GetById(id)
 	end
 end
 
+function SkeltonPool:ForEach(call_back, ...)
+	if self.skelton_list then
+		for id, obj in pairs(self.skelton_list) do
+			local ret = call_back(id, obj[1], obj[2], ...)
+			if ret == 0 then
+				return
+			end
+		end
+	end
+end
+
 function SkeltonPool:RemoveById(id)
 	local skelton, layer_name = self:GetById(id)
 	if skelton then
