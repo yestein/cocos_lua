@@ -10,7 +10,15 @@ if not Resource then
 	Resource = {}
 end
 
-function Resource:LoadAnimation(folder_name, animation_name_list)
+function Resource:LoadSpriteSheets(folder_name, animation_name_list)
+	local cache = cc.SpriteFrameCache:getInstance()
+	for _, animation_name in pairs(animation_name_list) do
+		local plist_file = folder_name.."/".. animation_name .. ".plist"
+		cache:addSpriteFrames(plist_file)
+	end
+end
+
+function Resource:LoadBoneAnimation(folder_name, animation_name_list)
 	local armature_data_manager = ccs.ArmatureDataManager:getInstance()
 	for _, animation_name in pairs(animation_name_list) do
 		local png_file = folder_name.."/".. animation_name .. "0.png"

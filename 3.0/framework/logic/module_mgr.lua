@@ -63,9 +63,12 @@ function ModuleMgr:RegisterActive(module_name, fun_name)
 	assert(active_module)
 	local active_function = active_module[fun_name]
 	assert(active_function)
+	assert(not self.active_module[active_module])
 	self.active_module[active_module] = active_function
 end
 
 function ModuleMgr:UnregisterActive(module_name)
-	self.active_module[module_name] = nil
+	local active_module = self.module_list[module_name]
+	assert(active_module)
+	self.active_module[active_module] = nil
 end

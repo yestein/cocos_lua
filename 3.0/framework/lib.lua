@@ -57,7 +57,7 @@ end
 
 function Lib:SafeCall(callback)
 	local function InnerCall()
-		callback[1](unpack(callback, 2))
+		return callback[1](unpack(callback, 2))
 	end
 	return xpcall(InnerCall, Lib.ShowStack)
 end
@@ -207,30 +207,6 @@ function Lib:GetWritablePath()
 		self.writeable_path = cc.FileUtils:getInstance():getWritablePath()
 	end
 	return self.writeable_path
-end
-
-function Lib:RegistTimer(sec, call_back)
-	local call_back_param = {
-		call_back = call_back,
-
-	}
-	local function timer_call_back()
-		local ret, next_interval = Lib:SafeCall(call_back_param.call_back)
-		if not ret then
-			CCDirector:getInstance():getScheduler():unscheduleScriptEntry(call_back_param.entry_id)
-			return
-		end
-		-- 显式重复调用
-		if next_interval == -1 then
-			return
-		end
-		CCDirector:getInstance():getScheduler():unscheduleScriptEntry(call_back_param.entry_id)
-		if next_interval and next_interval > 0 then
-			copy_call_back.entry_id = CCDirector:getInstance():getScheduler():scheduleScriptFunc(timer_call_back, next_interval, false)
-		end
-	end
-
-	call_back_param.entry_id = CCDirector:getInstance():getScheduler():scheduleScriptFunc(timer_call_back, sec, false)
 end
 
 function Lib:IsIntersects(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2)

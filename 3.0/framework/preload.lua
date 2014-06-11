@@ -41,7 +41,6 @@ AddPreloadFile("framework/class.lua")
 AddPreloadFile("framework/event.lua")
 AddPreloadFile("framework/dbg.lua")
 
-
 AddPreloadFile("framework/physics_mgr.lua")
 AddPreloadFile("framework/define.lua")
 
@@ -50,6 +49,7 @@ AddPreloadFile("framework/logic/logic_node.lua")
 AddPreloadFile("framework/logic/module_mgr.lua")
 AddPreloadFile("framework/logic/obj_base.lua")
 AddPreloadFile("framework/logic/obj_pool.lua")
+AddPreloadFile("framework/logic/timer.lua")
 
 AddPreloadFile("framework/logic/ai/ai_mgr.lua")
 AddPreloadFile("framework/logic/skill/skill_mgr.lua")
@@ -64,6 +64,7 @@ AddPreloadFile("framework/logic/component/log_node.lua")
 AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")
 AddPreloadFile("framework/cocos2d/menu.lua")
+AddPreloadFile("framework/cocos2d/sprite_sheets.lua")
 AddPreloadFile("framework/cocos2d/progress_bar.lua")
 AddPreloadFile("framework/cocos2d/scene_base.lua")
 AddPreloadFile("framework/cocos2d/scene_mgr.lua")
