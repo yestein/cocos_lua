@@ -26,6 +26,9 @@ function SceneBase:_Uninit()
 	self.cc_scene_obj:removeChild(layer_main)
 	--self:RemoveReturnMenu()
 	Ui:UninitScene(self.scene_name)
+
+	self.playing_effect = nil
+	self:UnloadAllSoundEffect()
 	self.obj_list = nil
 	self.layer_list = nil
 	self.cc_scene_obj = nil
@@ -40,13 +43,15 @@ function SceneBase:_Init(scene_name)
 	end
 	self.layer_list = {}
 	self.obj_list = {}
+	self.load_sound_effect = {}
+	self.playing_effect = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
 	self.min_height_scale = 0
 
 	self.max_scale = MAX_SCALE
-	self.scale_rate = 
+	self.scale_rate = SCALE_RATE
 	
 	self:SetWidth(visible_size.width)
 	self:SetHeight(visible_size.height)
@@ -549,4 +554,52 @@ end
 function SceneBase:LoadCocosUI(json_path)
 	local layer = Ui:GetLayer(self:GetUI())
 	return Ui:LoadJson(layer, json_path)
+end
+
+function SceneBase:LoadSoundEffect(file_path)
+	if self.load_sound_effect[file_path] then
+		return
+	end
+	Resource:LoadSoundEffect(file_path)
+	self.load_sound_effect[file_path] = 1
+end
+
+function SceneBase:UnloadAllSoundEffect()
+	for file_path, _ in pairs(self.load_sound_effect) do
+		Resource:UnloadSoundEffect(file_path)
+	end
+	self.load_sound_effect = nil
+end
+
+function SceneBase:PlaySoundEffect(file_path)
+	local effect_id = self.playing_effect[file_path]
+	if effect_id then
+		Resource:StopSoundEffect(effect_id)
+	end
+	self.playing_effect[file_path] = Resource:PlaySoundEffect(file_path)
+end
+
+function SceneBase:SetBGM(bgm_path)
+	self.bgm_path = bgm_path
+end
+
+function SceneBase:SetBGMVolume(bgm_volume)
+	self.bgm_volume = bgm_volume
+end
+
+function SceneBase:PlayBGM()
+	if self.bgm_path then
+		local bgm_full_path = nil
+	    if (cc.PLATFORM_OS_IPHONE == targetPlatform) or (cc.PLATFORM_OS_IPAD == targetPlatform) then
+	        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(self.bgm_path)
+	    else
+	        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(self.bgm_path)
+	    end
+	    cc.SimpleAudioEngine:getInstance():playMusic(bgm_full_path, true)
+	else
+		cc.SimpleAudioEngine:getInstance():stopMusic()
+	end
+	if self.bgm_volume then
+		cc.SimpleAudioEngine:getInstance():setMusicVolume(self.bgm_volume)
+	end
 end

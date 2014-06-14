@@ -19,7 +19,10 @@ if not Skelton then
 end
 
 function NewSkelton(skelton_name, orgin_direction, param)
-	assert(skelton_name)
+	if not skelton_name then
+		assert(false, "skelton_name is nil")
+		return
+	end
 	local skelton = Class:New(Skelton)
 	if skelton:Init(skelton_name, orgin_direction, param) ~= 1 then
 		return 
@@ -42,7 +45,7 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	if not armature then
 		return 0
 	end
-
+	self.skelton_name = skelton_name
 	self.scale = 1
 	if param and param.scale then
 		self.scale = param.scale
@@ -90,8 +93,7 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 		end
 	end
 
-	self.current_animation = "normal"
-	self:PlayAnimation(self.current_animation)
+	self:PlayAnimation("normal")
 	return 1
 end
 
@@ -140,4 +142,60 @@ function Skelton:SetDirection(direction)
 		self.armature:setScaleX(-self.scale)
 	end
 	self.armature:setScaleY(self.scale)
+end
+
+function Skelton:AddParticles(bone_name, particles_name, scale)
+	local bone = self.armature:getBone(bone_name)
+	if not bone then
+		assert(false, "[%s] have no Bone[%s]", self.skelton_name, bone_name)
+		return
+	end
+
+	local particles_bone_name = bone_name.."_"..particles_name
+
+	if not self.bone_particles then
+		self.bone_particles = {}
+	end
+	if self.bone_particles[particles_bone_name] then
+		assert(false, "Particles[%s] already Exists!!!", self.bone_particles[particles_bone_name])
+		return
+	end
+
+	local particles = Particles:CreateParticles(particles_name)		
+	local particles_bone = ccs.Bone:create(particles_bone_name)
+    particles_bone:addDisplay(particles, 0)
+    particles_bone:changeDisplayWithIndex(0, true)
+    particles_bone:setIgnoreMovementBoneData(true)
+    particles_bone:setLocalZOrder(100)
+    if scale then
+    	particles_bone:setScale(scale)
+    end
+
+    self.armature:addBone(particles_bone, bone_name)
+    self.bone_particles[particles_bone_name] = particles_bone
+
+    return 1
+end
+
+function Skelton:RemoveParticles(bone_name, particles_name)
+	local bone = self.armature:getBone(bone_name)
+	if not bone then
+		assert(false, "[%s] have no Bone[%s]", self.skelton_name, bone_name)
+		return
+	end
+	if not self.bone_particles then
+		assert(false, "no bone particles")
+		return
+	end
+	local particles_bone_name = bone_name.."_"..particles_name
+
+	if not self.bone_particles[particles_bone_name] then
+		assert(false, "no particles bone[%s]", particles_bone_name)
+		return
+	end
+
+
+	local particles_bone = self.bone_particles[particles_bone_name]
+	self.armature:removeBone(particles_bone, true)
+	self.bone_particles[particles_bone_name] = nil
 end

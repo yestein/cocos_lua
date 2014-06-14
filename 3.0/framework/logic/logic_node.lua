@@ -30,6 +30,15 @@ function LogicNode:_Uninit( ... )
 	self.child_list       = nil
 	self.child_list_order = nil
 	self.reg_event_list   = nil
+	self.is_debug		  = nil
+end
+
+function LogicNode:EnableDebug(is_debug)
+	self.is_debug = is_debug
+end
+
+function LogicNode:IsDebug()
+	return self.is_debug
 end
 
 function LogicNode:UninitChild()

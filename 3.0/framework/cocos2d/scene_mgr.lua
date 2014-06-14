@@ -132,7 +132,7 @@ function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
     if not scene then
         scene = self:CreateScene(scene_name, scene_template_name)
     end
-
+    scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
     CCDirector:getInstance():runWithScene(cc_scene)
 end
@@ -146,7 +146,7 @@ function SceneMgr:LoadScene(scene_template_name, scene_name)
     if not scene then
         scene = self:CreateScene(scene_name, scene_template_name)
     end
-    
+    scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
     CCDirector:getInstance():pushScene(cc_scene)
     return scene
@@ -178,6 +178,7 @@ function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
     CCDirector:getInstance():popScene()
+    self:GetCurrentScene():PlayBGM()
 end
 
 function SceneMgr:ReloadCurrentScene()

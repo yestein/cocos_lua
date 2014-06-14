@@ -69,7 +69,7 @@ function MoveNode:Stop()
 	self.cur_speed_x  = 0
 	self.cur_speed_y  = 0
 	self.move_frame = nil
-	self:GetParent():TryCall("SetActionState", Character.STATE_NORMAL)
+	self:GetParent():TryCall("SetActionState", Def.STATE_NORMAL)
 	local event_name = self:GetParent():GetClassName()..".STOP"
 	Event:FireEvent(event_name, self:GetParent():GetId())
 end
@@ -85,7 +85,7 @@ function MoveNode:MoveTo(x, y)
 	self.cur_speed_y = y - self.position.y
 
 	if old_speed_x == 0 and old_speed_y == 0 then
-		self:GetParent():TryCall("SetActionState", Character.STATE_RUN)
+		self:GetParent():TryCall("SetActionState", Def.STATE_RUN)
 		local event_name = self:GetParent():GetClassName()..".RUN"
 		Event:FireEvent(event_name, self:GetParent():GetId())
 	end

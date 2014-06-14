@@ -10,10 +10,18 @@ if not AINode then
 	AINode = NewLogicNode("AI_NODE")
 end
 
+function AINode:_Uninit( ... )
+	self.is_useskill = nil
+	self.ai_list     = nil
+	self.order_list  = nil
+	self.brain_data  = nil
+end
+
 function AINode:_Init()
-	self.ai_list = {}
-	self.ai_order = {}
+	self.ai_list    = {}
+	self.ai_order   = {}
 	self.order_list = {}
+	self.brain_data = {}
 	return 1
 end
 
@@ -37,11 +45,6 @@ function AINode:ClearAI()
 	self.ai_list = {}
 end
 
-function AINode:_Uninit( ... )
-	self.is_useskill = nil
-	self.ai_list     = nil
-end
-
 function AINode:GenerateOrderList()
 	self.order_list = {}
 	local sort_table = {}
@@ -61,7 +64,21 @@ function AINode:OnActive(frame)
 	if not self.ai_list then
 		return
 	end
-	for _, ai_class in pairs(self.order_list) do
-		ai_class:OnActive(frame, self:GetParent())
+	for _, ai_class in ipairs(self.order_list) do
+		if self:IsDebug() == 1 then
+			print(string.format("[AI]...[%d] %s  Active", self:GetParent():GetId(), ai_class:GetClassName()))
+		end
+		ai_class:OnActive(frame, self:GetParent(), self)
 	end
+end
+
+function AINode:SetBrainValue(key, value)
+	if self:IsDebug() == 1 then
+		print(string.format("SetBrainValue key[%s] value[%s]", tostring(key), tostring(value)))
+	end
+	self.brain_data[key] = value
+end
+
+function AINode:GetBrainValue(key)
+	return self.brain_data[key]
 end

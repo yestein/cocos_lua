@@ -28,8 +28,11 @@ local MetaTable = {
 local function Init(self, ...)
 	local init_list = {}
 	local base_class = self._tbBase
-	while (base_class and base_class._Init) do
-		init_list[#init_list + 1] = {base_class._Init, rawget(base_class, "__class_name")}
+	while base_class do
+		local init_func = rawget(base_class, "_Init")
+		if init_func then
+			init_list[#init_list + 1] = {init_func, rawget(base_class, "__class_name")}
+		end
 		base_class = base_class._tbBase
 	end
 	for i = #init_list, 1, -1 do
@@ -60,8 +63,11 @@ local function Uninit(self, ...)
 
 	local uninit_list = {}
 	local base_class = self._tbBase
-	while (base_class and base_class._Uninit) do
-		uninit_list[#uninit_list + 1] = {base_class._Uninit, rawget(base_class, "__class_name")}
+	while base_class do
+		local uninit_func = rawget(base_class, "_Uninit")
+		if uninit_func then
+			uninit_list[#uninit_list + 1] = {uninit_func, rawget(base_class, "__class_name")}
+		end
 		base_class = base_class._tbBase
 	end
 	for i = 1, #uninit_list do
