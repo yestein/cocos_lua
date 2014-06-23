@@ -52,6 +52,8 @@ AddPreloadFile("framework/logic/obj_pool.lua")
 AddPreloadFile("framework/logic/timer.lua")
 
 AddPreloadFile("framework/logic/ai/ai_mgr.lua")
+AddPreloadFile("framework/logic/buff/buff_base.lua")
+AddPreloadFile("framework/logic/buff/buff_mgr.lua")
 AddPreloadFile("framework/logic/skill/skill_mgr.lua")
 
 AddPreloadFile("framework/logic/editor/gm.lua")
@@ -60,6 +62,7 @@ AddPreloadFile("framework/logic/component/move_node.lua")
 AddPreloadFile("framework/logic/component/cmd_node.lua")
 AddPreloadFile("framework/logic/component/ai_node.lua")
 AddPreloadFile("framework/logic/component/log_node.lua")
+AddPreloadFile("framework/logic/component/buff_node.lua")
 
 AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")
@@ -74,4 +77,5 @@ AddPreloadFile("framework/cocos2d/skelton_ex.lua")
 AddPreloadFile("framework/cocos2d/skelton_pool.lua")
 
 AddPreloadFile("framework/effects/fly_text.lua")
+AddPreloadFile("framework/effects/effect_mgr.lua")
 AddPreloadFile(PROJECT_PATH.."/game_mgr.lua")

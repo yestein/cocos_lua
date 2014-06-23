@@ -23,6 +23,12 @@ local move_offset = {
 	right_down = {1, -1}, 
 }
 
+local forbid_move_state = {
+	[Def.BUFF_SLEEP ]   = 1,
+	[Def.BUFF_STUN  ]   = 1,
+	[Def.BUFF_FREEZE]   = 1,
+}
+
 function MoveNode:_Uninit()
 	self.position  = nil
 	self.speed     = nil
@@ -77,25 +83,38 @@ end
 function MoveNode:MoveTo(x, y)
 	x = math.floor(x)
 	y = math.floor(y)
-	local event_name = self:GetParent():GetClassName()..".MOVETO"
-	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
-	local old_speed_x = self.cur_speed_x
-	local old_speed_y = self.cur_speed_y
-	self.cur_speed_x = x - self.position.x
-	self.cur_speed_y = y - self.position.y
+	local owner = self:GetParent()
+	local can_move = 1
+	for state, _ in pairs(forbid_move_state) do
+		if owner:TryCall("GetBuffState", state) then
+			can_move = 0
+			break
+		end
+	end
+	if can_move == 1 then
+		local event_name = owner:GetClassName()..".MOVETO"
+		Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
+		local old_speed_x = self.cur_speed_x
+		local old_speed_y = self.cur_speed_y
+		self.cur_speed_x = x - self.position.x
+		self.cur_speed_y = y - self.position.y
 
-	if old_speed_x == 0 and old_speed_y == 0 then
-		self:GetParent():TryCall("SetActionState", Def.STATE_RUN)
-		local event_name = self:GetParent():GetClassName()..".RUN"
-		Event:FireEvent(event_name, self:GetParent():GetId())
+		if old_speed_x == 0 and old_speed_y == 0 then
+			self:GetParent():TryCall("SetActionState", Def.STATE_RUN)
+			local event_name = self:GetParent():GetClassName()..".RUN"
+			Event:FireEvent(event_name, self:GetParent():GetId())
+		end
+		if self.cur_speed_x > 0 then
+			self:GetParent():SetDirection("right")
+		elseif self.cur_speed_x < 0 then
+			self:GetParent():SetDirection("left")
+		end
+		self.position.x = x
+		self.position.y = y
+	else
+		self.cur_speed_x = 0
+		self.cur_speed_y = 0
 	end
-	if self.cur_speed_x > 0 then
-		self:GetParent():SetDirection("right")
-	elseif self.cur_speed_x < 0 then
-		self:GetParent():SetDirection("left")
-	end
-	self.position.x = x
-	self.position.y = y
 	self.move_frame = GameMgr:GetCurrentFrame()
 end
 
@@ -154,8 +173,15 @@ function MoveNode:GetPosition()
 	return self:GetParent():GetPosition()
 end
 
-function MoveNode:GetSpeed()
+function MoveNode:GetMoveSpeed()
 	return self.speed
+end
+
+function MoveNode:SetMoveSpeed(speed)
+	local old_speed = self.speed
+	self.speed = speed
+	local event_name = self:GetParent():GetClassName()..".SET_SPEED"
+	Event:FireEvent(event_name, self:GetParent():GetId(), speed, old_speed)
 end
 
 function MoveNode:GetCurSpeed()

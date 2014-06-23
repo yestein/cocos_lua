@@ -139,22 +139,22 @@ function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, par
 	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))	
 end
 
-function FlyText:VerticalShake(target_obj, custom_font_path, text, param)
+function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 	if not param then
 		param = {}
 	end
-
-	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
-	local color = param.color or "white"	
-	jumped_text:setColor(Def:GetColor(color))
-	target_obj:addChild(jumped_text)
-
 	local obj_rect = target_obj:getBoundingBox()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 1
-	local text_x = obj_rect.width * percent_x
-	local text_y = obj_rect.height * percent_y
-	jumped_text:setPosition(text_x, text_y)
+
+	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
+	local color = param.color or "white"	
+	local x, y = target_obj:getPosition()
+	jumped_text:setColor(Def:GetColor(color))
+	jumped_text:setPosition(x + obj_rect.width * percent_x, y + obj_rect.height * percent_y)
+	layer:addChild(jumped_text)
+	jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+
 
 	local up_time = param.up_time or 0
 	local down_time = param.down_time or 0

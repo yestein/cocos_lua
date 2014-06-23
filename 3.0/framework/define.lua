@@ -10,11 +10,6 @@ if not Def then
 	Def = {}
 end
 
-Def.menu_font_name = "MarkerFelt-Thin"
-if __platform == cc.PLATFORM_OS_WINDOWS then
-	Def.menu_font_name = "Microsoft Yahei"
-end
-
 Def.ZOOM_LEVEL_WORLD = 1
 Def.ZOOM_LEVEL_BULLET = 2
 Def.ZOOM_LEVEL_TITLE = 3
@@ -33,8 +28,25 @@ Def.color_list = {
 	["yellow"] = cc.c3b(255, 255, 0),
 }
 
+Def.TAG_MOVE_ACTION  = 1
+Def.TAG_SCALE_ACTION = 2
+
+--DEBUFF
+Def.BUFF_SLEEP     = "sleep"
+Def.BUFF_STUN      = "stun"
+Def.BUFF_FREEZE    = "freeze"
+Def.BUFF_CHAOS     = "chaos"
+Def.BUFF_FEAR      = "fear"
+Def.BUFF_CHARM     = "charm"
+Def.BUFF_ANGRY     = "angry"
+Def.BUFF_SLOW_MOVE = "slow_move"
+Def.BUFF_FAST_MOVE = "fast_move"
+Def.BUFF_POISON    = "poison"
+Def.BUFF_ON_FIRE   = "on_fire"
+
+--BUFF
+Def.BUFF_GOD       = "god"
+
 function Def:GetColor(color_name)
 	return self.color_list[color_name]
 end
-
-

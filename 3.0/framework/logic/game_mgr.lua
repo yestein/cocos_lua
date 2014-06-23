@@ -27,6 +27,7 @@ function GameMgr:Init()
 	Timer:Init()
 	GM:Init()
 	SpriteSheets:Init()
+	EffectMgr:Init()
 	self:_Init()
 end
 
