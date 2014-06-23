@@ -9,13 +9,12 @@
 if not Skelton then
 	Skelton = Class:New(nil, "SKELTON")
 	Skelton.DEFAULT_NAME = {
-		skill = "attack",
-		normal = "loading",
-		hit    = "smitten",
-		death  = "death",
-		run    = "run",
+		skill = "gongji",
+		normal = "daiji",
+		hit    = "beiji",
+		death  = "siwang",
+		run    = "zoulu",
 	}
-
 end
 
 function NewSkelton(skelton_name, orgin_direction, param)
@@ -37,7 +36,8 @@ function Skelton:_Uninit()
 	self.animation_func         = nil
 	self.frame_func             = nil
 	self.current_animation      = nil
-	self.scale 					= nil
+	self.raw_scale 				= nil
+	self.child_list				= nil
 end
 
 function Skelton:_Init(skelton_name, orgin_direction, param)
@@ -45,11 +45,10 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	if not armature then
 		return 0
 	end
+	self.child_list = {}
 	self.skelton_name = skelton_name
-	self.scale = 1
-	if param and param.scale then
-		self.scale = param.scale
-	end
+	self.raw_scale = 1
+	self.direction = 1
 	self.orgin_direction = orgin_direction
 	self.armature = armature
 	self.animation_replace_name = {}
@@ -89,12 +88,35 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 		end
 
 		if param.scale then
-			self.scale = param.scale
+			self.raw_scale = param.scale
 		end
 	end
+	self.scale = self.raw_scale
 
 	self:PlayAnimation("normal")
 	return 1
+end
+
+function Skelton:AddChildElement(name, child)
+	if self.child_list[name] then
+		assert(false, "Child[%s] Already Exists", name)
+		return
+	end
+	self.child_list[name] = child
+	self.armature:addChild(child)
+end
+
+function Skelton:GetChildElement(name)
+	return self.child_list[name]
+end
+
+function Skelton:RemoveChildElement(name)
+	if not self.child_list[name] then
+		assert(false, "No Child[%s]", name)
+		return
+	end	
+	self.armature:removeChild(self.child_list[name], true)
+	self.child_list[name] = nil
 end
 
 function Skelton:GetArmature()
@@ -135,13 +157,63 @@ function Skelton:GetCurrentAnimation()
 	return self.current_animation
 end
 
+function Skelton:MoveTo(target_x, target_y, during_time)
+	local x, y = self.armature:getPosition()
+	local function playStop()
+		if self:GetCurrentAnimation() == "run" then
+			self:PlayAnimation("normal")
+		end
+	end
+	if self:GetCurrentAnimation() ~= "run" then
+		self:PlayAnimation("run")
+	end
+	local move_action = cc.MoveBy:create(during_time, cc.p(target_x - x, target_y - y))
+	local play_stop = cc.CallFunc:create(playStop)
+	local sequece_action = cc.Sequence:create(move_action, play_stop)
+	sequece_action:setTag(Def.TAG_MOVE_ACTION)
+	self.armature:stopActionByTag(Def.TAG_MOVE_ACTION)
+	self.armature:runAction(sequece_action)
+end
+
+function Skelton:SetScale(scale_rate, during_time)
+	self.scale = self.raw_scale * scale_rate
+	local armature = self.armature
+	if during_time then
+		local scale_action = cc.ScaleTo:create(during_time, (self.scale * self.direction), self.scale)
+		scale_action:setTag(Def.TAG_SCALE_ACTION)
+		armature:runAction(scale_action)
+	else
+		armature:setScaleX(self.scale * self.direction)
+		armature:setScaleY(self.scale)
+	end
+	for _, child in pairs(self.child_list) do
+		child:setScaleX(self.direction)
+	end
+end
+
 function Skelton:SetDirection(direction)
 	if direction == self.orgin_direction then
-		self.armature:setScaleX(self.scale)
+		self.direction = 1
 	else
-		self.armature:setScaleX(-self.scale)
+		self.direction = -1
 	end
-	self.armature:setScaleY(self.scale)
+	local armature = self.armature
+	armature:stopActionByTag(Def.TAG_SCALE_ACTION)
+	armature:setScaleX(self.scale * self.direction)
+	armature:setScaleY(self.scale)
+
+	for _, child in pairs(self.child_list) do
+		child:setScaleX(self.direction)
+	end
+end
+
+function Skelton:SetBoneColor(bone_name, color)
+	local bone = self.armature:getBone(bone_name)
+	if not bone then
+		assert(false, "[%s] have no Bone[%s]", self.skelton_name, bone_name)
+		return
+	end
+	bone:getDisplayRenderNode():setColor(color)
 end
 
 function Skelton:AddParticles(bone_name, particles_name, scale)
