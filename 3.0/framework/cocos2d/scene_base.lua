@@ -354,6 +354,12 @@ function SceneBase:IsDebugPhysics()
 	end
 end
 
+function SceneBase:IsDebugBoudingBox()
+	if self.property and self.property.debug_bouding_box == 1 then
+		return 1
+	end
+end
+
 function SceneBase:SetTouchEnable(can_touch)
 	self.property.can_touch = can_touch
 end
@@ -602,4 +608,17 @@ function SceneBase:PlayBGM()
 	if self.bgm_volume then
 		cc.SimpleAudioEngine:getInstance():setMusicVolume(self.bgm_volume)
 	end
+end
+
+local SHAKE_ACTION_TAG = 233
+function SceneBase:ShakeScreen(range)
+	local layer_main = self:GetLayer("main")
+	if layer_main:getActionByTag(SHAKE_ACTION_TAG) then
+		return
+	end
+	local move_left = cc.MoveBy:create(0.08, cc.p(-range, 0))
+	local move_right = cc.MoveBy:create(0.08, cc.p(range, 0))
+	local shake_action = cc.Sequence:create(move_left, move_right, move_left, move_right, move_left, move_right, move_left, move_right)
+	shake_action:setTag(SHAKE_ACTION_TAG)
+	layer_main:runAction(shake_action)
 end
