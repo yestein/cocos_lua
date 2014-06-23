@@ -303,7 +303,7 @@ function SceneBase:AddReturnMenu(font_size)
 	    },
 	}	
     local menu_array = Menu:GenerateByString(element_list, 
-    	{font_name = Def.menu_font_name, font_size = font_size or 30, align_type = "right", interval_x = 20}
+    	{font_size = font_size or 30, align_type = "right", interval_x = 20}
     )
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))
@@ -336,7 +336,7 @@ function SceneBase:AddReloadMenu(font_size)
 		}
 	end
     local menu_array = Menu:GenerateByString(element_list, 
-    	{font_name = Def.menu_font_name, font_size = font_size or 30, align_type = "left", interval_x = 20}
+    	{font_size = font_size or 30, align_type = "left", interval_x = 20}
     )
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))

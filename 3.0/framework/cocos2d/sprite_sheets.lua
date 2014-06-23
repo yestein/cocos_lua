@@ -67,7 +67,7 @@ function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval)
 	local frame_count = self:GetAnimationCount(animation_name)
     for i = 1, frame_count do 
         frames[i] = cache:getSpriteFrame(string.format("%s%d.png", animation_name, i))
-        assert(frames[i])
+        assert(frames[i], "%s %d", animation_name, i)
     end
     if not time_interval then
     	time_interval = self:GetAnimationInterval(animation_name)

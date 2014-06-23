@@ -79,11 +79,14 @@ function Menu:GenerateByImage(element_list, params)
 end
 
 function Menu:GenerateByString(element_list, params)
-	local font_name = params.font_name or ""
+	local font_file_path = params.font_file_path or "framework/fonts/msyh.ttf"
 	local font_size = params.font_size or 16
 	local align_type = params.align_type or "left"
 	local interval_x = params.interval_x or 15
 	local interval_y = params.interval_y or 0
+	local font_color = params.color
+	local outline_color = params.outline_color
+	local outline_width = params.outline_width
 
 	local menu_array = {}
 
@@ -91,6 +94,12 @@ function Menu:GenerateByString(element_list, params)
 	local y = 0
 	local max_width = 0
 	local width_sum = 0
+
+	local ttfConfig = {}
+    ttfConfig.fontFilePath = font_file_path
+    ttfConfig.fontSize = font_size
+    ttfConfig.glyphs = cc.GLYPHCOLLECTION_CUSTOM
+
 	for row, row_elements in ipairs(element_list) do
 		width_sum = 0
 		local x = 0
@@ -99,8 +108,13 @@ function Menu:GenerateByString(element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(row_elements) do
-			local ccLabel = CCLabelTTF:create(element["item_name"] or "错误的菜单项", font_name, font_size)
-			ccLabel:enableShadow(cc.size(1,1), 255, 2)
+			local ccLabel = cc.Label:createWithTTF(ttfConfig, element["item_name"] or "错误的菜单项")
+			if outline_color and outline_width then
+				ccLabel:enableOutline(outline_color, outline_width)
+			end
+			if font_color then
+				ccLabel:setColor(Def:GetColor(font_color))
+			end
 			local menu = CCMenuItemLabel:create(ccLabel)
 			menu:registerScriptTapHandler(element["callback_function"])
 			local item_width = menu:getContentSize().width
