@@ -180,7 +180,7 @@ end
 function MoveNode:SetMoveSpeed(speed)
 	local old_speed = self.speed
 	self.speed = speed
-	local event_name = self:GetParent():GetClassName()..".SET_SPEED"
+	local event_name = self:GetParent():GetClassName()..".SET_MOVE_SPEED"
 	Event:FireEvent(event_name, self:GetParent():GetId(), speed, old_speed)
 end
 
