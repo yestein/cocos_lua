@@ -1,3 +1,6 @@
+欢迎关注我的微信订阅号：yestein_developer
+![image](http://raw.github.com/yestein/cocos-lua/master/weixin.jpg)
+
 This Framework can work on Cosos2d-x [3.0, 3.1]
 
 welcome to visit my blog： http://yestein.com ^_^
@@ -27,8 +30,6 @@ function "GameMgr:_Init" will be called once when the game was luanched success,
 这套框架目前可适用于 Cosos2d-x [3.0, 3.1]
 
 需要获取更多的信息欢迎访问我的博客：http://yestein.com ^_^
-也欢迎关注我的微信订阅号：yestein_developer
-![yestein_developer](http://raw.github.com/yestein/cocos-lua/master/weixin.jpg)
 
 如何使用cocos－lua框架用于开发？
 
