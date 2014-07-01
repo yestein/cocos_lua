@@ -30,6 +30,7 @@ end
 function SpriteSheets:GetAnimationCount(animation_name)
 	local param = self:GetAnimationParam(animation_name)
 	if not param then
+        assert(false, "No Animation[%s] Count", animation_name)
 		return
 	end
 

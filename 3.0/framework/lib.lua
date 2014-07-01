@@ -227,3 +227,28 @@ function Lib:IsIntersects(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height
 
     return 1
 end
+
+function Lib:GetAngle(raw_angle, x_1, y_1, x_2, y_2)
+	local delta_x = x_2 - x_1
+	local delta_y = y_2 - y_1
+
+	if delta_x == 0 and delta_y >= 0 then
+		angle = 0
+	elseif delta_x > 0 and delta_y > 0 then
+		angle = math.deg(math.atan(delta_x / delta_y))
+	elseif delta_x > 0 and delta_y == 0 then
+		angle = 90
+	elseif delta_x > 0 and delta_y < 0 then
+		angle = 180 + math.deg(math.atan(delta_x / delta_y))
+	elseif delta_x == 0 and delta_y < 0 then
+		angle = 180
+	elseif delta_x < 0 and delta_y < 0 then
+		angle = 180 + math.deg(math.atan(delta_x / delta_y))
+	elseif delta_x < 0 and delta_y == 0 then
+		angle = 270
+	elseif delta_x < 0 and delta_y > 0 then
+		angle = 360 + math.deg(math.atan(delta_x / delta_y))
+	end
+
+	return angle - raw_angle
+end

@@ -229,7 +229,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             local ui_name = data.name
             ui_frame.cocos_widget[ui_name] = {}
             ui_frame.cocos_widget[ui_name].root_widget = root_widget
-            local button_list = data.button
+            local button_list = data.button or {}
             ui_frame.cocos_widget[ui_name].button = {}
             ui_frame.cocos_widget[ui_name].widget2button = {}
             local button_widget_list = ui_frame.cocos_widget[ui_name].button
@@ -251,7 +251,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                  button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
             end
 
-            local labelbmfont_list = data.labelbmfont
+            local labelbmfont_list = data.labelbmfont or {}
             ui_frame.cocos_widget[ui_name].labelbmfont = {}
             ui_frame.cocos_widget[ui_name].widget2labelbmfont = {}
             local labelbmfont_widget_list = ui_frame.cocos_widget[ui_name].labelbmfont
