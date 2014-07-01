@@ -83,20 +83,30 @@ function SceneBase:_Init(scene_name)
     end	
 end
 
-function SceneBase:SetBackGroundImage(image_name, is_suit4screen)
+function SceneBase:SetBackGroundImage(image_list, is_suit4screen)
 	local main_layer = self:GetLayer("main")
-	local background = cc.Sprite:create(image_name)
-	background:setAnchorPoint(cc.p(0, 0))
-	local size = background:getBoundingBox()
-	if is_suit4screen == 1 then
-		local scale1 = visible_size.width / size.width
-		local scale2 = visible_size.height / size.height
-		local scale = scale1 > scale2 and scale1 or scale2
-		background:setScale(scale)
-		size = background:getBoundingBox()
+	local x, y = 0, 0
+	local bg_width, bg_height = 0, 0
+	for _, image_file in ipairs(image_list) do
+		local background = cc.Sprite:create(image_file)
+		background:setAnchorPoint(cc.p(0, 0))
+		background:setPosition(x, y)
+		local size = background:getBoundingBox()
+		if is_suit4screen == 1 then
+			local scale1 = visible_size.width / size.width
+			local scale2 = visible_size.height / size.height
+			local scale = scale1 > scale2 and scale1 or scale2
+			background:setScale(scale)
+			size = background:getBoundingBox()
+		end
+		x = x + size.width
+		if bg_height < size.height then
+			bg_height = size.height
+		end
+		main_layer:addChild(background)
 	end
-	main_layer:addChild(background)
-	return size.width, size.height
+	bg_width = x
+	return bg_width, bg_height
 end
 
 function SceneBase:CreateLayer(layer_name, z_level)
@@ -115,12 +125,9 @@ function SceneBase:AddLayer(layer_name, layer, z_level)
 		return nil
 	end
 	if z_level then 
-		if z_level > 0 then
-			self.cc_scene_obj:addChild(layer, z_level)
-		end
-	else
-		self.cc_scene_obj:addChild(layer)
+		layer:setLocalZOrder(z_level)
 	end
+	self.cc_scene_obj:addChild(layer)
 	self.layer_list[layer_name] = layer
 	return 1
 end
@@ -141,7 +148,9 @@ function SceneBase:AddObj(layer_name, obj_type, id, obj)
 		cclog("Obj[%s][%s][%s] Already Exisits", tostring(layer_name), tostring(obj_type), tostring(id))
 		return 0
 	end
-	layer:addChild(obj)
+	if layer then
+		layer:addChild(obj)
+	end
 	self.obj_list[layer_name][obj_type][id] = obj
 	return 1
 end
@@ -162,11 +171,6 @@ function SceneBase:GetObjList(layer_name, obj_type)
 end
 
 function SceneBase:RemoveObj(layer_name, obj_type, id, is_cleanup)
-	local layer = self:GetLayer(layer_name)
-	if not layer then
-		cclog("No Layer[%s]", tostring(layer_name))
-		return 0
-	end
 	if not self.obj_list[layer_name] or not self.obj_list[layer_name][obj_type] then
 		cclog("No ObjType[%s][%s]", tostring(layer_name), tostring(obj_type))
 		return 0
@@ -176,7 +180,10 @@ function SceneBase:RemoveObj(layer_name, obj_type, id, is_cleanup)
 		cclog("No ObjType[%s][%s][%s]", tostring(layer_name), tostring(obj_type), tostring(id))
 		return 0
 	end
-	layer:removeChild(type_obj[id], is_cleanup or true)
+	local layer = self:GetLayer(layer_name)
+	if layer then
+		layer:removeChild(type_obj[id], is_cleanup or true)
+	end
 	self.obj_list[layer_name][obj_type][id] = nil
 	return 1
 end
@@ -292,10 +299,13 @@ function SceneBase:SetScaleRate(scale_rate)
 end
 
 function SceneBase:AddReturnMenu(font_size)
+	if SceneMgr:GetRootSceneName() == self:GetName() then
+		return
+	end
     local element_list = {
 	    [1] = {
 	        [1] = {
-				item_name = "返回主菜单",
+				item_name = "返回上一场景",
 	        	callback_function = function()
 	        		SceneMgr:UnLoadCurrentScene()
 	        	end,
