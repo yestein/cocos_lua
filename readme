@@ -1,3 +1,5 @@
+This Framework can work on Cosos2d-x [3.0, 3.1]
+
 welcome to visit my blog： http://yestein.com ^_^
 
 How to Use this lua-framework for cocos2d-x?
@@ -22,7 +24,11 @@ or you can find the samples in "framework/preload.lua"
 function "GameMgr:_Init" will be called once when the game was luanched success, and you need to load your first scene in your game world.
 
 
+这套框架目前可适用于 Cosos2d-x [3.0, 3.1]
+
 需要获取更多的信息欢迎访问我的博客：http://yestein.com ^_^
+也欢迎关注我的微信订阅号：yestein_developer
+![yestein_developer](http://raw.github.com/yestein/cocos-lua/master/weixin.jpg)
 
 如何使用cocos－lua框架用于开发？
 
