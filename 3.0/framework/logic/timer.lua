@@ -31,6 +31,7 @@ end
 function Timer:RegistTimer(frame, call_back)
 	assert(frame > 0)
 	local timer_id = #self.call_back_list + 1
+	call_back[#call_back + 1] = timer_id
 	self.call_back_list[timer_id] = {call_back, frame}
 
 	local current_frame = GameMgr:GetCurrentFrame()
@@ -39,6 +40,7 @@ function Timer:RegistTimer(frame, call_back)
 		self.frame_event[frame_index] = {}
 	end
 	table.insert(self.frame_event[frame_index], timer_id)
+	return timer_id
 end
 
 function Timer:CloseTimer(timer_id)
