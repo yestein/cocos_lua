@@ -1,51 +1,36 @@
-欢迎关注我的微信订阅号：yestein_developer
+欢迎关注我的`微信订阅号`：yestein_developer
 <img src="http://raw.github.com/yestein/cocos-lua/master/weixin.jpg">
 
-This Framework can work on Cosos2d-x [3.0, 3.1]
+cocos-lua
+=========
 
-welcome to visit my blog： http://yestein.com ^_^
+This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`
 
-How to Use this lua-framework for cocos2d-x?
+For more `documents` and `tutorials`
 
-Step 1: Create a Project with Lua by project-creator which supplied by cosos2d-x.
-Step 2: Copy the whole folder to the resourse folder of project.
-Step 3: Enter the "framework" folder, execute the "install.py"
-(Step 4: Add the folder "framework" and "script" into your xcode project resource)
+You can visit my `blog`: [http://yestein.com](http://yestein.com "yestein.com") ^_^ or click [here](http://yestein.com/?cat=76 "yestein.com") directly.
+
+How to Use it on cocos2d-x?
+--------------------------------------------
+* Step 1: Create a Project with Lua by project-creator which supplied by cosos2d-x.
+* Step 2: Copy the whole folder to the resourse folder of project.
+* Step 3: Enter the "framework" folder, execute the "install.py"
+* (Step 4: Add the folder "framework" and "script" into your xcode project resource if cocos2d-x version is old)
 
 Now, You can start your journey by editing the "script/game_mgr.lua" and "preload.lua" ^_^.
 
-
 PS:
-1. "preload.lua" declare the script files and orders which you want to load. And you can add files like this:
-...
+* "game_mgr.lua" contains 1 function which called "GameMgr:_Init"
+
+* function "GameMgr:_Init" will be called once when the game was luanched success, and you need to load your first scene in your game world.
+
+* "preload.lua" declare the script files and orders which you want to load. And you can add files like this:
+
+
+```
 	AddPreloadFile("script/main_scene.lua")
-...
+```
 or you can find the samples in "framework/preload.lua"
 
 
-2. "game_mgr.lua" contains 1 function which called "GameMgr:_Init"
-function "GameMgr:_Init" will be called once when the game was luanched success, and you need to load your first scene in your game world.
 
-
-这套框架目前可适用于 Cosos2d-x [3.0, 3.1]
-
-需要获取更多的信息欢迎访问我的博客：http://yestein.com ^_^
-
-如何使用cocos－lua框架用于开发？
-
-Step 1: 使用cocos2d－x自带的python文件创建一个新的工程。
-Step 2: 将cocos－lua的framework这个文件夹拷贝到src目录下面。（老版本的cocos2d－x拷贝到resource目录下面）.
-Step 3: 使用命令行进入framework目录，执行“install.py”这个脚本。（会生成一个script的脚本目录，里面会有game_mgr.lua和preload.lua两个脚本）
-(Step 4: 如果是老版本的cocos2d，在mac下还需将framework和后来生成的script这两个脚本目录加入你的XCode工程)
-
-做完以上配置后，你就可以通过编辑"script/game_mgr.lua" 和 "preload.lua" 这两个脚本开始你的旅程了。
-
-PS:
-1. "preload.lua" 用于申明你需要加载的脚本以及它们的加载顺序，加载方式如下:
-...
-	AddPreloadFile("script/main_scene.lua")
-...
-或者你也可以参考"framework/preload.lua"这个脚本的例子。
-
-
-2. "game_mgr.lua" 里默认会包含 "GameMgr:_Init" 这个函数，它将会在游戏世界初始化成功的时候被调用到，你需要在这里加载你的第一个游戏场景。
