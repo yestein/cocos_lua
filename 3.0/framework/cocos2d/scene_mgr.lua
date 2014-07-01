@@ -159,6 +159,10 @@ function SceneMgr:GetCurrentSceneName()
     end
 end
 
+function SceneMgr:GetRootSceneName()
+    return self.current_scene_list[1]
+end
+
 function SceneMgr:IsRootScene()
     local count = #self.current_scene_list
     if count == 1 then
