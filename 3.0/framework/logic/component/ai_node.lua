@@ -11,9 +11,10 @@ if not AINode then
 end
 
 function AINode:_Uninit( ... )
-	self.is_useskill = nil
+	self.param       = nil
 	self.ai_list     = nil
 	self.order_list  = nil
+	self.ai_order    = nil
 	self.brain_data  = nil
 end
 
@@ -22,6 +23,7 @@ function AINode:_Init()
 	self.ai_order   = {}
 	self.order_list = {}
 	self.brain_data = {}
+	self.param 		= {}
 	return 1
 end
 
@@ -70,6 +72,14 @@ function AINode:OnActive(frame)
 		end
 		ai_class:OnActive(frame, self:GetParent(), self)
 	end
+end
+
+function AINode:SetParam(param)
+	self.param = param
+end
+
+function AINode:GetParam(key)
+	return self.param[key]
 end
 
 function AINode:SetBrainValue(key, value)
