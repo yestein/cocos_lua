@@ -1,4 +1,4 @@
-欢迎关注我的`微信订阅号`：yestein_developer<br>
+欢迎关注`微信订阅号`：yestein_developer<br>
 <img src="http://raw.github.com/yestein/cocos-lua/master/weixin.jpg" width = 200>
 
 cocos-lua
