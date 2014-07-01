@@ -8,13 +8,36 @@
 
 if not Skelton then
 	Skelton = Class:New(nil, "SKELTON")
-	Skelton.DEFAULT_NAME = {
-		skill = "gongji",
-		normal = "daiji",
-		hit    = "beiji",
-		death  = "siwang",
-		run    = "zoulu",
-	}
+	Skelton.default_animation_name = {}
+	Skelton.animation_name = {}
+end
+
+function Skelton:SetDefaultAnimationName(animation_name, resource_name)
+	self.default_animation_name[animation_name] = resource_name
+end
+
+function Skelton:SetSkeltonAnimationName(skelton_name, animation_name, resource_name)
+	if not self.animation_name[skelton_name] then
+		self.animation_name[skelton_name] = {}
+	end
+	self.animation_name[skelton_name][animation_name] = resource_name
+end
+
+function Skelton:GetSkeltonAnimationName(skelton_name, animation_name)
+	local animation_list = self.animation_name[skelton_name]
+	if not animation_list then
+		animation_list = self.default_animation_name
+	end
+	local resource_name = animation_list[animation_name]
+	if not resource_name then
+		resource_name = self.default_animation_name[animation_name]
+	end
+	if type(resource_name) == "string" then
+		return resource_name
+	elseif type(resource_name) == "table" then
+		local random_index = math.random(1, #resource_name)
+		return resource_name[random_index]
+	end
 end
 
 function NewSkelton(skelton_name, orgin_direction, param)
@@ -32,6 +55,8 @@ end
 function Skelton:_Uninit()
 	self.orgin_direction        = nil
 	self.armature               = nil
+	self.animation_func			= nil
+	self.animation_speed		= nil
 	self.animation_replace_name = nil	
 	self.animation_func         = nil
 	self.frame_func             = nil
@@ -52,6 +77,7 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	self.orgin_direction = orgin_direction
 	self.armature = armature
 	self.animation_replace_name = {}
+	self.animation_speed = {}
 
 	self.animation_func = {}
 	local function animationEvent(armature, movement_type, movement_id)
@@ -79,14 +105,6 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
 	if param then
-		if param.speed_scale then
-			armature:getAnimation():setSpeedScale(param.speed_scale)
-		end
-
-		if param.replace_animation_name then
-			self.animation_replace_name = param.replace_animation_name
-		end
-
 		if param.scale then
 			self.raw_scale = param.scale
 		end
@@ -123,7 +141,27 @@ function Skelton:GetArmature()
 	return self.armature
 end
 
-function Skelton:SetAnimationFunc(movement_type, movement_id, func)
+function Skelton:SetAnimationFunc(movement_type, animation_name, func)
+	local animation_list = self.animation_name[self.skelton_name]
+	if not animation_list then
+		animation_list = self.default_animation_name
+	end
+	local resource_name = animation_list[animation_name]
+	if not resource_name then
+		resource_name = self.default_animation_name[animation_name]
+	end
+
+	if type(resource_name) == "string" then
+		local movement_id = resource_name
+		self:SetMoveMentFunc(movement_type, movement_id, func)
+	elseif type(resource_name) == "table" then
+		for _, movement_id in ipairs(resource_name) do
+			self:SetMoveMentFunc(movement_type, movement_id, func)
+		end
+	end
+end
+
+function Skelton:SetMoveMentFunc(movement_type, movement_id, func)
 	if not self.animation_func[movement_id] then
 		self.animation_func[movement_id] = {}
 	end
@@ -134,13 +172,19 @@ function Skelton:SetFrameFunc(event_name, func)
 	self.frame_func[event_name] = func
 end
 
-function Skelton:GetAnimationResourceName(animation_name)
-	local resource_name = self.animation_replace_name[animation_name]
-	if resource_name then
-		return resource_name
+function Skelton:SetAnimationSpeed(animation_name, speed_scale)
+	self.animation_speed[animation_name] = speed_scale
+	if self:GetCurrentAnimation() == animation_name then
+		self.armature:getAnimation():setSpeedScale(speed_scale)
 	end
+end
 
-	return self.DEFAULT_NAME[animation_name]
+function Skelton:GetAnimationSpeed(animation_name)
+	return self.animation_speed[animation_name] or 1
+end
+
+function Skelton:GetAnimationResourceName(animation_name)
+	return self:GetSkeltonAnimationName(self.skelton_name, animation_name)
 end
 
 function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
@@ -149,6 +193,8 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 		cclog("No Animation[%s]", animation_name)
 		return
 	end
+	local speed_scale = self:GetAnimationSpeed(animation_name)
+	self.armature:getAnimation():setSpeedScale(speed_scale)
 	self.armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 	self.current_animation = animation_name
 end
