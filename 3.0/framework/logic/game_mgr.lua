@@ -27,7 +27,8 @@ function GameMgr:Init()
 	self.is_pause = 0
 
 	self:SetFPS(25)
-	Timer:Init()
+	RealTimer:Init()
+	LogicTimer:Init()
 	GM:Init()
 	SpriteSheets:Init()
 	EffectMgr:Init()
@@ -41,6 +42,7 @@ function GameMgr:OnLoop(delta)
 			self.num_frame = self.num_frame + 1
 			self:OnActive(self.num_frame)
 		end
+		RealTimer:OnActive()
 		self.accumulate = self.accumulate - self.TIME_PER_FRAME
 	end	
 end

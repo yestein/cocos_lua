@@ -1,22 +1,22 @@
 --=======================================================================
--- File Name    : timer.lua
+-- File Name    : logic_timer.lua
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : 2014/6/7 14:02:32
 -- Description  : a timer trigger based on logic frame
 -- Modify       : 
 --=======================================================================
 
-if not Timer then
-	Timer = ModuleMgr:NewModule("Timer")
+if not LogicTimer then
+	LogicTimer = ModuleMgr:NewModule("LogicTimer")
 end
 
-function Timer:Init()
+function LogicTimer:Init()
 	self.call_back_list = {}
 	self.frame_event = {}
 	ModuleMgr:RegisterActive(self:GetClassName(), "OnActive")
 end
 
-function Timer:Uninit()
+function LogicTimer:Uninit()
 	ModuleMgr:UnregisterActive(self:GetClassName())
 	self.frame_event = nil
 	self.call_back_list = nil
@@ -28,7 +28,7 @@ end
 -- n <= 0: Continue Reigst a same timer with same frames last regist
 -- no return or return nil: Nothing happen
 --======================================================
-function Timer:RegistTimer(frame, call_back)
+function LogicTimer:RegistTimer(frame, call_back)
 	assert(frame > 0)
 	local timer_id = #self.call_back_list + 1
 	call_back[#call_back + 1] = timer_id
@@ -43,11 +43,11 @@ function Timer:RegistTimer(frame, call_back)
 	return timer_id
 end
 
-function Timer:CloseTimer(timer_id)
+function LogicTimer:CloseTimer(timer_id)
 	self.call_back_list[timer_id] = nil
 end
 
-function Timer:OnActive(frame)
+function LogicTimer:OnActive(frame)
 	local event_list = self.frame_event[frame]
 	if not event_list then
 		return
