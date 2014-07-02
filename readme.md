@@ -1,6 +1,3 @@
-欢迎关注`微信订阅号`：yestein_developer<br>
-<img src="http://raw.github.com/yestein/cocos-lua/master/weixin.jpg" width = 200>
-
 cocos-lua
 =========
 
@@ -9,6 +6,9 @@ This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`
 For more `documents` and `tutorials`
 
 You can visit my `blog`: [http://yestein.com](http://yestein.com "yestein.com") ^_^ or click [here](http://yestein.com/?cat=76 "yestein.com") directly.
+
+欢迎关注`微信订阅号`：yestein_developer<br>
+<img src="http://raw.github.com/yestein/cocos-lua/master/weixin.jpg" width = 200>
 
 How to Use it on cocos2d-x?
 --------------------------------------------
