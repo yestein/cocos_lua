@@ -49,7 +49,7 @@ end
 
 function SceneMgr:GetClass(class_name, is_need_create)
     if not SceneMgr.scene_class_list[class_name] and is_need_create then
-        local scene_class = Class:New(self._SceneBase, class_name)
+        local scene_class = Class:New(SceneBase, class_name)
         scene_class.event_listener = {}
         SceneMgr.scene_class_list[class_name] = scene_class
     end
