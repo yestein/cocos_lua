@@ -47,8 +47,8 @@ function Ui:InitScene(scene_name, cc_scene)
         ["LABELBMFONT"] = {},
         ["LABEL"] = {},
     }
-    ui_frame.sysmsg_list = {}
-    
+
+    ui_frame.sysmsg_list = {}    
 
 	local cc_layer_ui = CCLayer:create()        
 
@@ -68,10 +68,7 @@ function Ui:InitScene(scene_name, cc_scene)
     ui_frame.cc_scene = cc_scene
     ui_frame.cc_layer_ui = cc_layer_ui
 
-
-
     self.scene_ui_list[scene_name] = ui_frame
-
 end
 
 function Ui:UninitScene(scene_name)
@@ -228,12 +225,14 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             end
             local ui_name = data.name
             ui_frame.cocos_widget[ui_name] = {}
-            ui_frame.cocos_widget[ui_name].root_widget = root_widget
-            local button_list = data.button or {}
-            ui_frame.cocos_widget[ui_name].button = {}
-            ui_frame.cocos_widget[ui_name].widget2button = {}
-            local button_widget_list = ui_frame.cocos_widget[ui_name].button
-            local widget2button = ui_frame.cocos_widget[ui_name].widget2button
+            local ui_widget = ui_frame.cocos_widget[ui_name]
+
+            ui_widget.root_widget = root_widget
+
+            ui_widget.button = {}
+            ui_widget.widget2button = {}
+            local button_widget_list = ui_widget.button
+            local widget2button = ui_widget.widget2button
 
             local function OnButtonEvent(node, event)
                 local widget_button = tolua.cast(node, "ccui.Button")
@@ -243,7 +242,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                     scene:OnCocosButtonEvent(ui_name, button_name, event)
                 end
             end
-            for button_name, widget_name in pairs(button_list) do
+            for button_name, widget_name in pairs(data.button or {}) do
                  local widget_button = root_widget:getChildByName(widget_name)
                  assert(widget2button)
                  widget_button:addTouchEventListener(OnButtonEvent)
@@ -251,24 +250,18 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                  button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
             end
 
-            local labelbmfont_list = data.labelbmfont or {}
-            ui_frame.cocos_widget[ui_name].labelbmfont = {}
-            ui_frame.cocos_widget[ui_name].widget2labelbmfont = {}
-            local labelbmfont_widget_list = ui_frame.cocos_widget[ui_name].labelbmfont
-            local widget2labelbmfont = ui_frame.cocos_widget[ui_name].widget2labelbmfont
-            for labelbmfont_name, widget_name in pairs(labelbmfont_list) do
-                 local widget_labelbmfont = root_widget:getChildByName(widget_name)
-                 assert(widget_labelbmfont)
-                 widget2labelbmfont[widget_name] = labelbmfont_name
-                 labelbmfont_widget_list[labelbmfont_name] = tolua.cast(widget_labelbmfont, "UILabelBMFont")
+            ui_widget.text = {}
+            ui_widget.widget2text = {}
+            for text_name, widget_name in pairs(data.text or {}) do
+                ui_widget.text[text_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.Text")
+                ui_widget.widget2text[widget_name] = text_name
             end
 
-            local ui_widget = ui_frame.cocos_widget[ui_name]
-            ui_widget.label = {}
-            ui_widget.widget2label = {}
-            for label_name, widget_name in pairs(data.label or {}) do
-                ui_widget.label[label_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "UILabel")
-                ui_widget.widget2label[widget_name] = label_name
+            ui_widget.image_view = {}
+            ui_widget.widget2imageview = {}
+            for imageview_name, widget_name in pairs(data.image_view or {}) do
+                ui_widget.image_view[imageview_name] = tolua.cast(assert(root_widget:getChildByName(widget_name), widget_name), "ccui.ImageView")
+                ui_widget.widget2imageview[widget_name] = imageview_name
             end
         end
     end
@@ -292,16 +285,16 @@ function Ui:GetCocosButton(ui_frame, ui_name, button_name)
     end
 end
 
-function Ui:GetCocosLabelbmfont(ui_frame, ui_name, labelbmfont_name)
+function Ui:GetCocosText(ui_frame, ui_name, text_name)
     if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].labelbmfont then
-        return ui_frame.cocos_widget[ui_name].labelbmfont[labelbmfont_name]
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].text then
+        return ui_frame.cocos_widget[ui_name].text[text_name]
     end
 end
 
-function Ui:GetCocosLabel(ui_frame, ui_name, label_name)
+function Ui:GetCocosImageView(ui_frame, ui_name, image_view_name)
     if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].label then
-        return ui_frame.cocos_widget[ui_name].label[label_name]
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].image_view then
+        return ui_frame.cocos_widget[ui_name].image_view[image_view_name]
     end
 end
