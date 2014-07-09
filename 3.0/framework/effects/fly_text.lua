@@ -153,7 +153,11 @@ function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 	jumped_text:setColor(Def:GetColor(color))
 	jumped_text:setPosition(x + obj_rect.width * percent_x, y + obj_rect.height * percent_y)
 	layer:addChild(jumped_text)
-	jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	if param.zorder then
+		jumped_text:setLocalZOrder(param.zorder)
+	else
+		jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	end
 
 
 	local up_time = param.up_time or 0
