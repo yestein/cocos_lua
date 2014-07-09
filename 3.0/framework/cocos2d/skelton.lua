@@ -121,6 +121,7 @@ function Skelton:AddChildElement(name, child)
 		return
 	end
 	self.child_list[name] = child
+	child:setScaleX(math.abs(child:getScaleX()) * self.direction)
 	self.armature:addChild(child)
 end
 
@@ -233,7 +234,7 @@ function Skelton:SetScale(scale_rate, during_time)
 		armature:setScaleY(self.scale)
 	end
 	for _, child in pairs(self.child_list) do
-		child:setScaleX(self.direction)
+		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
 	end
 end
 
@@ -249,7 +250,7 @@ function Skelton:SetDirection(direction)
 	armature:setScaleY(self.scale)
 
 	for _, child in pairs(self.child_list) do
-		child:setScaleX(self.direction)
+		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
 	end
 end
 

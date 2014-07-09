@@ -182,7 +182,11 @@ function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
     CCDirector:getInstance():popScene()
-    self:GetCurrentScene():PlayBGM()
+    --TODO bug
+    local scene = self:GetCurrentScene()
+    if scene then
+        scene:PlayBGM()
+    end
 end
 
 function SceneMgr:ReloadCurrentScene()

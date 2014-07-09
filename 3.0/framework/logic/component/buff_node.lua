@@ -57,12 +57,15 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 		if buff.state then
 			self:AddBuffState(buff.state)
 		end
+		buff:ChangeCount(1)
 		if buff.OnAdd then
 			buff:OnAdd()
 		end
 		Event:FireEvent("BUFF.ADD", buff_id, owner_id, luancher_id, count)
+	else
+		buff:ChangeCount(count or 1)
 	end
-	buff:ChangeCount(count or 1)
+	
 	return 1
 end
 
@@ -126,4 +129,16 @@ function BuffNode:RemoveBuffState(state)
 		self.buff_state_pool[state] = nil
 	end
 	return 1
+end
+
+function BuffNode:OnOwnerDead()
+	local copy_buff_list = Lib:CopyTB1(self.buff_list)
+	for buff_id, buff in pairs(copy_buff_list) do
+		if buff.OnOwnerDead then
+			local is_need_remove = buff:OnOwnerDead()
+			if is_need_remove == 1 then
+				self:RemoveBuff(buff_id)
+			end
+		end
+	end
 end

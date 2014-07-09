@@ -18,7 +18,7 @@ function Menu:GenerateByImage(element_list, params)
 	
 	local menu_array = {}
 	
-	local item_height = nil
+	local item_height = 0
 	local y = 0
 	local max_width = 0
 	local width_sum = 0
@@ -37,7 +37,7 @@ function Menu:GenerateByImage(element_list, params)
 			)
 			menu:registerScriptTapHandler(element.callback_function)
 			local item_width = menu:getContentSize().width
-			if not item_height then
+			if item_height == 0 then
 		    	item_height = menu:getContentSize().height
 		    end
 
@@ -90,7 +90,7 @@ function Menu:GenerateByString(element_list, params)
 
 	local menu_array = {}
 
-	local item_height = nil
+	local item_height = 0
 	local y = 0
 	local max_width = 0
 	local width_sum = 0
@@ -118,7 +118,7 @@ function Menu:GenerateByString(element_list, params)
 			local menu = CCMenuItemLabel:create(ccLabel)
 			menu:registerScriptTapHandler(element["callback_function"])
 			local item_width = menu:getContentSize().width
-			if not item_height then
+			if item_height == 0 then
 		    	item_height = menu:getContentSize().height
 		    end
 
@@ -166,7 +166,7 @@ function Menu:GenerateBySprite(element_list, params)
 	
 	local menu_array = {}
 
-	local item_height = nil
+	local item_height = 0
 	local y = 0
 	local max_width = 0
 	local width_sum = 0
@@ -178,11 +178,15 @@ function Menu:GenerateBySprite(element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(tbRow) do
-			local menu = CCMenuItemSprite:create(element.sprite_normal, element.sprite_selected)
+			local menu = CCMenuItemSprite:create(
+				element.sprite_normal,
+				element.sprite_selected,
+				element.sprite_disable
+			)
 			menu:registerScriptTapHandler(element.callback_function)
 
 			local item_width = menu:getContentSize().width
-			if not item_height then
+			if item_height == 0 then
 		    	item_height = menu:getContentSize().height
 		    end
 

@@ -47,8 +47,9 @@ function RealTimer:OnActive()
 	end
 
 	for _, timer_id in ipairs(event_list) do
-		Trigger(self.call_back_list[timer_id])
+		local regist_obj = self.call_back_list[timer_id]
 		self.call_back_list[timer_id] = nil
+		Trigger(regist_obj)		
 	end
 	self.frame_event[current_frame] = nil
 end
@@ -60,12 +61,14 @@ end
 --======================================================
 function RealTimer:RegistTimer(frame, call_back)
 	assert(frame > 0)
-	local timer_id = #self.call_back_list + 1
-	call_back[#call_back + 1] = timer_id
-	self.call_back_list[timer_id] = {call_back, frame}
-
 	local current_frame = self.num_frame
 	local frame_index = current_frame + math.ceil(frame)
+
+	local timer_id = #self.call_back_list + 1
+	call_back[#call_back + 1] = timer_id
+	self.call_back_list[timer_id] = {call_back, frame, frame_index}
+
+	
 	if not self.frame_event[frame_index] then
 		self.frame_event[frame_index] = {}
 	end
@@ -74,5 +77,23 @@ function RealTimer:RegistTimer(frame, call_back)
 end
 
 function RealTimer:CloseTimer(timer_id)
+	if not self.call_back_list[timer_id] then
+		return
+	end
+	local frame_index = self.call_back_list[timer_id][3]
 	self.call_back_list[timer_id] = nil
+	local event_list = self.frame_event[frame_index]
+	local remove_index = nil
+	for index, id in ipairs(event_list) do
+		if id == timer_id then
+			remove_index = index
+			break
+		end
+	end
+	if remove_index then
+		table.remove(event_list, remove_index)
+	end
+	if #event_list == 0 then
+		self.frame_event[frame_index] = nil
+	end
 end
