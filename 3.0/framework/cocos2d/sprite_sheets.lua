@@ -63,6 +63,21 @@ function SpriteSheets:RunAnimation(sprite, animation_name, time_interval)
     sprite:runAction(action)
 end
 
+function SpriteSheets:RunAnimationNoLoop(sprite, animation_name, time_interval)
+    local frames = {}
+    local frame_count = self:GetAnimationCount(animation_name)
+    for i = 1, frame_count do 
+        frames[i] = cache:getSpriteFrame(string.format("%s%d.png", animation_name, i))
+        assert(frames[i])
+    end
+    if not time_interval then
+        time_interval = self:GetAnimationInterval(animation_name)
+    end
+    local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
+    sprite:stopAllActions()
+    sprite:runAction(cc.Animate:create(animation))
+end
+
 function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval)
 	local frames = {}
 	local frame_count = self:GetAnimationCount(animation_name)
