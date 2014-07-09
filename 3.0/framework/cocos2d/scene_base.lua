@@ -21,12 +21,17 @@ function SceneBase:_Uninit()
 	self.cc_scene_obj:removeChild(layer_main)
 	Ui:UninitScene(self.scene_name)
 
+	self:UnRegistAllTimer()
+	self.real_timer_id_list = nil
+	self.logic_timer_id_list = nil
+
 	self.playing_effect = nil
 	self:UnloadAllSoundEffect()
 	self.obj_list = nil
 	self.layer_list = nil
 	self.cc_scene_obj = nil
-	self.scene_name = nil
+	self.scene_name = nil	
+	Debug:ShowTimer()
 end
 
 function SceneBase:_Init(scene_name)
@@ -39,6 +44,9 @@ function SceneBase:_Init(scene_name)
 	self.obj_list = {}
 	self.load_sound_effect = {}
 	self.playing_effect = {}
+
+	self.real_timer_id_list = {}
+	self.logic_timer_id_list = {}
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0
@@ -411,3 +419,46 @@ function SceneBase:RegisterTouchEvent()
     layer_main:setTouchEnabled(true)
 end
 
+function SceneBase:RegistRealTimer(frame, call_back)
+	local timer_id = RealTimer:RegistTimer(frame, {self.OnRealTimer, self, call_back})
+	self.real_timer_id_list[timer_id] = 1
+	return timer_id
+end
+
+function SceneBase:UnregistRealTimer(timer_id)
+	RealTimer:CloseTimer(timer_id)
+	self.real_timer_id_list[timer_id] = nil
+end
+
+function SceneBase:OnRealTimer(call_back, timer_id)
+	self.real_timer_id_list[timer_id] = nil
+	Lib:SafeCall(call_back)	
+end
+
+function SceneBase:RegistLogicTimer(frame, call_back)
+	local timer_id = LogicTimer:RegistTimer(frame, {self.OnLogicTimer, self, call_back})
+	self.logic_timer_id_list[timer_id] = 1
+	return timer_id
+end
+
+function SceneBase:UnregistLogicTimer(timer_id)
+	LogicTimer:CloseTimer(timer_id)
+	self.real_timer_id_list[timer_id] = nil
+end
+
+function SceneBase:OnLogicTimer(call_back, timer_id)
+	self.logic_timer_id_list[timer_id] = nil
+	Lib:SafeCall(call_back)	
+end
+
+function SceneBase:UnRegistAllTimer()
+	for timer_id, _ in pairs(self.real_timer_id_list) do
+		RealTimer:CloseTimer(timer_id)
+	end
+	self.real_timer_id_list = {}
+
+	for timer_id, _ in pairs(self.logic_timer_id_list) do
+		LogicTimer:CloseTimer(timer_id)
+	end
+	self.logic_timer_id_list = {}
+end

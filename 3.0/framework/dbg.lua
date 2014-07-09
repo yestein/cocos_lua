@@ -70,3 +70,14 @@ function Debug:ChangeMode(mode)
 	end
 	self:SetMode(mode)
 end
+
+function Debug:ShowTimer()
+	print("=====Real Event============")
+	Lib:ShowTB(RealTimer.frame_event)
+	print("=====Real CallBack============")
+	Lib:ShowTB(RealTimer.call_back_list, 1)
+	print("=====Logic Event=============")
+	Lib:ShowTB(LogicTimer.frame_event)
+	print("=====Real CallBack============")
+	Lib:ShowTB(LogicTimer.call_back_list, 1)
+end
