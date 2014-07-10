@@ -1,28 +1,27 @@
 --=======================================================================
--- File Name    : real_timer.lua
+-- File Name    : timer_base.lua
 -- Creator      : yestein(yestein86@gmail.com)
--- Date         : 2014/7/1 20:41:20
--- Description  : real timer, no not effect by game pause
+-- Date         : 2014/7/10 14:42:08
+-- Description  : timer base
 -- Modify       : 
 --=======================================================================
-
-if not RealTimer then
-	RealTimer = {}
+if not TimerBase then
+	TimerBase = Class:New(nil, "TimerBase")
 end
 
-function RealTimer:Init()
-	self.call_back_list = {}
-	self.frame_event = {}
-	self.num_frame = 0
-end
-
-function RealTimer:Uninit()
+function TimerBase:_Uninit( ... )
 	self.num_frame = nil
 	self.frame_event = nil
 	self.call_back_list = nil
 end
 
-function RealTimer:OnActive()
+function TimerBase:_Init( ... )
+	self.call_back_list = {}
+	self.frame_event = {}
+	self.num_frame = 0
+end
+
+function TimerBase:OnActive()
 	local current_frame = self.num_frame + 1
 	self.num_frame = current_frame
 	local event_list = self.frame_event[current_frame]
@@ -35,7 +34,11 @@ function RealTimer:OnActive()
 			return
 		end
 		local is_success, result = Lib:SafeCall(regist_obj[1])
-		if not is_success or not result then
+		if not is_success then
+			Log:Print(Log.LOG_ERROR, regist_obj[4])
+			return
+		end
+		if not result then
 			return
 		end
 
@@ -53,20 +56,22 @@ function RealTimer:OnActive()
 	end
 	self.frame_event[current_frame] = nil
 end
+
 --======================================================
 -- Reigist Function Return Value:
 -- n > 0 : Continue Reigst a same timer n frames later
 -- n <= 0: Continue Reigst a same timer with same frames last regist
 -- no return or return nil: Nothing happen
 --======================================================
-function RealTimer:RegistTimer(frame, call_back)
+function TimerBase:RegistTimer(frame, call_back)
 	assert(frame > 0)
+	local trace_back = debug.traceback()
 	local current_frame = self.num_frame
 	local frame_index = current_frame + math.ceil(frame)
 
 	local timer_id = #self.call_back_list + 1
 	call_back[#call_back + 1] = timer_id
-	self.call_back_list[timer_id] = {call_back, frame, frame_index}
+	self.call_back_list[timer_id] = {call_back, frame, frame_index, trace_back}
 
 	
 	if not self.frame_event[frame_index] then
@@ -76,7 +81,7 @@ function RealTimer:RegistTimer(frame, call_back)
 	return timer_id
 end
 
-function RealTimer:CloseTimer(timer_id)
+function TimerBase:CloseTimer(timer_id)
 	if not self.call_back_list[timer_id] then
 		return
 	end

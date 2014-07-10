@@ -43,13 +43,14 @@ AddPreloadFile("framework/dbg.lua")
 
 AddPreloadFile("framework/physics_mgr.lua")
 AddPreloadFile("framework/define.lua")
-AddPreloadFile("framework/real_timer.lua")
+AddPreloadFile("framework/timer_base.lua")
 
 AddPreloadFile("framework/logic/game_mgr.lua")
 AddPreloadFile("framework/logic/logic_node.lua")
 AddPreloadFile("framework/logic/module_mgr.lua")
 AddPreloadFile("framework/logic/obj_base.lua")
 AddPreloadFile("framework/logic/obj_pool.lua")
+AddPreloadFile("framework/logic/real_timer.lua")
 AddPreloadFile("framework/logic/logic_timer.lua")
 
 AddPreloadFile("framework/logic/ai/ai_mgr.lua")

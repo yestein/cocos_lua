@@ -41,6 +41,7 @@ function GameMgr:OnLoop(delta)
 		if self.is_pause ~= 1 then
 			self.num_frame = self.num_frame + 1
 			self:OnActive(self.num_frame)
+			LogicTimer:OnActive()
 		end
 		RealTimer:OnActive()
 		self.accumulate = self.accumulate - self.TIME_PER_FRAME

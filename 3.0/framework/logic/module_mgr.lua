@@ -23,14 +23,6 @@ function ModuleBase:AddLogNode(log_level, view_level)
 	self:AddChild("log", log_node)
 end
 
-function ModuleBase:Print(log_level, fmt, ...)
-	local log_node = self:GetChild("log")
-	if not log_node then
-		return
-	end
-	log_node:Print(log_level, fmt, ...)
-end
-
 function ModuleMgr:NewModule(module_name)
 	assert(not self.module_list[module_name])
 	local class_module = Class:New(ModuleBase, module_name)
