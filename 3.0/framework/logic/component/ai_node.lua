@@ -66,6 +66,9 @@ function AINode:OnActive(frame)
 	if not self.ai_list then
 		return
 	end
+	if self:GetParent():TryCall("GetActionState") == Def.STATE_DEAD then
+		return
+	end
 	for _, ai_class in ipairs(self.order_list) do
 		if self:IsDebug() == 1 then
 			print(string.format("[AI]...[%d] %s  Active", self:GetParent():GetId(), ai_class:GetClassName()))

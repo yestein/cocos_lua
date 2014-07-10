@@ -45,7 +45,7 @@ local GenearteFuncion = {
 	end,
 }
 
-function EffectMgr:GenearteEffect(effect_name, no_loop)
+function EffectMgr:GenerateEffect(effect_name, no_loop)
 	local effect_type = self:GetEffectType(effect_name)
 	if not effect_type then
 		assert(false, "No Effect[%s]", effect_name)

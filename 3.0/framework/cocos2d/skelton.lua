@@ -70,11 +70,21 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	if not armature then
 		return 0
 	end
+	self.sprite = cc.Sprite:create()
 	self.child_list = {}
 	self.skelton_name = skelton_name
 	self.raw_scale = 1
 	self.direction = 1
-	self.orgin_direction = orgin_direction
+	self.orgin_direction = orgin_direction	
+	local offsetPoints = armature:getOffsetPoints()
+	local rect = armature:getBoundingBox()
+	local offset = Resource.bone_offset[skelton_name]
+	if offset then
+		armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
+	else
+		armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
+	end
+	self.sprite:addChild(armature)
 	self.armature = armature
 	self.animation_replace_name = {}
 	self.animation_speed = {}
@@ -107,12 +117,37 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	if param then
 		if param.scale then
 			self.raw_scale = param.scale
+			self.armature:setScale(self.raw_scale)
 		end
 	end
-	self.scale = self.raw_scale
+	self.scale = 1
 
 	self:PlayAnimation("normal")
 	return 1
+end
+
+function Skelton:GetSprite()
+	return self.sprite
+end
+
+function Skelton:GetBoundingBox()
+	local rect = self.armature:getBoundingBox()
+	local x, y = self.sprite:getPosition()
+	rect.x = rect.x + x
+	rect.y = rect.y + y
+	return rect
+end
+
+function Skelton:SetAnchorPoint(anchor_point)
+	self.sprite:setAnchorPoint(anchor_point)
+end
+
+function Skelton:SetPosition(x, y)
+	self.sprite:setPosition(x, y)
+end
+
+function Skelton:SetLocalZOrder(order)
+	self.sprite:setLocalZOrder(order)
 end
 
 function Skelton:AddChildElement(name, child)
@@ -121,8 +156,7 @@ function Skelton:AddChildElement(name, child)
 		return
 	end
 	self.child_list[name] = child
-	child:setScaleX(math.abs(child:getScaleX()) * self.direction)
-	self.armature:addChild(child)
+	self.sprite:addChild(child)
 end
 
 function Skelton:GetChildElement(name)
@@ -134,7 +168,7 @@ function Skelton:RemoveChildElement(name)
 		assert(false, "No Child[%s]", name)
 		return
 	end	
-	self.armature:removeChild(self.child_list[name], true)
+	self.sprite:removeChild(self.child_list[name], true)
 	self.child_list[name] = nil
 end
 
@@ -205,7 +239,7 @@ function Skelton:GetCurrentAnimation()
 end
 
 function Skelton:MoveTo(target_x, target_y, during_time)
-	local x, y = self.armature:getPosition()
+	local x, y = self.sprite:getPosition()
 	local function playStop()
 		if self:GetCurrentAnimation() == "run" then
 			self:PlayAnimation("normal")
@@ -218,24 +252,51 @@ function Skelton:MoveTo(target_x, target_y, during_time)
 	local play_stop = cc.CallFunc:create(playStop)
 	local sequece_action = cc.Sequence:create(move_action, play_stop)
 	sequece_action:setTag(Def.TAG_MOVE_ACTION)
-	self.armature:stopActionByTag(Def.TAG_MOVE_ACTION)
-	self.armature:runAction(sequece_action)
+	self.sprite:stopActionByTag(Def.TAG_MOVE_ACTION)
+	self.sprite:runAction(sequece_action)
 end
 
 function Skelton:SetScale(scale_rate, during_time)
-	self.scale = self.raw_scale * scale_rate
-	local armature = self.armature
+	self.scale = scale_rate
+	local sprite = self.sprite
 	if during_time then
-		local scale_action = cc.ScaleTo:create(during_time, (self.scale * self.direction), self.scale)
+		local scale_action = cc.ScaleTo:create(during_time, self.scale)
 		scale_action:setTag(Def.TAG_SCALE_ACTION)
-		armature:runAction(scale_action)
+		sprite:runAction(scale_action)
 	else
-		armature:setScaleX(self.scale * self.direction)
-		armature:setScaleY(self.scale)
+		sprite:setScale(self.scale)
 	end
-	for _, child in pairs(self.child_list) do
-		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
+end
+
+function Skelton:UpdateDebugBox()
+
+	local draw_node = self:GetChildElement("box")
+	if not draw_node then
+		draw_node = cc.DrawNode:create()
+
+		local rect = self.armature:getBoundingBox()
+		draw_node:drawPolygon(
+			{cc.p(rect.x, rect.y), cc.p(rect.x + rect.width, rect.y), 
+			cc.p(rect.x + rect.width, rect.y + rect.height), cc.p(rect.x, rect.y+ rect.height),},
+			4, 
+			cc.c4b(0, 0, 0, 0),
+			1,
+			cc.c4b(0, 1, 0, 1)
+		)
+		draw_node:setLocalZOrder(10000)
+		draw_node:drawDot(cc.p(0, 0), 7, cc.c4b(1, 0, 0, 1))
+		self:AddChildElement("box", draw_node)
+
+		local dot_node = cc.DrawNode:create()
+		dot_node:drawDot(cc.p(0, 0), 5, cc.c4b(0, 0, 1, 1))
+		self.armature:addChild(dot_node, 10000)
 	end
+
+	draw_node:setScaleX(self.direction)
+end
+
+function Skelton:GetDirection()
+	return self.direction
 end
 
 function Skelton:SetDirection(direction)
@@ -245,13 +306,7 @@ function Skelton:SetDirection(direction)
 		self.direction = -1
 	end
 	local armature = self.armature
-	armature:stopActionByTag(Def.TAG_SCALE_ACTION)
-	armature:setScaleX(self.scale * self.direction)
-	armature:setScaleY(self.scale)
-
-	for _, child in pairs(self.child_list) do
-		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
-	end
+	armature:setScaleX(self.raw_scale * self.direction)
 end
 
 function Skelton:SetBoneColor(bone_name, color)
