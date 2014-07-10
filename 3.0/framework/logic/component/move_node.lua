@@ -132,7 +132,11 @@ function MoveNode:GoTo(x, y)
 	self:GenerateNextPos()
 	if not self.move_frame then
 		self:MoveTo(self.next_pos.x, self.next_pos.y)
-		self:GenerateNextPos()
+		if self:IsArriveTarget() == 1 then
+			self:Stop()
+		else
+			self:GenerateNextPos()
+		end
 	end
 end
 
