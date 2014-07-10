@@ -220,3 +220,12 @@ function LogicNode:UnregisterEventListen()
 	end
 	self.reg_event_list = {}
 end
+
+function LogicNode:Print(log_level, fmt, ...)
+	local log_node = self:GetChild("log")
+	if not log_node then
+		print(fmt, ...)
+		return
+	end
+	log_node:Print(log_level, fmt, ...)
+end
