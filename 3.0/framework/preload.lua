@@ -79,6 +79,7 @@ AddPreloadFile("framework/cocos2d/scene_mgr.lua")
 AddPreloadFile("framework/cocos2d/skelton.lua")
 AddPreloadFile("framework/cocos2d/skelton_ex.lua")
 AddPreloadFile("framework/cocos2d/skelton_pool.lua")
+AddPreloadFile("framework/cocos2d/slide_helper.lua")
 
 AddPreloadFile("framework/effects/fly_text.lua")
 AddPreloadFile("framework/effects/effect_mgr.lua")
