@@ -62,6 +62,7 @@ function Skelton:_Uninit()
 	self.frame_func             = nil
 	self.current_animation      = nil
 	self.raw_scale 				= nil
+	self.change_pos_child 		= nil
 	self.child_list				= nil
 end
 
@@ -72,10 +73,12 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	end
 	self.sprite = cc.Sprite:create()
 	self.child_list = {}
+	self.change_pos_child = {}
 	self.skelton_name = skelton_name
 	self.raw_scale = 1
 	self.direction = 1
-	self.orgin_direction = orgin_direction	
+	self.orgin_direction = orgin_direction
+	self.is_debug_boundingbox = param.is_debug_boundingbox
 	local offsetPoints = armature:getOffsetPoints()
 	local rect = armature:getBoundingBox()
 	local offset = Resource.bone_offset[skelton_name]
@@ -121,8 +124,10 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 		end
 	end
 	self.scale = 1
-
 	self:PlayAnimation("normal")
+	if self:IsDebugBoundingBox() == 1 then
+		self:InitDebugBox()
+	end
 	return 1
 end
 
@@ -150,26 +155,42 @@ function Skelton:SetLocalZOrder(order)
 	self.sprite:setLocalZOrder(order)
 end
 
-function Skelton:AddChildElement(name, child)
-	if self.child_list[name] then
-		assert(false, "Child[%s] Already Exists", name)
-		return
+function Skelton:AddChildElement(name, child, x, y, is_change_position)
+	local index = 1
+	local child_name = name
+	while self.child_list[child_name] do
+		child_name = name.."_"..index
+		index = index + 1
 	end
-	self.child_list[name] = child
+	if not x or not y then
+		x, y = 0, 0
+	end
+	child:setPosition(x * self.direction, y)
+	self.child_list[child_name] = {obj = child, raw_x = x}
 	self.sprite:addChild(child)
+	if is_change_position == 1 then
+		self.change_pos_child[child_name] = 1
+	end
+	return child_name
 end
 
 function Skelton:GetChildElement(name)
-	return self.child_list[name]
+	if self.child_list[name] then
+		return self.child_list[name].obj
+	end
 end
 
 function Skelton:RemoveChildElement(name)
+	print("RemoveChildElement", name)
 	if not self.child_list[name] then
 		assert(false, "No Child[%s]", name)
 		return
-	end	
-	self.sprite:removeChild(self.child_list[name], true)
+	end
+	self.sprite:removeChild(self.child_list[name].obj, true)
 	self.child_list[name] = nil
+	if self.change_pos_child[name] then
+		self.change_pos_child[name] = nil
+	end
 end
 
 function Skelton:GetArmature()
@@ -268,8 +289,7 @@ function Skelton:SetScale(scale_rate, during_time)
 	end
 end
 
-function Skelton:UpdateDebugBox()
-
+function Skelton:InitDebugBox()
 	local draw_node = self:GetChildElement("box")
 	if not draw_node then
 		draw_node = cc.DrawNode:create()
@@ -285,14 +305,16 @@ function Skelton:UpdateDebugBox()
 		)
 		draw_node:setLocalZOrder(10000)
 		draw_node:drawDot(cc.p(0, 0), 7, cc.c4b(1, 0, 0, 1))
-		self:AddChildElement("box", draw_node)
+		self:AddChildElement("box", draw_node, 0, 0, 1)
 
 		local dot_node = cc.DrawNode:create()
 		dot_node:drawDot(cc.p(0, 0), 5, cc.c4b(0, 0, 1, 1))
 		self.armature:addChild(dot_node, 10000)
 	end
+end
 
-	draw_node:setScaleX(self.direction)
+function Skelton:IsDebugBoundingBox()
+	return self.is_debug_boundingbox
 end
 
 function Skelton:GetDirection()
@@ -307,6 +329,13 @@ function Skelton:SetDirection(direction)
 	end
 	local armature = self.armature
 	armature:setScaleX(self.raw_scale * self.direction)
+	for child_name, _ in pairs(self.change_pos_child) do
+		local child_info = self.child_list[child_name]
+		local child = child_info.obj
+		local x, y = child:getPosition()
+		child:setPosition(child_info.raw_x * self.direction, y)
+		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
+	end
 end
 
 function Skelton:SetBoneColor(bone_name, color)

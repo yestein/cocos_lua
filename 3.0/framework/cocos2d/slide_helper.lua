@@ -64,7 +64,8 @@ function SlideHelper:OnMove(x, y)
 		local move_y = y - self.last_y
 		for id, sprite in pairs(self.container) do
 			local raw_x, raw_y = sprite:getPosition()
-			local new_x, new_y = raw_x + move_x, raw_y + move_y
+			--local new_x, new_y = raw_x + move_x, raw_y + move_y
+			local new_x, new_y = x, y - 60
 			sprite:setPosition(new_x, new_y)
 			Event:FireEvent("SLIDE.MOVE", id, new_x, new_y)
 		end

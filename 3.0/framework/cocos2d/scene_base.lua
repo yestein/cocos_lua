@@ -244,8 +244,8 @@ function SceneBase:IsDebugPhysics()
 	end
 end
 
-function SceneBase:IsDebugBoudingBox()
-	if self.property and self.property.debug_bouding_box == 1 then
+function SceneBase:IsDebugBoundingBox()
+	if self.property and self.property.debug_bounding_box == 1 then
 		return 1
 	end
 end

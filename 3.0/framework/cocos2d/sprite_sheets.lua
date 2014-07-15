@@ -78,7 +78,7 @@ function SpriteSheets:RunAnimationNoLoop(sprite, animation_name, time_interval)
     sprite:runAction(cc.Animate:create(animation))
 end
 
-function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval)
+function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval, remove_fun)
 	local frames = {}
 	local frame_count = self:GetAnimationCount(animation_name)
     for i = 1, frame_count do 
@@ -89,7 +89,13 @@ function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval)
     	time_interval = self:GetAnimationInterval(animation_name)
     end
     local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
-    local action = cc.Sequence:create(cc.Animate:create(animation), cc.RemoveSelf:create())
+
+    local action = nil
+    if not remove_fun then
+        action = cc.Sequence:create(cc.Animate:create(animation), cc.RemoveSelf:create())
+    else
+        action = cc.Sequence:create(cc.Animate:create(animation), cc.CallFunc:create(remove_fun))
+    end
     sprite:stopAllActions()
     sprite:runAction(action)
 end
