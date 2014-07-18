@@ -146,12 +146,14 @@ function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 	local obj_rect = target_obj:getBoundingBox()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 1
+	local offset_x = param.offset_x or 0
+	local offset_y = param.offset_y or 0
 
 	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
 	local color = param.color or "white"	
 	local x, y = target_obj:getPosition()
 	jumped_text:setColor(Def:GetColor(color))
-	jumped_text:setPosition(x + obj_rect.width * percent_x, y + obj_rect.height * percent_y)
+	jumped_text:setPosition(x + obj_rect.width * percent_x + offset_x, y + obj_rect.height * percent_y + offset_y)
 	layer:addChild(jumped_text)
 	if param.zorder then
 		jumped_text:setLocalZOrder(param.zorder)
