@@ -18,7 +18,7 @@ function AIBase:CanActive(frame)
 		self.next_active_frame = frame
 	end
 
-	if self.next_active_frame ~= frame then
+	if self.next_active_frame > frame then
 		return 0
 	end
 	return 1
