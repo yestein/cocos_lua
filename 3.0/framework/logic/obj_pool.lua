@@ -62,12 +62,13 @@ end
 function ObjPool:Add(obj_template, ...)
 	local obj = Class:New(obj_template)
 	local id = self:GetNextId()
-	if obj:Init(id, ...) == 1 then
-		self.obj_pool[id] = obj
+	self.obj_pool[id] = obj
+	if obj:Init(id, ...) == 1 then		
 		self:UpdateNextId()
 		Event:FireEvent(self.obj_name..".ADD", id, ...)
 		return obj, id
 	else
+		self.obj_pool[id] = nil
 		cclog("Add Error")
 	end
 end
