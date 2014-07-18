@@ -178,6 +178,10 @@ function RpgObj:GetAttackSkillId()
 	return self.attack_skill
 end
 
+function RpgObj:GetAttackRange()
+	return self:TryCall("GetSkillRange", self.attack_skill)
+end
+
 function RpgObj:SetTargetId(id)
 	self.target_id = id
 end
@@ -325,35 +329,12 @@ function RpgObj:Attack(target_id)
 	return self:TryCall("CastSkill", skill_id)
 end
 
-function RpgObj:TryAttack(target_id)
-	if self:IsInState(Def.STATE_DEAD) == 1 then
-		return 0
-	end
-	if self:IsTargetValid(target_id) ~= 1 then
-		return 0
-	end
-	if self:CanAttack(target_id) == 1 then
-		self:TryCall("Stop")
-		return self:Attack(target_id)
-	end
-
-	local target = CharacterPool:GetById(target_id)
-	if not target or target:IsValid() ~= 1 then
-		return 0
-	end
-
-	local position = target:GetPosition()
-	self:InsertCommand({"GoTo", position.x, position.y})
-	self:InsertCommand({"TryAttack", target_id}, 2)
-	return 1
-end
-
 function RpgObj:BeHit()
 	if self:IsInState(Def.STATE_DEAD) == 1 then
 		return
 	end
 	self:TryCall("Stop")
-	self:SetActionState(Def.STATE_NORMAL)
+	self:SetActionState(Def.STATE_HIT)
 	local event_name = self:GetClassName()..".BEHIT"
 	Event:FireEvent(event_name, self:GetId())
 end
