@@ -165,7 +165,11 @@ function Skelton:AddChildElement(name, child, x, y, is_change_position)
 	if not x or not y then
 		x, y = 0, 0
 	end
-	child:setPosition(x * self.direction, y)
+	if is_change_position then
+		child:setPosition(x * self.direction, y)
+	else
+		child:setPosition(x, y)
+	end
 	self.child_list[child_name] = {obj = child, raw_x = x}
 	self.sprite:addChild(child)
 	if is_change_position == 1 then
@@ -181,7 +185,6 @@ function Skelton:GetChildElement(name)
 end
 
 function Skelton:RemoveChildElement(name)
-	print("RemoveChildElement", name)
 	if not self.child_list[name] then
 		assert(false, "No Child[%s]", name)
 		return
