@@ -58,12 +58,7 @@ function MoveNode:OnActive(frame)
 	end
 
 	if (frame - self.move_frame) >= self.interval_frame then
-		self:MoveTo(self.next_pos.x, self.next_pos.y)
-		if self:IsArriveTarget() == 1 then
-			self:Stop()
-		else
-			self:GenerateNextPos()
-		end
+		self:MoveToTarget()
 	end
 end
 
@@ -90,6 +85,10 @@ function MoveNode:MoveTo(x, y)
 			can_move = 0
 			break
 		end
+	end
+	local state = owner:TryCall("GetActionState")
+	if state == Def.STATE_DEAD or state == Def.STATE_HIT then
+		can_move = 0
 	end
 	if can_move == 1 then
 		local event_name = owner:GetClassName()..".MOVETO"
@@ -118,11 +117,15 @@ function MoveNode:MoveTo(x, y)
 	self.move_frame = GameMgr:GetCurrentFrame()
 end
 
-function MoveNode:GoTo(x, y)
+function MoveNode:GoTo(x, y, call_back)
 	x = math.floor(x)
 	y = math.floor(y)
 	local owner = self:GetParent()
 	if self.position.x == x and self.position.y == y then
+		return
+	end
+	local state = owner:TryCall("GetActionState")
+	if state == Def.STATE_DEAD or state == Def.STATE_HIT then
 		return
 	end
 	local event_name = owner:GetClassName()..".GOTO"
@@ -130,13 +133,21 @@ function MoveNode:GoTo(x, y)
 	self.target_pos.x = x
 	self.target_pos.y = y
 	self:GenerateNextPos()
+	self.call_back = call_back
 	if not self.move_frame then
-		self:MoveTo(self.next_pos.x, self.next_pos.y)
-		if self:IsArriveTarget() == 1 then
-			self:Stop()
-		else
-			self:GenerateNextPos()
+		self:MoveToTarget()
+	end
+end
+
+function MoveNode:MoveToTarget()
+	self:MoveTo(self.next_pos.x, self.next_pos.y)
+	if self:IsArriveTarget() == 1 then
+		self:Stop()
+		if self.call_back then
+			Lib:SafeCall(self.call_back)
 		end
+	else
+		self:GenerateNextPos()
 	end
 end
 

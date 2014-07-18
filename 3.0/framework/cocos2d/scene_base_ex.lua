@@ -208,14 +208,19 @@ function SceneBase:PlayBGM()
 end
 
 local SHAKE_ACTION_TAG = 233
-function SceneBase:ShakeScreen(range)
+function SceneBase:ShakeScreen(range, call_back)
 	local layer_main = self:GetLayer("main")
 	if layer_main:getActionByTag(SHAKE_ACTION_TAG) then
 		return
 	end
 	local move_left = cc.MoveBy:create(0.08, cc.p(-range, 0))
 	local move_right = cc.MoveBy:create(0.08, cc.p(range, 0))
-	local shake_action = cc.Sequence:create(move_left, move_right, move_left, move_right, move_left, move_right, move_left, move_right)
+	local action_list = {move_left, move_right, move_left, move_right, move_left, move_right, move_left, move_right}
+	if call_back then
+		local call_back_action = cc.CallFunc:create(call_back)
+		action_list[#action_list + 1] = call_back_action
+	end
+	local shake_action = cc.Sequence:create(unpack(action_list))
 	shake_action:setTag(SHAKE_ACTION_TAG)
 	layer_main:runAction(shake_action)
 end
