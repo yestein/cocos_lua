@@ -18,6 +18,8 @@ end
 function BuffNode:_Init()
 	self.buff_list = {}
 	self.buff_state_pool = {}
+	self.immune_buff_list = {}
+	self.immune_state_list = {}
 	return 1
 end
 
@@ -35,6 +37,12 @@ function BuffNode:OnActive(frame)
 end
 
 function BuffNode:AddBuff(buff_id, luancher_id, count)
+	if not self.buff_list then
+		return 0
+	end
+	if self.immune_buff_list[buff_id] then
+		return 1
+	end
 	local buff = self.buff_list[buff_id]
 	local is_add = 0
 	local owner_id = self:GetParent():GetId()
@@ -70,6 +78,9 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 end
 
 function BuffNode:RemoveBuff(buff_id, count)
+	if not self.buff_list then
+		return
+	end
 	local buff = self.buff_list[buff_id]
 	if not buff then
 		assert(false, "Remove Buff : No Buff[%s]", tostring(buff_id))
@@ -108,6 +119,9 @@ function BuffNode:GetBuffList()
 end
 
 function BuffNode:AddBuffState(state)
+	if self.immune_state_list[state] then
+		return 1
+	end
 	if not self.buff_state_pool[state] then
 		self.buff_state_pool[state] = 0
 	end
@@ -141,4 +155,20 @@ function BuffNode:OnOwnerDead()
 			end
 		end
 	end
+end
+
+function BuffNode:AddImmuneBuff(buff_id)
+	self.immune_buff_list[buff_id] = 1
+end
+
+function BuffNode:RemoveImmuneBuff(buff_id)
+	self.immune_buff_list[buff_id] = nil
+end
+
+function BuffNode:AddImmuneState(state)
+	self.immune_state_list[state] = 1
+end
+
+function BuffNode:RemoveImmuneState(state)
+	self.immune_state_list[state] = nil
 end

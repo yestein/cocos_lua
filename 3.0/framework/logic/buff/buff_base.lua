@@ -59,8 +59,10 @@ function BuffBase:ChangeCount(change)
 	end
 	if change > 0 then
 		local config = BuffMgr:GetBuffConfig(self.id)
-		local frame = math.floor(config.last_time * GameMgr:GetFPS())
-		self.remove_frame = GameMgr:GetCurrentFrame() + frame
+		if config.last_time and config.last_time > 0 then
+			local frame = math.floor(config.last_time * GameMgr:GetFPS())
+			self.remove_frame = GameMgr:GetCurrentFrame() + frame
+		end
 	end
 	if self.count == new_count then
 		return 0
