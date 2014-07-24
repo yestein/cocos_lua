@@ -65,6 +65,10 @@ function SlideHelper:RemoveSprite(id, sprite)
 	self.container[id] = nil
 end
 
+function SlideHelper:SetDrag(is_drag)
+	self.is_drag = is_drag
+end
+
 function SlideHelper:OnMove(x, y)
 	if self.last_x and self.last_y then
 		if self.is_drag == 1 then
