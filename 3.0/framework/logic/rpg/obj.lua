@@ -329,14 +329,21 @@ function RpgObj:Attack(target_id)
 	return self:TryCall("CastSkill", skill_id)
 end
 
-function RpgObj:BeHit()
+function RpgObj:BeHit(luancher)
 	if self:IsInState(Def.STATE_DEAD) == 1 then
 		return
 	end
 	self:TryCall("Stop")
 	self:SetActionState(Def.STATE_HIT)
+	if self._Behit then
+		self:_BeHit(luancher)
+	end
+	local luancher_id = nil
+	if luancher then
+		luancher_id = luancher:GetId()
+	end
 	local event_name = self:GetClassName()..".BEHIT"
-	Event:FireEvent(event_name, self:GetId())
+	Event:FireEvent(event_name, self:GetId(), luancher_id)
 end
 
 function RpgObj:Dead()
