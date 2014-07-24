@@ -83,6 +83,7 @@ local function main()
     if __Debug then
     	assert(SceneMgr:CheckAllClass() == 1)
     end
+    Resource:Init()
     Physics:Init()
     Ui:Init()
     CCDirector:getInstance():setDisplayStats(true)

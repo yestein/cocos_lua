@@ -64,17 +64,19 @@ function Skelton:_Uninit()
 	self.raw_scale 				= nil
 	self.change_pos_child 		= nil
 	self.child_list				= nil
+	Resource:UnloadSkelton(self.skelton_name)
+	self.skelton_name			= nil
 end
 
 function Skelton:_Init(skelton_name, orgin_direction, param)
-	local armature = ccs.Armature:create(skelton_name)
+	self.skelton_name = skelton_name
+	local armature = Resource:LoadSkelton(skelton_name)
 	if not armature then
 		return 0
 	end
 	self.sprite = cc.Sprite:create()
 	self.child_list = {}
-	self.change_pos_child = {}
-	self.skelton_name = skelton_name
+	self.change_pos_child = {}	
 	self.raw_scale = 1
 	self.direction = 1
 	self.orgin_direction = orgin_direction
