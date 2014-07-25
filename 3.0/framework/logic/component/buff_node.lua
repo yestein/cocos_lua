@@ -13,6 +13,8 @@ end
 function BuffNode:_Uninit( ... )
 	self.buff_list = nil
 	self.buff_state_pool = nil
+
+	return 1
 end
 
 function BuffNode:_Init()

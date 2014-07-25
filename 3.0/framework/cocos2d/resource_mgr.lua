@@ -16,10 +16,8 @@ local audio_engine = cc.SimpleAudioEngine:getInstance()
 
 function Resource:Init()
 	self.loaded_skelton = {}
+	return 1
 end
-
-function Resource:Dump()
-	end
 
 function Resource:LoadSpriteSheets(folder_name, animation_name_list)
 	for _, animation_name in pairs(animation_name_list) do

@@ -20,6 +20,7 @@ end
 function ObjPool:_Uninit()
 	self.obj_pool = nil
 	self.next_id = nil
+	return 1
 end
 
 function ObjPool:_Init(obj_name, is_recycle)
@@ -30,6 +31,7 @@ function ObjPool:_Init(obj_name, is_recycle)
 		self.is_recycle = 1
 		self.recycle_id_list = {}
 	end
+	return 1
 end
 
 function ObjPool:GetNextId()

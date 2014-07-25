@@ -97,7 +97,10 @@ function SceneMgr:CreateScene(scene_name, scene_template_name)
 	local scene = Class:New(scene_template, scene_name)
     scene.template_name = scene_template_name
     self.scene_list[scene_name] = scene
-    scene:Init(scene_name)
+    if scene:Init(scene_name) ~= 1 then
+        self:DestroyScene(scene_name)
+        return nil
+    end
     Event:FireEvent("SCENE.CREATE", scene_template_name, scene_name)
 	return scene
 end
@@ -118,9 +121,12 @@ function SceneMgr:DestroyScene(scene_name)
         table.remove(self.current_scene_list, delete_index)
     end
     Event:FireEvent("SCENE.DESTORY", self.scene_list[scene_name]:GetClassName(), scene_name)
-    self.scene_list[scene_name]:Uninit()
-    self.scene_list[scene_name] = nil
-    return scene_list
+    local scene = self.scene_list[scene_name]
+    if scene then
+        scene:Uninit()
+        self.scene_list[scene_name] = nil
+    end
+    return 1
 end
 
 function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
@@ -131,6 +137,9 @@ function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
     local scene = self:GetScene(scene_name)
     if not scene then
         scene = self:CreateScene(scene_name, scene_template_name)
+    end
+    if not scene then        
+        return
     end
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
@@ -145,6 +154,9 @@ function SceneMgr:LoadScene(scene_template_name, scene_name)
     local scene = self:GetScene(scene_name)
     if not scene then
         scene = self:CreateScene(scene_name, scene_template_name)
+    end
+    if not scene then
+        return
     end
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
@@ -182,7 +194,6 @@ function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
     CCDirector:getInstance():popScene()
-    --TODO bug
     local scene = self:GetCurrentScene()
     if scene then
         scene:PlayBGM()
@@ -193,7 +204,6 @@ function SceneMgr:ReloadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     local scene = self:GetScene(current_scene_name)
     local scene_template_name = scene:GetTemplateName()
-    self:DestroyScene(current_scene_name)
-    CCDirector:getInstance():popScene()
+    self:UnLoadCurrentScene()
     return self:LoadScene(scene_template_name, current_scene_name)
 end

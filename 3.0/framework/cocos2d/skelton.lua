@@ -62,10 +62,13 @@ function Skelton:_Uninit()
 	self.frame_func             = nil
 	self.current_animation      = nil
 	self.raw_scale 				= nil
+	self.bone_diplay_index 		= nil
 	self.change_pos_child 		= nil
 	self.child_list				= nil
 	Resource:UnloadSkelton(self.skelton_name)
 	self.skelton_name			= nil
+
+	return 1
 end
 
 function Skelton:_Init(skelton_name, orgin_direction, param)
@@ -77,17 +80,20 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	self.sprite = cc.Sprite:create()
 	self.child_list = {}
 	self.change_pos_child = {}	
+	self.bone_diplay_index = {}
 	self.raw_scale = 1
 	self.direction = 1
 	self.orgin_direction = orgin_direction
 	self.is_debug_boundingbox = param.is_debug_boundingbox
-	local offsetPoints = armature:getOffsetPoints()
-	local rect = armature:getBoundingBox()
-	local offset = Resource.bone_offset[skelton_name]
-	if offset then
-		armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
-	else
-		armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
+	if armature.getOffsetPoints then
+		local offsetPoints = armature:getOffsetPoints()
+		local rect = armature:getBoundingBox()
+		local offset = Resource.bone_offset[skelton_name]
+		if offset then
+			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
+		else
+			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
+		end
 	end
 	self.sprite:addChild(armature)
 	self.armature = armature
@@ -120,6 +126,12 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
 	if param then
+		print(param.change_equip)
+		if param.change_equip then
+			for bone_name, index in pairs(param.change_equip) do
+				self:ChangeBoneDisplay(bone_name, index)
+			end
+		end
 		if param.scale then
 			self.raw_scale = param.scale
 			self.armature:setScale(self.raw_scale)
@@ -406,4 +418,19 @@ function Skelton:RemoveParticles(bone_name, particles_name)
 	local particles_bone = self.bone_particles[particles_bone_name]
 	self.armature:removeBone(particles_bone, true)
 	self.bone_particles[particles_bone_name] = nil
+end
+
+function Skelton:AddBoneDisplay(bone_name, sprite)
+	--TODO
+end
+
+function Skelton:ChangeBoneDisplay(bone_name, index)
+	self.bone_diplay_index[bone_name] = index + 1
+	local bone = self.armature:getBone(bone_name)
+	bone:changeDisplayWithIndex(index, true)
+end
+
+function Skelton:GetBoneDisplayIndex(bone_name)
+	local index = self.bone_diplay_index[bone_name] or 1
+	return index - 1
 end

@@ -12,11 +12,15 @@ end
 function CDNode:_Uninit()
 	self.last_used_frame = nil
 	self.cd_time         = nil
+
+	return 1
 end
 
 function CDNode:_Init()
 	self.cd_time         = {}
 	self.last_used_frame = {}
+
+	return 1
 end
 
 function CDNode:Add(id, cd_time)

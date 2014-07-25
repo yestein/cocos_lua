@@ -35,6 +35,8 @@ function MoveNode:_Uninit()
 
 	self.next_pos   = nil
 	self.target_pos = nil
+
+	return 1
 end
 
 function MoveNode:_Init(position, speed)

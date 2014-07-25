@@ -17,6 +17,7 @@ end
 
 function SpriteSheets:Init()
 	self.animation_num_list = {}
+    return 1
 end
 
 function SpriteSheets:SetAnimationParam(animation_name, param)

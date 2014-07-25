@@ -27,7 +27,7 @@ end
 
 function Physics:Init()
 	if not PhysicsWorld then
-		return
+		return 1
 	end
 	if PhysicsWorld:Init(unpack(DEFAULT_GRAVITY)) ~= 1 then
 		return 0

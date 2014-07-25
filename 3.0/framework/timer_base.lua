@@ -13,12 +13,14 @@ function TimerBase:_Uninit( ... )
 	self.num_frame = nil
 	self.frame_event = nil
 	self.call_back_list = nil
+	return 1
 end
 
 function TimerBase:_Init( ... )
 	self.call_back_list = {}
 	self.frame_event = {}
 	self.num_frame = 0
+	return 1
 end
 
 function TimerBase:OnActive()

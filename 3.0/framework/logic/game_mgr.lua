@@ -27,12 +27,13 @@ function GameMgr:Init()
 	self.is_pause = 0
 
 	self:SetFPS(25)
-	RealTimer:Init()
-	LogicTimer:Init()
-	GM:Init()
-	SpriteSheets:Init()
-	EffectMgr:Init()
-	self:_Init()
+	assert(RealTimer:Init() == 1)
+
+	assert(LogicTimer:Init() == 1)
+	assert(GM:Init() == 1)
+	assert(SpriteSheets:Init() == 1)
+	assert(EffectMgr:Init() == 1)
+	return self:_Init()
 end
 
 function GameMgr:OnLoop(delta)

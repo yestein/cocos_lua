@@ -24,6 +24,7 @@ function SlideHelper:_Init(is_drag, offset_x, offset_y)
 	self.container = {}
 	self.is_working = 0
 	self.timer_id = nil
+	return 1
 end
 
 function SlideHelper:IsWorking()

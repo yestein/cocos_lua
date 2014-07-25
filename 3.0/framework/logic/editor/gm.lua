@@ -10,12 +10,16 @@ if not GM then
 	GM = ModuleMgr:NewModule("GM")
 end
 
+function GM:_Uninit()
+	self.actions = nil
+	return 1
+end
+
 function GM:_Init()
 	self.actions = {}
 	self:CreateCommonActions()
-end
 
-function GM:_Uninit()
+	return 1
 end
 
 function GM:RecieveEvent(event_type, action_list)

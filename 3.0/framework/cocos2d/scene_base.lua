@@ -32,6 +32,8 @@ function SceneBase:_Uninit()
 	self.cc_scene_obj = nil
 	self.scene_name = nil	
 	Debug:ShowTimer()
+
+	return 1
 end
 
 function SceneBase:_Init(scene_name)
@@ -83,6 +85,7 @@ function SceneBase:_Init(scene_name)
 
 		layer_main:addChild(layer_debug_phyiscs, 10)
     end	
+    return 1
 end
 
 function SceneBase:GetTemplateName()

@@ -13,6 +13,8 @@ function BuffBase:_Uninit()
 	self.count = 1
 	self.template_id = nil
 	self.id = nil
+
+	return 1
 end
 
 function BuffBase:_Init(id, owner_id, config)
@@ -28,6 +30,7 @@ function BuffBase:_Init(id, owner_id, config)
 	end
 
 	--self.luancher_id = nil
+	return 1
 end
 
 function BuffBase:GetBornFrame()

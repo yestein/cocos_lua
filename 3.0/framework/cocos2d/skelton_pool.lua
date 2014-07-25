@@ -19,11 +19,14 @@ function SkeltonPool:_Uninit()
 	end
 	self.skelton_list = nil
 	self.scene = nil
+
+	return 1
 end
 
 function SkeltonPool:_Init(scene_name)
 	self.scene = SceneMgr:GetScene(scene_name)
 	self.skelton_list = {}
+	return 1
 end
 
 function SkeltonPool:Create(layer_name, id, skelton_name, orgin_direction, param)

@@ -77,21 +77,21 @@ local function main()
 	math.randomseed(os.time())
 	math.random(100)
 	Event:Preload()
-    Debug:Init(Debug.MODE_BLACK_LIST)
+    assert(Debug:Init(Debug.MODE_BLACK_LIST) == 1)
     
-    SceneMgr:Init()
+    assert(SceneMgr:Init() == 1)
     if __Debug then
     	assert(SceneMgr:CheckAllClass() == 1)
     end
-    Resource:Init()
-    Physics:Init()
-    Ui:Init()
+    assert(Resource:Init() == 1)
+    assert(Physics:Init() == 1)
+    assert(Ui:Init() == 1)
     CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("Current Project: ", PROJECT_PATH)
     print("Platform: ", __platform)
     print("Debug:", __Debug)
-    GameMgr:Init()
+    assert(GameMgr:Init() == 1)
 end
 
 --This function will be called when the app is inactive. When comes a phone call,it's be invoked too

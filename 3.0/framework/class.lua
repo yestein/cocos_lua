@@ -12,6 +12,8 @@ if not Class then
 	Class = {}
 end
 
+--Class.is_debug = 1
+
 local MetaTable = {
 	__index = function(table, key)
 		local v = rawget(table, key)
@@ -38,18 +40,26 @@ local function Init(self, ...)
 	for i = #init_list, 1, -1 do
 		local func, name = unpack(init_list[i])
 		if Class.is_debug == 1 then
-			print("--",name, " Init..")
+			print("--", name, " Init..", ...)
 		end
-		func(self, ...)
+		local result, ret_code = pcall(func, self, ...)
+		if not result or ret_code ~= 1 then
+			assert(false)
+			return
+		end
 	end
 	if Class.is_debug == 1 then
-		print(rawget(self, "__class_name"), " Init..")
+		print(rawget(self, "__class_name"), " Init..", ...)
 	end
 	local init_func = rawget(self, "_Init")
 	if not init_func then
 		return 1
 	end	
-	return init_func(self, ...)
+	local result, ret_code = pcall(init_func, self, ...)
+	if not result then
+		return 0
+	end
+	return ret_code
 end
 
 local function Uninit(self, ...)
@@ -57,8 +67,13 @@ local function Uninit(self, ...)
 	if Class.is_debug == 1 then
 		print(rawget(self, "__class_name"), " Uninit..")
 	end
+	local ret_code = 1
 	if uninit_func then		
-		uninit_func(self, ...)
+		local result, ret = pcall(uninit_func, self, ...)
+		if not result or ret ~= 1 then
+			assert(false)
+			ret_code = 0
+		end
 	end
 
 	local uninit_list = {}
@@ -75,8 +90,16 @@ local function Uninit(self, ...)
 		if Class.is_debug == 1 then
 			print("--",name, " Uninit..")
 		end
-		func(self, ...)
-	end	
+		local result, ret = pcall(func,self, ...)
+		if not result or ret ~= 1 then
+			assert(false)
+			ret_code = 0
+		end
+	end
+	if not result or ret_code ~= 1 then
+		return
+	end
+	return ret_code
 end
 
 local function GetClassName(self)

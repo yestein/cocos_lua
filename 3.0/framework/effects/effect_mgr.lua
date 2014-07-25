@@ -15,6 +15,7 @@ end
 
 function EffectMgr:Init()
 	self.effect_list = {}
+	return 1
 end
 
 function EffectMgr:LoadEffect(effect_name, effect_type)

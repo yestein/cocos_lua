@@ -41,7 +41,9 @@ function Debug:AddBlackEvent(event_type)
 end
 
 function Debug:Init(mode)
-	return self:SetMode(mode)
+	self:SetMode(mode)
+
+	return 1
 end
 
 function Debug:SetMode(mode)

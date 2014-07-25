@@ -16,6 +16,8 @@ function AINode:_Uninit( ... )
 	self.order_list  = nil
 	self.ai_order    = nil
 	self.brain_data  = nil
+
+	return 1
 end
 
 function AINode:_Init()
