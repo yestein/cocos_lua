@@ -126,7 +126,6 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
 	if param then
-		print(param.change_equip)
 		if param.change_equip then
 			for bone_name, index in pairs(param.change_equip) do
 				self:ChangeBoneDisplay(bone_name, index)

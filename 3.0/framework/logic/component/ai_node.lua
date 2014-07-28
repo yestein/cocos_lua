@@ -6,8 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
+local AINode = GetComponent("AI")
 if not AINode then
-	AINode = NewLogicNode("AI_NODE")
+	AINode = CreateComponent("AI")
 end
 
 function AINode:_Uninit( ... )

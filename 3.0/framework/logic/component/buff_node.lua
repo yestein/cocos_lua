@@ -6,8 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
+local BuffNode = GetComponent("BUFF")
 if not BuffNode then
-	BuffNode = NewLogicNode("BUFF")
+	BuffNode = CreateComponent("BUFF")
 end
 
 function BuffNode:_Uninit( ... )
@@ -38,12 +39,15 @@ function BuffNode:OnActive(frame)
 	end
 end
 
-function BuffNode:AddBuff(buff_id, luancher_id, count)
+function BuffNode:AddBuff(buff_id, luancher_id, count, lasts_time)
 	if not self.buff_list then
 		return 0
 	end
 	if self.immune_buff_list[buff_id] then
 		return 1
+	end
+	if not count then
+		count = 1
 	end
 	local buff = self.buff_list[buff_id]
 	local is_add = 0
@@ -67,13 +71,17 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 		if buff.state then
 			self:AddBuffState(buff.state)
 		end
-		buff:ChangeCount(1)
+		buff:ChangeCount(count)
 		if buff.OnAdd then
 			buff:OnAdd()
 		end
 		Event:FireEvent("BUFF.ADD", buff_id, owner_id, luancher_id, count)
+
+		if config.lasts_time == 0 then
+			self:RemoveBuff(buff_id, count)
+		end
 	else
-		buff:ChangeCount(count or 1)
+		buff:ChangeCount(count)
 	end
 	
 	return 1

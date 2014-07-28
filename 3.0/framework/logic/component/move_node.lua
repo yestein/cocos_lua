@@ -6,11 +6,12 @@
 -- Modify       : 
 --=======================================================================
 
+local MoveNode = GetComponent("MOVE")
 if not MoveNode then
-	MoveNode = NewLogicNode("MOVE")
+	MoveNode = CreateComponent("MOVE")
 end
 
-MoveNode.interval = 0.1
+MoveNode.interval = Def.MOVE_INTERVAL
 
 local move_offset = {
 	left       = {-1, 0}, 

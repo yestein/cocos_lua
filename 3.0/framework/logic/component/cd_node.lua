@@ -5,8 +5,10 @@
 -- Description  : record cool down
 -- Modify       : 
 --=======================================================================
+
+local CDNode = GetComponent("COOL_DOWN")
 if not CDNode then
-	CDNode = NewLogicNode("COOL_DOWN")
+	CDNode = CreateComponent("COOL_DOWN")
 end
 
 function CDNode:_Uninit()

@@ -24,7 +24,8 @@ visible_size = cc.Director:getInstance():getVisibleSize()
 require("project.lua")
 require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
-PreloadScript()
+assert(PreloadScript() == 1)
+
 
 local function MainLoop(delta)
 	if FetchConsoleCmd then
@@ -88,9 +89,14 @@ local function main()
     assert(Ui:Init() == 1)
     CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
-    print("Current Project: ", PROJECT_PATH)
-    print("Platform: ", __platform)
+    print("================================================")
     print("Debug:", __Debug)
+    print("Project:", PROJECT_PATH)
+    print("Platform:", __platform)    
+    if CCVersion then
+		print("Version: ", CCVersion())
+	end
+	 print("================================================")
     assert(GameMgr:Init() == 1)
 end
 

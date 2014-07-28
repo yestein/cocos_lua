@@ -7,6 +7,7 @@
 --===================================================
 
 local g_script_list = {}
+local g_init_funciton = {}
 
 function AddPreloadFile(script_file)
 	g_script_list[#g_script_list + 1] = script_file
@@ -16,11 +17,23 @@ function AddProjectScript(script_file)
 	return AddPreloadFile(PROJECT_PATH.."/"..script_file)
 end
 
+
+function AddInitFunction(name, func)
+	g_init_funciton[name] = func
+end
+
 function PreloadScript()
 	for _, script_file in ipairs(g_script_list) do
 		print("loading \""..script_file.."\"")
 		require(script_file)
 	end
+	for _, func in pairs(g_init_funciton) do
+		local result, ret_code = Lib:SafeCall({func})
+		if not result or ret_code ~= 1 then
+			return 0
+		end
+	end
+	return 1
 end
 
 function ReloadScript()
@@ -29,6 +42,11 @@ function ReloadScript()
 		for _, script_file in ipairs(g_script_list) do
 			dofile("src/"..script_file)
 			print("Reload\t["..script_file.."]")
+		end
+
+		for name, func in pairs(g_init_funciton) do
+			print(name .. "...")
+			Lib:SafeCall({func})
 		end
 	else
 		print("Can not support Script Reload!!")
@@ -53,11 +71,15 @@ AddPreloadFile("framework/logic/obj_pool.lua")
 AddPreloadFile("framework/logic/real_timer.lua")
 AddPreloadFile("framework/logic/logic_timer.lua")
 AddPreloadFile("framework/logic/slide_helper.lua")
+AddPreloadFile("framework/logic/component_mgr.lua")
 
 AddPreloadFile("framework/logic/ai/ai_mgr.lua")
 AddPreloadFile("framework/logic/buff/buff_base.lua")
 AddPreloadFile("framework/logic/buff/buff_mgr.lua")
 AddPreloadFile("framework/logic/skill/skill_mgr.lua")
+AddPreloadFile("framework/logic/skill/skill_template.lua")
+AddPreloadFile("framework/logic/skill/skill_cast.lua")
+AddPreloadFile("framework/logic/skill/skill_effect.lua")
 
 AddPreloadFile("framework/logic/editor/gm.lua")
 AddPreloadFile("framework/logic/rpg/obj.lua")
@@ -68,6 +90,7 @@ AddPreloadFile("framework/logic/component/ai_node.lua")
 AddPreloadFile("framework/logic/component/log_node.lua")
 AddPreloadFile("framework/logic/component/buff_node.lua")
 AddPreloadFile("framework/logic/component/cd_node.lua")
+AddPreloadFile("framework/logic/component/skill_node.lua")
 
 AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")

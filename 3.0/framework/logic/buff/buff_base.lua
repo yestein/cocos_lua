@@ -24,10 +24,6 @@ function BuffBase:_Init(id, owner_id, config)
 	self.count = 0
 	self.max_count = config.max_count
 	self.born_frame = GameMgr:GetCurrentFrame()
-	if config.last_time then
-		local frame = math.floor(config.last_time * GameMgr:GetFPS())
-		self.remove_frame = self.born_frame + frame
-	end
 
 	--self.luancher_id = nil
 	return 1
@@ -62,14 +58,14 @@ function BuffBase:ChangeCount(change)
 	end
 	if change > 0 then
 		local config = BuffMgr:GetBuffConfig(self.id)
-		if config.last_time and config.last_time > 0 then
-			local frame = math.floor(config.last_time * GameMgr:GetFPS())
-			self.remove_frame = GameMgr:GetCurrentFrame() + frame
+		if config.lasts_time and config.lasts_time > 0 then
+			self:ResetLastsTime(config.lasts_time)
 		end
 	end
 	if self.count == new_count then
 		return 0
 	end
+
 	if self.OnChangeCount then
 		self:OnChangeCount(self.count, new_count)
 	end
@@ -82,6 +78,15 @@ function BuffBase:GetRestFrame()
 		return self.remove_frame - GameMgr:GetCurrentFrame()
 	end
 	return -1
+end
+
+function BuffBase:ResetLastsTime(lasts_time)
+	if not lasts_time or lasts_time <= 0 then
+		assert(false)
+		return
+	end
+	local frame = math.ceil(lasts_time * GameMgr:GetFPS())
+	self.remove_frame = GameMgr:GetCurrentFrame() + frame
 end
 
 function BuffBase:GetCount(count)

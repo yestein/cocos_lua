@@ -5,8 +5,9 @@
 -- Description  : write log
 -- Modify       : 
 --=======================================================================
+local LogNode = GetComponent("LOG")
 if not LogNode then
-	LogNode = NewLogicNode("LOG")
+	LogNode = CreateComponent("LOG")
 end
 
 LogNode.SetLogLevel = Log.SetLogLevel

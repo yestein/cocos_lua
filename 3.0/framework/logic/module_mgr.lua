@@ -18,7 +18,7 @@ if not ModuleBase then
 end
 
 function ModuleBase:AddLogNode(log_level, view_level)
-	local log_node = Class:New(LogNode)
+	local log_node = NewComponent("LOG")
 	log_node:Init(self:GetClassName(), log_level, view_level)
 	self:AddChild("log", log_node)
 end

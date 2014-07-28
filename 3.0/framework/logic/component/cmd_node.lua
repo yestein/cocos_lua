@@ -6,8 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
+local CmdNode = GetComponent("COMMAND")
 if not CmdNode then
-	CmdNode = NewLogicNode("CMD")
+	CmdNode = CreateComponent("COMMAND")
 end
 
 function CmdNode:_Uninit( ... )

@@ -40,36 +40,31 @@ local function Init(self, ...)
 	for i = #init_list, 1, -1 do
 		local func, name = unpack(init_list[i])
 		if Class.is_debug == 1 then
-			print("--", name, " Init..", ...)
+			print("--inherit-- " .. tostring(name) .. " Init..", ...)
 		end
-		local result, ret_code = pcall(func, self, ...)
-		if not result or ret_code ~= 1 then
-			assert(false)
-			return
-		end
+		assert(func(self, ...) == 1)
 	end
 	if Class.is_debug == 1 then
-		print(rawget(self, "__class_name"), " Init..", ...)
+		print(tostring(rawget(self, "__class_name")) .. " Init..", ...)
+	end
+	if Class.is_debug == 1 then
+		print("************************")
 	end
 	local init_func = rawget(self, "_Init")
 	if not init_func then
 		return 1
-	end	
-	local result, ret_code = pcall(init_func, self, ...)
-	if not result then
-		return 0
 	end
-	return ret_code
+	return init_func(self, ...)
 end
 
-local function Uninit(self, ...)
+local function Uninit(self)
 	local uninit_func = rawget(self, "_Uninit")
 	if Class.is_debug == 1 then
-		print(rawget(self, "__class_name"), " Uninit..")
+		print(tostring(rawget(self, "__class_name")) .. " Uninit..")
 	end
 	local ret_code = 1
 	if uninit_func then		
-		local result, ret = pcall(uninit_func, self, ...)
+		local result, ret = Lib:SafeCall({uninit_func, self})
 		if not result or ret ~= 1 then
 			assert(false)
 			ret_code = 0
@@ -88,13 +83,16 @@ local function Uninit(self, ...)
 	for i = 1, #uninit_list do
 		local func, name = unpack(uninit_list[i])
 		if Class.is_debug == 1 then
-			print("--",name, " Uninit..")
+			print("--inherit-- " .. tostring(name) .. " Uninit..")
 		end
-		local result, ret = pcall(func,self, ...)
+		local result, ret = Lib:SafeCall({func, self})
 		if not result or ret ~= 1 then
 			assert(false)
 			ret_code = 0
 		end
+	end
+	if Class.is_debug == 1 then
+		print("************************")
 	end
 	if not result or ret_code ~= 1 then
 		return

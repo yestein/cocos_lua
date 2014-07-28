@@ -28,6 +28,8 @@ Def.color_list = {
 	["yellow"] = cc.c3b(255, 255, 0),
 }
 
+Def.MOVE_INTERVAL = 0.1
+
 Def.TAG_MOVE_ACTION  = 1
 Def.TAG_SCALE_ACTION = 2
 

@@ -51,7 +51,7 @@ function RpgObj:IsValid()
 end
 
 function RpgObj:InitAI(ai_template_list, ai_param, id_debug)
-	local ai_node = Class:New(AINode)
+	local ai_node = NewComponent("AI")
 	ai_node:Init()
 	if ai_template_list then
 		for order, ai_name in pairs(ai_template_list) do
@@ -72,14 +72,14 @@ function RpgObj:InitMove(move_speed)
 	if not move_speed then
 		return 0
 	end
-	local move_node = Class:New(MoveNode)
+	local move_node = NewComponent("MOVE")
 	move_node:Init(self:GetPosition(), move_speed)
 	self:AddChild("move", move_node)
 	return 1
 end
 
 function RpgObj:InitCommand( )
-	local command_node = Class:New(CmdNode)
+	local command_node = NewComponent("COMMAND")
 	command_node:Init()
 	self:AddChild("cmd", command_node)
 	return 1
@@ -87,7 +87,7 @@ end
 
 function RpgObj:InitSkill(attack_skill, extra_skill_list)
 	self.attack_skill = attack_skill
-	local skill_node = Class:New(SkillNode)	
+	local skill_node = NewComponent("SKILL")
 	skill_node:Init()
 	if attack_skill then
 		skill_node:SetAttackSkill(attack_skill)
@@ -102,7 +102,7 @@ function RpgObj:InitSkill(attack_skill, extra_skill_list)
 end
 
 function RpgObj:InitBuff()
-	local buff_node = Class:New(BuffNode)
+	local buff_node = NewComponent("BUFF")
 	buff_node:Init()
 	self:AddChild("buff", buff_node)
 end
