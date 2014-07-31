@@ -26,7 +26,6 @@ require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
 assert(PreloadScript() == 1)
 
-
 local function MainLoop(delta)
 	if FetchConsoleCmd then
 		local string = FetchConsoleCmd()

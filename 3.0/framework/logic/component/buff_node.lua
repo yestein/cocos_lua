@@ -6,9 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
-local BuffNode = GetComponent("BUFF")
+local BuffNode = ComponentMgr:GetComponent("BUFF")
 if not BuffNode then
-	BuffNode = CreateComponent("BUFF")
+	BuffNode = ComponentMgr:CreateComponent("BUFF")
 end
 
 function BuffNode:_Uninit( ... )

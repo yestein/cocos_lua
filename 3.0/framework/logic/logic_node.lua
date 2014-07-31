@@ -231,3 +231,10 @@ function LogicNode:Print(log_level, fmt, ...)
 	end
 	log_node:Print(log_level, fmt, ...)
 end
+
+function LogicNode:AddComponent(child_name, component_name, ...)
+	local component = ComponentMgr:NewComponent(component_name)
+	component:Init(...)
+	self:AddChild(child_name, component)
+	return component
+end

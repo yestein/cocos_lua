@@ -12,18 +12,22 @@ if not ComponentMgr then
 	}
 end
 
-function CreateComponent(component_name)
+function ComponentMgr:CreateComponent(component_name)
 	assert(not ComponentMgr.component_list[component_name])
 	local class_module = NewLogicNode(component_name)
 	ComponentMgr.component_list[component_name] = class_module
 	return class_module
 end
 
-function GetComponent(component_name)
+function ComponentMgr:GetComponent(component_name)
 	return ComponentMgr.component_list[component_name]
 end
 
-function NewComponent(component_name)
-	local component = GetComponent(component_name)
+function ComponentMgr:NewComponent(component_name)
+	local component = ComponentMgr:GetComponent(component_name)
 	return Class:New(component, component_name.."_obj")
+end
+
+function ComponentMgr:Dump(n)
+	Lib:ShowTB(self.component_list, n)
 end

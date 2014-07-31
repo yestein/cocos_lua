@@ -24,9 +24,12 @@ function Skelton:SetSkeltonAnimationName(skelton_name, animation_name, resource_
 end
 
 function Skelton:GetSkeltonAnimationName(skelton_name, animation_name)
-	local animation_list = self.animation_name[skelton_name]
+	local animation_list = self.animation_list
 	if not animation_list then
-		animation_list = self.default_animation_name
+		animation_list = self.animation_name[skelton_name]
+		if not animation_list then
+			animation_list = self.default_animation_name
+		end
 	end
 	local resource_name = animation_list[animation_name]
 	if not resource_name then
@@ -131,6 +134,11 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 				self:ChangeBoneDisplay(bone_name, index)
 			end
 		end
+		if param.animation_list then
+			self.animation_list = param.animation_list
+			Lib:ShowTB(self.animation_list)
+		end
+
 		if param.scale then
 			self.raw_scale = param.scale
 			self.armature:setScale(self.raw_scale)
@@ -214,9 +222,12 @@ function Skelton:GetArmature()
 end
 
 function Skelton:SetAnimationFunc(movement_type, animation_name, func)
-	local animation_list = self.animation_name[self.skelton_name]
+	local animation_list = self.animation_list
 	if not animation_list then
-		animation_list = self.default_animation_name
+		animation_list = self.animation_name[self.skelton_name]
+		if not animation_list then
+			animation_list = self.default_animation_name
+		end
 	end
 	local resource_name = animation_list[animation_name]
 	if not resource_name then
@@ -421,6 +432,12 @@ end
 
 function Skelton:AddBoneDisplay(bone_name, sprite)
 	--TODO
+end
+
+function Skelton:SetBoneVisible(bone_name, is_visible)
+	self.bone_diplay_index[bone_name] = index + 1
+	local bone = self.armature:getBone(bone_name)
+	bone:getDisplayRenderNode():setVisible(is_visible)
 end
 
 function Skelton:ChangeBoneDisplay(bone_name, index)

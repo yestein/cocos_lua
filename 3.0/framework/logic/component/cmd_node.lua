@@ -6,9 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
-local CmdNode = GetComponent("COMMAND")
+local CmdNode = ComponentMgr:GetComponent("COMMAND")
 if not CmdNode then
-	CmdNode = CreateComponent("COMMAND")
+	CmdNode = ComponentMgr:CreateComponent("COMMAND")
 end
 
 function CmdNode:_Uninit( ... )

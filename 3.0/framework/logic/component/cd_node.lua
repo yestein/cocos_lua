@@ -6,9 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
-local CDNode = GetComponent("COOL_DOWN")
+local CDNode = ComponentMgr:GetComponent("COOL_DOWN")
 if not CDNode then
-	CDNode = CreateComponent("COOL_DOWN")
+	CDNode = ComponentMgr:CreateComponent("COOL_DOWN")
 end
 
 function CDNode:_Uninit()

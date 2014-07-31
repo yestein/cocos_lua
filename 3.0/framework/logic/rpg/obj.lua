@@ -20,7 +20,6 @@ function RpgObj:_Uninit( ... )
 	self.position     = nil
 	self.attack_skill = nil
 	self.direction    = nil
-	self.action_state = nil
 
 	return 1
 end
@@ -33,7 +32,6 @@ function RpgObj:_Init()
 	self.position     = {x = -1, y = -1}
 	self.attack_skill = nil	
 	self.direction    = "none"
-	self.action_state = Def.STATE_NORMAL
 	self.target_id    = 0
 	self.attack_speed = 1
 
@@ -51,8 +49,8 @@ function RpgObj:IsValid()
 end
 
 function RpgObj:InitAI(ai_template_list, ai_param, id_debug)
-	local ai_node = NewComponent("AI")
-	ai_node:Init()
+
+	local ai_node = self:AddComponent("ai", "AI")
 	if ai_template_list then
 		for order, ai_name in pairs(ai_template_list) do
 			ai_node:AddAI(ai_name, order)
@@ -64,7 +62,6 @@ function RpgObj:InitAI(ai_template_list, ai_param, id_debug)
 	if id_debug == 1 then
 		ai_node:EnableDebug(1)
 	end
-	self:AddChild("ai", ai_node)
 	return 1
 end
 
@@ -72,23 +69,18 @@ function RpgObj:InitMove(move_speed)
 	if not move_speed then
 		return 0
 	end
-	local move_node = NewComponent("MOVE")
-	move_node:Init(self:GetPosition(), move_speed)
-	self:AddChild("move", move_node)
+	self:AddComponent("move", "MOVE", self:GetPosition(), move_speed)
 	return 1
 end
 
 function RpgObj:InitCommand( )
-	local command_node = NewComponent("COMMAND")
-	command_node:Init()
-	self:AddChild("cmd", command_node)
+	self:AddComponent("cmd", "COMMAND")
 	return 1
 end
 
 function RpgObj:InitSkill(attack_skill, extra_skill_list)
 	self.attack_skill = attack_skill
-	local skill_node = NewComponent("SKILL")
-	skill_node:Init()
+	local skill_node = self:AddComponent("skill", "SKILL")
 	if attack_skill then
 		skill_node:SetAttackSkill(attack_skill)
 	end
@@ -97,14 +89,11 @@ function RpgObj:InitSkill(attack_skill, extra_skill_list)
 			skill_node:AddSkill(skill_config.skill_id, skill_config.level)
 		end
 	end
-	self:AddChild("skill", skill_node)
 	return 1
 end
 
 function RpgObj:InitBuff()
-	local buff_node = NewComponent("BUFF")
-	buff_node:Init()
-	self:AddChild("buff", buff_node)
+	self:AddComponent("buff", "BUFF")
 end
 
 function RpgObj:InitProperty(property)
@@ -115,6 +104,10 @@ function RpgObj:InitProperty(property)
 		self.property[key] = value
 	end
 	return 1
+end
+
+function RpgObj:InitActionState(init_state)
+	self:AddComponent("action", "ACTION", init_state)
 end
 
 function RpgObj:SetProperty(key, value)
@@ -149,25 +142,13 @@ function RpgObj:GetTemplateId()
 	return self.template_id
 end
 
-function RpgObj:RawSetActionState(action_state)
-	self.action_state = action_state
-end
-
 function RpgObj:SetActionState(action_state)
-	if action_state == self.action_state then
-		return
-	end
-	local old_state = self.action_state
-	if old_state == "dead" then
-		assert(false)
-	end
-	self.action_state = action_state
-	local event_name = self:GetClassName()..".CHANGE_STATE"
-	Event:FireEvent(event_name, self:GetId(), old_state, action_state)
+	local result = self:GetChild("action"):SetState(action_state)
+	return result
 end
 
 function RpgObj:GetActionState()
-	return self.action_state
+	return self:GetChild("action"):GetState()
 end
 
 function RpgObj:SetAttackSkillId(attack_skill)
@@ -330,11 +311,12 @@ function RpgObj:Attack(target_id)
 end
 
 function RpgObj:BeHit(luancher)
-	if self:IsInState(Def.STATE_DEAD) == 1 then
+	if self:TryCall("Stop") ~= 1 then
 		return
 	end
-	self:TryCall("Stop")
-	self:SetActionState(Def.STATE_HIT)
+	if self:SetActionState(Def.STATE_HIT) ~= 1 then
+		return
+	end
 	if self._Behit then
 		self:_BeHit(luancher)
 	end
@@ -347,8 +329,10 @@ function RpgObj:BeHit(luancher)
 end
 
 function RpgObj:Dead()
-	self:TryCall("Stop")
-	self:SetActionState(Def.STATE_DEAD)
+	if self:TryCall("Stop") ~= 1 then
+		return
+	end
+	assert(self:SetActionState(Def.STATE_DEAD) == 1)
 	local buff_node = self:GetChild("buff")
 	if buff_node then
 		buff_node:ReceiveMessage("OnOwnerDead")

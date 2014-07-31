@@ -82,12 +82,13 @@ end
 
 function SkillTemplate:ProduceEffect(luancher, target, param)
 	if self.camp_judge_func(luancher, target) ~= 1 then
-		return
+		return 0
 	end
 	Event:FireEvent("SKILL.PRODUCE_EFFECT", param.skill_id, luancher:GetId(), target:GetId(), param)
 	for _, effect in ipairs(self.effect_list) do
 		effect:Execute(luancher, target, param)
 	end
+	return 1
 end
 
 function SkillTemplate:SetTargetFunc(target_type, func)

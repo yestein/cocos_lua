@@ -104,3 +104,8 @@ function TimerBase:CloseTimer(timer_id)
 		self.frame_event[frame_index] = nil
 	end
 end
+
+function TimerBase:CloseAllTimer()
+	self.call_back_list = {}
+	self.frame_event = {}
+end

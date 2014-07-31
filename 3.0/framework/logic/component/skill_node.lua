@@ -6,9 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
-local SkillNode = GetComponent("SKILL")
+local SkillNode = ComponentMgr:GetComponent("SKILL")
 if not SkillNode then
-	SkillNode = CreateComponent("SKILL")
+	SkillNode = ComponentMgr:CreateComponent("SKILL")
 end
 
 local forbid_skill_state = {
@@ -33,9 +33,8 @@ function SkillNode:_Init()
 	self.skills                = {}
 	self.skills_index          = {}
 	self.next_skill_index      = 1
-	local cd_node = NewComponent("COOL_DOWN")
-	cd_node:Init()
-	self:AddChild("cd", cd_node)
+
+	self:AddComponent("cd", "COOL_DOWN")
 
 	return 1
 end
@@ -176,12 +175,17 @@ function SkillNode:CastSkill(skill_id, is_force)
 	if can_cast_skill ~= 1 then
 		return can_cast_skill, reason
 	end
+	local owner = self:GetParent()
+	if owner:TryCall("Stop") ~= 1 then
+		return 0, "can not stop"
+	end
+	if owner:TryCall("SetActionState", Def.STATE_SKILL) ~= 1 then
+		return 0, "state error"
+	end
 	self:GetChild("cd"):StartCD(skill_id)
 	self:SetTargetList(target_list)
 	self:SetCurrentSkillId(skill_id)
-	local owner = self:GetParent()
-	owner:TryCall("Stop")
-	owner:TryCall("SetActionState", Def.STATE_SKILL)
+		
 	local event_name = owner:GetClassName()..".CAST_SKILL"
 	Event:FireEvent(event_name, self:GetParent():GetId(), skill_id, is_force)
 	return 1

@@ -27,9 +27,10 @@ function PreloadScript()
 		print("loading \""..script_file.."\"")
 		require(script_file)
 	end
-	for _, func in pairs(g_init_funciton) do
+	for name, func in pairs(g_init_funciton) do
 		local result, ret_code = Lib:SafeCall({func})
 		if not result or ret_code ~= 1 then
+			assert(false, "%s execute failed", name)
 			return 0
 		end
 	end
@@ -85,12 +86,14 @@ AddPreloadFile("framework/logic/editor/gm.lua")
 AddPreloadFile("framework/logic/rpg/obj.lua")
 
 AddPreloadFile("framework/logic/component/move_node.lua")
+AddPreloadFile("framework/logic/component/bullet_node.lua")
 AddPreloadFile("framework/logic/component/cmd_node.lua")
 AddPreloadFile("framework/logic/component/ai_node.lua")
 AddPreloadFile("framework/logic/component/log_node.lua")
 AddPreloadFile("framework/logic/component/buff_node.lua")
 AddPreloadFile("framework/logic/component/cd_node.lua")
 AddPreloadFile("framework/logic/component/skill_node.lua")
+AddPreloadFile("framework/logic/component/action_node.lua")
 
 AddPreloadFile("framework/cocos2d/resource_mgr.lua")
 AddPreloadFile("framework/cocos2d/ui.lua")

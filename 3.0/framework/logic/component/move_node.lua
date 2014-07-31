@@ -6,12 +6,13 @@
 -- Modify       : 
 --=======================================================================
 
-local MoveNode = GetComponent("MOVE")
+local MoveNode = ComponentMgr:GetComponent("MOVE")
 if not MoveNode then
-	MoveNode = CreateComponent("MOVE")
+	MoveNode = ComponentMgr:CreateComponent("MOVE")
 end
 
 MoveNode.interval = Def.MOVE_INTERVAL
+MoveNode.MAX_SPEED = 2000 * Def.MOVE_INTERVAL
 
 local move_offset = {
 	left       = {-1, 0}, 
@@ -43,6 +44,9 @@ end
 function MoveNode:_Init(position, speed)
 	self.position    = position
 	self.speed       = speed
+	if self.speed > self.MAX_SPEED then
+		self.speed = self.MAX_SPEED
+	end
 	self.cur_speed_x = 0
 	self.cur_speed_y = 0
 	self.interval_frame = math.floor(self.interval * GameMgr:GetFPS())
@@ -65,7 +69,7 @@ function MoveNode:OnActive(frame)
 	end
 end
 
-function MoveNode:Stop()
+function MoveNode:StopMove()
 	self.target_pos.x = -1
 	self.target_pos.y = -1
 	self.next_pos.x   = -1
@@ -73,9 +77,17 @@ function MoveNode:Stop()
 	self.cur_speed_x  = 0
 	self.cur_speed_y  = 0
 	self.move_frame = nil
-	self:GetParent():TryCall("SetActionState", Def.STATE_NORMAL)
-	local event_name = self:GetParent():GetClassName()..".STOP"
-	Event:FireEvent(event_name, self:GetParent():GetId())
+end
+
+function MoveNode:Stop()
+	local owner = self:GetParent()
+	if owner:TryCall("SetActionState", Def.STATE_NORMAL) ~= 1 then
+		return 0
+	end
+	self:StopMove()
+	local event_name = owner:GetClassName()..".STOP"
+	Event:FireEvent(event_name, owner:GetId())
+	return 1
 end
 
 function MoveNode:MoveTo(x, y)
@@ -95,21 +107,20 @@ function MoveNode:MoveTo(x, y)
 	end
 	if can_move == 1 then
 		local event_name = owner:GetClassName()..".MOVETO"
-		Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
+		Event:FireEvent(event_name, owner:GetId(), x, y)
 		local old_speed_x = self.cur_speed_x
 		local old_speed_y = self.cur_speed_y
 		self.cur_speed_x = x - self.position.x
 		self.cur_speed_y = y - self.position.y
 
 		if old_speed_x == 0 and old_speed_y == 0 then
-			self:GetParent():TryCall("SetActionState", Def.STATE_RUN)
-			local event_name = self:GetParent():GetClassName()..".RUN"
-			Event:FireEvent(event_name, self:GetParent():GetId())
+			local event_name = owner:GetClassName()..".RUN"
+			Event:FireEvent(event_name, owner:GetId())
 		end
 		if self.cur_speed_x > 0 then
-			self:GetParent():SetDirection("right")
+			owner:SetDirection("right")
 		elseif self.cur_speed_x < 0 then
-			self:GetParent():SetDirection("left")
+			owner:SetDirection("left")
 		end
 		self.position.x = x
 		self.position.y = y
@@ -127,8 +138,7 @@ function MoveNode:GoTo(x, y, call_back)
 	if self.position.x == x and self.position.y == y then
 		return
 	end
-	local state = owner:TryCall("GetActionState")
-	if state == Def.STATE_DEAD or state == Def.STATE_HIT then
+	if owner:TryCall("SetActionState", Def.STATE_RUN) ~= 1 then
 		return
 	end
 	local event_name = owner:GetClassName()..".GOTO"
@@ -180,11 +190,26 @@ function MoveNode:MoveByDirection(direction)
 	self:MoveTo(self.position.x + (offset_x * self.speed), self.position.y + (offset_y * self.speed))
 end
 
-function MoveNode:TransportTo(x, y)
+function MoveNode:DirectMove(x, y, is_initiative)
+	local owner = self:GetParent()
+	if owner:TryCall("SetActionState", Def.STATE_MOVE) ~= 1 then
+		return 0
+	end	
+	self:StopMove()
+	local event_name = owner:GetClassName()..".DIRECT_MOVE"
+	Event:FireEvent(event_name, owner:GetId(), x, y, is_initiative)
 	self.position.x = x
 	self.position.y = y
-	local event_name = self:GetParent():GetClassName()..".TRANSPORT"
-	Event:FireEvent(event_name, self:GetParent():GetId(), x, y)
+	return 1
+end
+
+function MoveNode:TransportTo(x, y)
+	self:StopMove()
+	local owner = self:GetParent()
+	local event_name = owner:GetClassName()..".TRANSPORT"
+	Event:FireEvent(event_name, owner:GetId(), x, y)
+	self.position.x = x
+	self.position.y = y
 end
 
 function MoveNode:GetPosition()
@@ -198,8 +223,9 @@ end
 function MoveNode:SetMoveSpeed(speed)
 	local old_speed = self.speed
 	self.speed = speed
-	local event_name = self:GetParent():GetClassName()..".SET_MOVE_SPEED"
-	Event:FireEvent(event_name, self:GetParent():GetId(), speed, old_speed)
+	local owner = self:GetParent()
+	local event_name = owner:GetClassName()..".SET_MOVE_SPEED"
+	Event:FireEvent(event_name, owner:GetId(), speed, old_speed)
 end
 
 function MoveNode:GetCurSpeed()
@@ -228,4 +254,8 @@ function MoveNode:IsArriveTarget()
 		return 0
 	end
 	return 1
+end
+
+function MoveNode:SetMaxSpeed(max_speed)
+	self.MAX_SPEED = max_speed
 end

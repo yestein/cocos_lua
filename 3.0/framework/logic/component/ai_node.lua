@@ -6,9 +6,9 @@
 -- Modify       : 
 --=======================================================================
 
-local AINode = GetComponent("AI")
+local AINode = ComponentMgr:GetComponent("AI")
 if not AINode then
-	AINode = CreateComponent("AI")
+	AINode = ComponentMgr:CreateComponent("AI")
 end
 
 function AINode:_Uninit( ... )
@@ -76,7 +76,9 @@ function AINode:OnActive(frame)
 		if self:IsDebug() == 1 then
 			print(string.format("[AI]...[%d] %s  Active", self:GetParent():GetId(), ai_class:GetClassName()))
 		end
-		ai_class:OnActive(frame, self:GetParent(), self)
+		if ai_class:OnActive(frame, self:GetParent(), self) == 0 then
+			return
+		end
 	end
 end
 
