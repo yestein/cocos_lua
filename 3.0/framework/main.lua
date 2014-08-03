@@ -21,6 +21,19 @@ __platform = cc.Application:getInstance():getTargetPlatform()
 __write_path = cc.FileUtils:getInstance():getWritablePath()
 visible_size = cc.Director:getInstance():getVisibleSize()
 
+local platform_name = {
+	[cc.PLATFORM_OS_WINDOWS   ] = "Windows",
+	[cc.PLATFORM_OS_LINUX     ] = "Linux",
+	[cc.PLATFORM_OS_MAC       ] = "Mac",
+	[cc.PLATFORM_OS_ANDROID   ] = "Android",
+	[cc.PLATFORM_OS_IPHONE    ] = "iPhone",
+	[cc.PLATFORM_OS_IPAD      ] = "iPad",
+	[cc.PLATFORM_OS_BLACKBERRY] = "BlackBerry",
+	[cc.PLATFORM_OS_NACL      ] = "nacl",
+	[cc.PLATFORM_OS_EMSCRIPTEN] = "emscripten",
+	[cc.PLATFORM_OS_TIZEN     ] = "tizen",
+}
+
 require("project.lua")
 require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
@@ -91,11 +104,11 @@ local function main()
     print("================================================")
     print("Debug:", __Debug)
     print("Project:", PROJECT_PATH)
-    print("Platform:", __platform)    
+    print("Platform:", platform_name[__platform] or __platform)    
     if CCVersion then
 		print("Version: ", CCVersion())
 	end
-	 print("================================================")
+	print("================================================")
     assert(GameMgr:Init() == 1)
 end
 
