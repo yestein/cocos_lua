@@ -27,20 +27,20 @@ function Skelton:GetSkeltonAnimationName(skelton_name, animation_name)
 	local animation_list = self.animation_list
 	if not animation_list then
 		animation_list = self.animation_name[skelton_name]
-		if not animation_list then
-			animation_list = self.default_animation_name
-		end
+	end
+	if not animation_list then
+		animation_list = self.default_animation_name
 	end
 	local resource_name = animation_list[animation_name]
 	if not resource_name then
+		if self.animation_name[skelton_name] then
+			resource_name = self.animation_name[skelton_name][animation_name]
+		end
+	end
+	if not resource_name then
 		resource_name = self.default_animation_name[animation_name]
 	end
-	if type(resource_name) == "string" then
-		return resource_name
-	elseif type(resource_name) == "table" then
-		local random_index = math.random(1, #resource_name)
-		return resource_name[random_index]
-	end
+	return resource_name	
 end
 
 function NewSkelton(skelton_name, orgin_direction, param)
@@ -56,38 +56,35 @@ function NewSkelton(skelton_name, orgin_direction, param)
 end
 
 function Skelton:_Uninit()
-	self.orgin_direction        = nil
-	self.armature               = nil
-	self.animation_func			= nil
-	self.animation_speed		= nil
-	self.animation_replace_name = nil	
-	self.animation_func         = nil
-	self.frame_func             = nil
-	self.current_animation      = nil
-	self.raw_scale 				= nil
-	self.bone_diplay_index 		= nil
-	self.change_pos_child 		= nil
-	self.child_list				= nil
+	self.orgin_direction   = nil
+	self.armature          = nil
+	self.animation_func    = nil
+	self.animation_speed   = nil
+	self.frame_func        = nil
+	self.current_animation = nil
+	self.raw_scale         = nil
+	self.bone_diplay_index = nil
+	self.bone_diplay_name  = nil
+	self.change_pos_child  = nil
+	self.logic_direction   = nil
+	self.direction         = nil
+	self.child_list        = nil
 	Resource:UnloadSkelton(self.skelton_name)
-	self.skelton_name			= nil
+	self.skelton_name      = nil
 
 	return 1
 end
 
-function Skelton:_Init(skelton_name, orgin_direction, param)
-	self.skelton_name = skelton_name
+function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	local armature = Resource:LoadSkelton(skelton_name)
 	if not armature then
 		return 0
 	end
-	self.sprite = cc.Sprite:create()
-	self.child_list = {}
-	self.change_pos_child = {}	
+	self.skelton_name = skelton_name
+	self.bone_diplay_name = {}
 	self.bone_diplay_index = {}
-	self.raw_scale = 1
-	self.direction = 1
 	self.orgin_direction = orgin_direction
-	self.is_debug_boundingbox = param.is_debug_boundingbox
+
 	if armature.getOffsetPoints then
 		local offsetPoints = armature:getOffsetPoints()
 		local rect = armature:getBoundingBox()
@@ -100,10 +97,7 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	end
 	self.sprite:addChild(armature)
 	self.armature = armature
-	self.animation_replace_name = {}
-	self.animation_speed = {}
 
-	self.animation_func = {}
 	local function animationEvent(armature, movement_type, movement_id)
 		if not self.animation_func[movement_id] then
 			return
@@ -117,13 +111,12 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
     end
 	armature:getAnimation():setMovementEventCallFunc(animationEvent)
 
-	self.frame_func = {}
+	
 	local function frameEvent(bone, event_name, origin_frame_index,current_frame_index)
 		local func = self.frame_func[event_name]
 		if not func then
 			return
 		end
-
 		func(self, bone, origin_frame_index, current_frame_index)
 	end
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
@@ -131,21 +124,49 @@ function Skelton:_Init(skelton_name, orgin_direction, param)
 	if param then
 		if param.change_equip then
 			for bone_name, index in pairs(param.change_equip) do
-				self:ChangeBoneDisplay(bone_name, index)
+				if type(index) == "number" then
+					self:ChangeBoneDisplay(bone_name, index)
+				elseif type(index) == "string" then
+					self:ChangeBoneDisplayByName(bone_name, index)
+				end
+			end
+		end
+
+		if param.hide_bone then
+			for bone_name, _ in pairs(param.hide_bone) do
+				self:SetBoneVisible(bone_name, false)
 			end
 		end
 		if param.animation_list then
 			self.animation_list = param.animation_list
-			Lib:ShowTB(self.animation_list)
-		end
-
-		if param.scale then
-			self.raw_scale = param.scale
-			self.armature:setScale(self.raw_scale)
 		end
 	end
+	self.armature:setScale(self.raw_scale)
+	return 1
+end
+
+function Skelton:_Init(skelton_name, orgin_direction, param)
+	self.sprite = cc.Sprite:create()
+	self.child_list = {}	
+	self.change_pos_child = {}
+	self.direction = 1
+	self.logic_direction = "left"
+	self.is_debug_boundingbox = param.is_debug_boundingbox	
+	self.animation_speed = {}
+	self.animation_func = {}
+	self.frame_func = {}
 	self.scale = 1
+	self.raw_scale = 1
+	if param.scale then
+		self.raw_scale = param.scale
+	end
+
+	if self:SetArmature(skelton_name, orgin_direction, param) ~= 1 then
+		return 0
+	end
+
 	self:PlayAnimation("normal")
+
 	if self:IsDebugBoundingBox() == 1 then
 		self:InitDebugBox()
 	end
@@ -222,14 +243,20 @@ function Skelton:GetArmature()
 end
 
 function Skelton:SetAnimationFunc(movement_type, animation_name, func)
+	local skelton_name = self.skelton_name
 	local animation_list = self.animation_list
 	if not animation_list then
-		animation_list = self.animation_name[self.skelton_name]
-		if not animation_list then
-			animation_list = self.default_animation_name
-		end
+		animation_list = self.animation_name[skelton_name]
+	end
+	if not animation_list then
+		animation_list = self.default_animation_name
 	end
 	local resource_name = animation_list[animation_name]
+	if not resource_name then
+		if self.animation_name[skelton_name] then
+			resource_name = self.animation_name[skelton_name][animation_name]
+		end
+	end
 	if not resource_name then
 		resource_name = self.default_animation_name[animation_name]
 	end
@@ -267,7 +294,13 @@ function Skelton:GetAnimationSpeed(animation_name)
 end
 
 function Skelton:GetAnimationResourceName(animation_name)
-	return self:GetSkeltonAnimationName(self.skelton_name, animation_name)
+	local resource_name = self:GetSkeltonAnimationName(self.skelton_name, animation_name)
+	if type(resource_name) == "string" then
+		return resource_name
+	elseif type(resource_name) == "table" then
+		local random_index = math.random(1, #resource_name)
+		return resource_name[random_index]
+	end
 end
 
 function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
@@ -354,6 +387,7 @@ function Skelton:SetDirection(direction)
 	else
 		self.direction = -1
 	end
+	self.logic_direction = direction
 	local armature = self.armature
 	armature:setScaleX(self.raw_scale * self.direction)
 	for child_name, _ in pairs(self.change_pos_child) do
@@ -435,7 +469,6 @@ function Skelton:AddBoneDisplay(bone_name, sprite)
 end
 
 function Skelton:SetBoneVisible(bone_name, is_visible)
-	self.bone_diplay_index[bone_name] = index + 1
 	local bone = self.armature:getBone(bone_name)
 	bone:getDisplayRenderNode():setVisible(is_visible)
 end
@@ -449,4 +482,44 @@ end
 function Skelton:GetBoneDisplayIndex(bone_name)
 	local index = self.bone_diplay_index[bone_name] or 1
 	return index - 1
+end
+
+function Skelton:ChangeBoneDisplayByName(bone_name, display_name)
+	self.bone_diplay_name[bone_name] = display_name
+	local bone = self.armature:getBone(bone_name)
+	bone:changeDisplayWithName(display_name, true)
+end
+
+function Skelton:GetBoneDisplayName(bone_name)
+	return self.bone_diplay_name[bone_name]
+end
+
+function Skelton:ReplaceArmature(skelton_name, orgin_direction, param)
+	local old_armature = self.armature
+	local old_skelton_name = self.skelton_name
+	local old_animation_list = {}
+	for animation_name, _ in pairs(self.default_animation_name) do
+		old_animation_list[animation_name] = self:GetSkeltonAnimationName(self.skelton_name, animation_name)
+	end
+	
+	if self:SetArmature(skelton_name, orgin_direction, param) ~= 1 then
+		return 0
+	end
+	if old_armature then
+		self.sprite:removeChild(old_armature, true)
+	end
+
+	for animation_name, old_resource_name in pairs(old_animation_list) do
+		local new_resource_name = self:GetSkeltonAnimationName(self.skelton_name, animation_name)
+		if old_resource_name ~= new_resource_name then
+			if self.animation_func[old_resource_name] then
+				self.animation_func[new_resource_name] = self.animation_func[old_resource_name]
+				self.animation_func[old_resource_name] = nil
+			end
+		end
+	end
+	self:SetDirection(self.logic_direction)
+	self:PlayAnimation("normal")
+	Event:FireEvent("SKELTON.REPLACE", old_skelton_name, self.skelton_name)
+	return 1
 end
