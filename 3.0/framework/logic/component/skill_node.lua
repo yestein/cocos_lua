@@ -39,10 +39,6 @@ function SkillNode:_Init()
 	return 1
 end
 
-function SkillNode:SetAttackSkill(skill_id)
-	self:AddSkill(skill_id, 1, 0)
-end
-
 function SkillNode:AddSkill(skill_id, skill_level, index)
 	assert(not self.skills[skill_id])
 	local template_id = Skill:GetTemplateId(skill_id)
@@ -62,7 +58,7 @@ end
 function SkillNode:RemoveSkill(skill_id)	
 	local remove_index = self:GetSkillIndex(skill_id)
 	if not remove_index then
-		assert(false, "Remoe Skill [%s] Failed", tostring(skill_id))
+		assert(false, "Remove Skill [%s] Failed", tostring(skill_id))
 		return
 	end
 
@@ -74,7 +70,7 @@ end
 
 function SkillNode:GetSkillIndex(skill_id)
 	local index = nil
-	for i, id in ipairs(self.skills_index) do
+	for i, id in pairs(self.skills_index) do
 		if id == skill_id then
 			index = i
 			break
