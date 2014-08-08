@@ -97,7 +97,8 @@ function SceneMgr:CreateScene(scene_name, scene_template_name)
 	local scene = Class:New(scene_template, scene_name)
     scene.template_name = scene_template_name
     self.scene_list[scene_name] = scene
-    if scene:Init(scene_name) ~= 1 then
+    local is_success, result = Lib:SafeCall({scene.Init, scene, scene_name})
+    if not is_success or result ~= 1 then
         self:DestroyScene(scene_name)
         return nil
     end

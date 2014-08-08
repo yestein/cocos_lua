@@ -306,7 +306,7 @@ end
 function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 	local resource_name = self:GetAnimationResourceName(animation_name)
 	if not resource_name then
-		cclog("No Animation[%s]", animation_name)
+		print("No Animation[%s]", animation_name)
 		return
 	end
 	local speed_scale = self:GetAnimationSpeed(animation_name)
