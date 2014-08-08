@@ -32,6 +32,8 @@ local forbid_move_state = {
 }
 
 function MoveNode:_Uninit()
+	self.jump_target_x = nil
+	self.jump_target_y = nil
 	self.position  = nil
 	self.speed     = nil
 
@@ -53,6 +55,8 @@ function MoveNode:_Init(position, speed)
 
 	self.next_pos   = {x = -1, y = -1}
 	self.target_pos = {x = -1, y = -1}
+	self.jump_target_x = nil
+	self.jump_target_y = nil
 	return 1
 end
 
@@ -258,4 +262,49 @@ end
 
 function MoveNode:SetMaxSpeed(max_speed)
 	self.MAX_SPEED = max_speed
+end
+
+function MoveNode:Jump(target_x, target_y)
+	local owner = self:GetParent()
+	local can_move = 1
+	for state, _ in pairs(forbid_move_state) do
+		if owner:TryCall("GetBuffState", state) then
+			can_move = 0
+			break
+		end
+	end
+	local state = owner:TryCall("GetActionState")
+	if state == Def.STATE_DEAD or state == Def.STATE_HIT then
+		can_move = 0
+	end
+	if can_move ~= 1 then
+		return 0
+	end
+	if owner:TryCall("SetActionState", Def.STATE_JUMP) ~= 1 then
+		return 0
+	end
+	self:StopMove()
+	self.jump_target_x = target_x
+	self.jump_target_y = target_y
+	local event_name = owner:GetClassName()..".JUMP"
+	Event:FireEvent(event_name, owner:GetId(), target_x, target_y)
+	return 1
+end
+
+function MoveNode:JumpNoWait(target_x, target_y)
+	if self:Jump(target_x, target_y) ~= 1 then
+		return 0
+	end
+	self:JumpToTarget()
+	return 1
+end
+
+function MoveNode:JumpToTarget()
+	if not self.jump_target_x or not self.jump_target_y then
+		return 0
+	end
+	self:DirectMove(self.jump_target_x, self.jump_target_y, 1)
+	self.jump_target_x = nil
+	self.jump_target_y = nil
+	return 1
 end

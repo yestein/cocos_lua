@@ -50,6 +50,9 @@ function ActionNode:AddAllowRule(state, allow_state)
 end
 
 function ActionNode:SetState(state, is_force)
+	if not state then
+		assert(false)
+	end
 	if not is_force then
 		local allow_rule = self.allow_rule[state]
 		if allow_rule and not allow_rule[self.state] then
