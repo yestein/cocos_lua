@@ -22,7 +22,6 @@ local title_font_name = "MarkerFelt-Thin"
 if __platform == cc.PLATFORM_OS_WINDOWS then
     title_font_name = "Microsoft Yahei"
 end
-local visible_size = CCDirector:getInstance():getVisibleSize()
 
 function Ui:Uninit()
     self.scene_ui_list = {}
@@ -239,7 +238,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 local scene = SceneMgr:GetScene(scene_name)
                 local button_name = widget2button[widget_button:getName()]
                 if scene.OnCocosButtonEvent then
-                    scene:OnCocosButtonEvent(ui_name, button_name, event)
+                    scene:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
                 end
             end
             for button_name, widget_name in pairs(data.button or {}) do
