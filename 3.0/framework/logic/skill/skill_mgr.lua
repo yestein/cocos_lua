@@ -31,6 +31,15 @@ function Skill:AddTemplate(template_id, cast_type, target_type, target_camp, eff
 	 end
  end
 
+function Skill:GetTemplateData(template_id)
+	local data = self.template_data[template_id]
+	if not data then
+		assert(false, "No Skill Template[%d] Data!!", template_id)
+		return
+	end
+	return data
+end
+
 function Skill:GetTemplate(template_id)
 	local skill_template = self.skill_template_list[template_id]
 	if not skill_template then
@@ -41,11 +50,12 @@ function Skill:GetTemplate(template_id)
 end
 
 
-function Skill:AddData(skill_id, template_id, icon, level_data)
+function Skill:AddData(skill_id, template_id, icon, level_data, effect_list)
 	local skill_data = self.skill_data[skill_id]
  	if not skill_data then
 	 	self.skill_data[skill_id] = {
 	 		icon        = icon,
+	 		effect_list = effect_list,
 			template_id = template_id,			
 			level_data  = level_data,
 	 	}
@@ -53,6 +63,7 @@ function Skill:AddData(skill_id, template_id, icon, level_data)
 		skill_data.icon        = icon
 		skill_data.template_id = template_id
 		skill_data.level_data  = level_data
+		skill_data.effect_list = effect_list
 	 end
 end
 
@@ -104,17 +115,30 @@ function Skill:GetLevelParam(skill_id, level)
 	return raw_data.level_data[level]
 end
 
-local function InitSkill()
-	if not Skill.template_data then
-		return 0
+function Skill:CheckConfig()
+	for skill_id, data in pairs(self.skill_data) do
+		if not data.template_id then
+			assert(false, "Skill [%s] Have No template_id", tostring(skill_id))
+			return 0
+		end
+		if not data.effect_list then
+			assert(false, "Skill [%s] Have No effect_list", tostring(skill_id))
+			return 0
+		end
+		if not data.level_data then
+			assert(false, "Skill [%s] Have No level_data", tostring(skill_id))
+			return 0
+		end
 	end
-	Skill.skill_template_list = {}
-	for template_id, data in pairs(Skill.template_data) do
-		local skill_template = NewSkillTemplate(template_id)
-		skill_template:Init(template_id, data.target_type, data.cast_type, data.target_camp, data.effect_list)
-		Skill.skill_template_list[template_id] = skill_template
-	end
+	return 1
+end
 
+local function InitSkill()
+	if __Debug then
+		if Skill:CheckConfig() ~= 1 then
+			return 0
+		end
+	end
 	Skill:ConvertTime2Frame()
 	return 1
 end

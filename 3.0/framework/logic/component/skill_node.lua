@@ -40,10 +40,15 @@ function SkillNode:_Init()
 end
 
 function SkillNode:AddSkill(skill_id, skill_level, index)
-	assert(not self.skills[skill_id])
+	assert(not self.skills[skill_id])	
+	local data = Skill:GetData(skill_id)
 	local template_id = Skill:GetTemplateId(skill_id)
-	local skill_template = Skill:GetTemplate(template_id)
 	local skill_param = Lib:CopyTB1(Skill:GetLevelParam(skill_id, skill_level))
+	if not template_id or not skill_param then
+		assert(false)
+		return 0
+	end
+	local skill_template = NewSkillTemplate(template_id, data.effect_list)
 	skill_param.skill_id = skill_id
 	self.skills[skill_id] = {skill_template = skill_template, skill_param = skill_param}
 	if not index then

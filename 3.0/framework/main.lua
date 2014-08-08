@@ -19,7 +19,6 @@ cc.FileUtils:getInstance():addSearchPath("src")
 cc.FileUtils:getInstance():addSearchPath("res")
 __platform = cc.Application:getInstance():getTargetPlatform()
 __write_path = cc.FileUtils:getInstance():getWritablePath()
-visible_size = cc.Director:getInstance():getVisibleSize()
 
 local platform_name = {
 	[cc.PLATFORM_OS_WINDOWS   ] = "Windows",
@@ -86,6 +85,22 @@ local function main()
 	-- sharedEngine:playBackgroundMusic(bgMusicPath, true)
 	-- local effectPath = sharedFileUtils:fullPathForFilename("effect1.wav")
 	-- sharedEngine:preloadEffect(effectPath)
+	
+ 	-- local director = cc.Director:getInstance()
+  --   local glview = director:getOpenGLView()
+  --   if nil == glview then
+  --       glview = cc.GLView:createWithRect("test", cc.rect(0, 0, 1136,640))
+  --       director:setOpenGLView(glview)
+  --   end
+
+    -- glview:setDesignResolutionSize(1136, 640, cc.ResolutionPolicy.SHOW_ALL)
+     --turn on display FPS
+    -- director:setDisplayStats(true)
+
+    --set FPS. the default value is 1.0/60 if you don't call this
+    -- director:setAnimationInterval(1.0 / 60)
+
+	visible_size = cc.Director:getInstance():getVisibleSize()
 	
 	math.randomseed(os.time())
 	math.random(100)

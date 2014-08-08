@@ -13,8 +13,14 @@ end
 SkillTemplate.CAMP_FUNC = {}
 SkillTemplate.TARGET_FUNC = {}
 
-function NewSkillTemplate(class_name)
-	return Class:New(SkillTemplate, class_name)
+function NewSkillTemplate(template_id, effect_list)
+	local data = Skill:GetTemplateData(template_id)
+	if not data then
+		return
+	end
+	local skill = Class:New(SkillTemplate, template_id)
+	skill:Init(template_id, data.target_type, data.cast_type, data.target_camp, effect_list)
+	return skill
 end
 
 function SkillTemplate:_Init(template_id, target_type, cast_type, target_camp, effect_list)

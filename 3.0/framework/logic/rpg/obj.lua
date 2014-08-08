@@ -277,43 +277,20 @@ function RpgObj:ChangeProperty(key, change_value)
 	end
 end
 
-function RpgObj:CanAttack(target_id)
+function RpgObj:CanUseSkill(skill_id, target_id)
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then
 		return 0
 	end
 	local target_list = {target_id}
-	local skill_id = nil
-
-	skill_id = self:GetNearAttackSkillId()
-	if skill_id and self:TryCall("CanCastSkill", skill_id, target_list) == 1 then
-		return 1
-	end
-
-	skill_id = self:GetAttackSkillId()
-	if skill_id and self:TryCall("CanCastSkill", skill_id, target_list) == 1 then
+	if self:TryCall("CanCastSkill", skill_id, target_list) == 1 then
 		return 1
 	end
 
 	return 0
 end
 
-function RpgObj:CanNearAttack(target_id)
-	local skill_id = self:GetNearAttackSkillId()
-	if not skill_id then
-		return 0
-	end
-
-	local target = CharacterPool:GetById(target_id)
-	if not target or target:IsValid() ~= 1 then
-		return 0
-	end
-
-	local target_list = {target_id}
-	return self:TryCall("CanCastSkill", skill_id, target_list)
-end
-
-function RpgObj:IsTargetValid(target_id)
+function RpgObj:IsTargetValid(skill_id, target_id)
 	if not target_id then
 		return 0
 	end
@@ -321,26 +298,19 @@ function RpgObj:IsTargetValid(target_id)
 	if not target or target:IsValid() ~= 1 then
 		return 0
 	end
-	local skill_id = self:GetAttackSkillId()
 	return self:TryCall("IsSkillTargetValid", skill_id, target)
 end
 
-function RpgObj:Attack(target_id)
+function RpgObj:UseSkill(skill_id, target_id)
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1  then
 		return 0
 	end
 
-	if self:CanAttack(target_id) ~= 1 then
+	if self:CanUseSkill(skill_id, target_id) ~= 1 then
 		return 0
 	end
-	local skill_id = nil
-	if self:CanNearAttack(target_id) == 1 then
-		skill_id = self:GetNearAttackSkillId()
-	else
-		skill_id = self:GetAttackSkillId()
-	end
-	
+
 	local self_position = self:GetPosition()
 	local target_position = target:GetPosition()
 	if target_position.x > self_position.x then
