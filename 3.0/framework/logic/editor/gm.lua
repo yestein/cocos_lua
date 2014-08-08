@@ -53,7 +53,6 @@ function GM:ParseEventData(event_handle)
 end
 
 function GM:CreateCommonActions()
-	local visible_size = cc.Director:getInstance():getVisibleSize()
 
 	GM:AddAction("FireEvent", 
 		function(event_type)

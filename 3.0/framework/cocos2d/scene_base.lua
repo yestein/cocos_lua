@@ -10,8 +10,6 @@ if not SceneBase then
 	SceneBase = NewLogicNode("SCENE")
 end
 
-local visible_size = cc.Director:getInstance():getVisibleSize()
-
 local MAX_SCALE = 3.0
 local SCALE_RATE = 0.005
 
