@@ -99,7 +99,9 @@ local function main()
 
     --set FPS. the default value is 1.0/60 if you don't call this
     -- director:setAnimationInterval(1.0 / 60)
-
+    if GameMgr.Preset then
+    	GameMgr:Preset()
+    end
 	visible_size = cc.Director:getInstance():getVisibleSize()
 	
 	math.randomseed(os.time())
@@ -119,7 +121,9 @@ local function main()
     print("================================================")
     print("Debug:", __Debug)
     print("Project:", PROJECT_PATH)
-    print("Platform:", platform_name[__platform] or __platform)    
+    print("Platform:", platform_name[__platform] or __platform)   
+    print(string.format("visible size: %d * %d", visible_size.width, visible_size.height))
+
     if CCVersion then
 		print("Version: ", CCVersion())
 	end
