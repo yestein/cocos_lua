@@ -77,32 +77,13 @@ local function main()
 	collectgarbage("setstepmul", 5000)
 	print("main start")
 	
-	-- play background music, preload effect
-	
-	-- uncomment below for the BlackBerry version
-	-- local bgMusicPath = sharedFileUtils:fullPathForFilename("background.ogg")
-	-- local bgMusicPath = sharedFileUtils:fullPathForFilename("1.mp3")
-	-- sharedEngine:playBackgroundMusic(bgMusicPath, true)
-	-- local effectPath = sharedFileUtils:fullPathForFilename("effect1.wav")
-	-- sharedEngine:preloadEffect(effectPath)
-	
- 	-- local director = cc.Director:getInstance()
-  --   local glview = director:getOpenGLView()
-  --   if nil == glview then
-  --       glview = cc.GLView:createWithRect("test", cc.rect(0, 0, 1136,640))
-  --       director:setOpenGLView(glview)
-  --   end
-
-    -- glview:setDesignResolutionSize(1136, 640, cc.ResolutionPolicy.SHOW_ALL)
-     --turn on display FPS
-    -- director:setDisplayStats(true)
-
-    --set FPS. the default value is 1.0/60 if you don't call this
-    -- director:setAnimationInterval(1.0 / 60)
     if GameMgr.Preset then
     	GameMgr:Preset()
     end
-	visible_size = cc.Director:getInstance():getVisibleSize()
+    local director = cc.Director:getInstance()
+	visible_size = director:getVisibleSize()
+	local glview = director:getOpenGLView()
+	resolution_size = glview:getDesignResolutionSize()
 	
 	math.randomseed(os.time())
 	math.random(100)
@@ -121,12 +102,12 @@ local function main()
     print("================================================")
     print("Debug:", __Debug)
     print("Project:", PROJECT_PATH)
-    print("Platform:", platform_name[__platform] or __platform)   
-    print(string.format("visible size: %d * %d", visible_size.width, visible_size.height))
-
-    if CCVersion then
+    print("Platform:", platform_name[__platform] or __platform) 
+     if CCVersion then
 		print("Version: ", CCVersion())
 	end
+    print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
+    print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))   
 	print("================================================")
     assert(GameMgr:Init() == 1)
 end
