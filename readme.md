@@ -1,7 +1,7 @@
 cocos-lua
 =========
 
-This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`
+This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`, `cocos2d-x 3.2`
 
 For more `documents` and `tutorials`
 
