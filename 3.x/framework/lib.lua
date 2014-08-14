@@ -77,6 +77,10 @@ function Lib:MergeTable(table_dest, table_src)
 end
 
 function Lib:ShowTB(table_raw, n)
+	if not table_raw then
+		print("nil")
+		return
+	end
 	if not n then
 		n = 7
 	end
@@ -222,7 +226,7 @@ function Lib:IsIntersects(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height
 	local max_x_1 = x_1 + width_1
 	local min_y_1 = y_1
 	local max_y_1 = y_1 + height_2
-
+	
 	local min_x_2 = x_2
 	local max_x_2 = x_2 + width_2
 	local min_y_2 = y_2
@@ -260,3 +264,67 @@ function Lib:GetAngle(raw_angle, x_1, y_1, x_2, y_2)
 
 	return angle - raw_angle
 end
+
+function Lib:Dijkstra(map, start_node, end_node)
+	local node_info_list = {[start_node] = {value = 0, path = {}},}
+	local U = {}
+	for k, v in pairs(map) do
+		if k ~= start_node then
+			U[k] = 1
+		end
+	end
+	local current_node = start_node
+	local current_node_info = node_info_list[start_node]
+	while Lib:CountTB(U) > 0 do
+		local min_value = nil
+		local nearest_node = nil
+		for search_node, _ in pairs(U) do
+			local value = map[current_node] and map[current_node][search_node] or nil
+			if value then
+				if not min_value or min_value > value then
+					min_value = value
+					nearest_node = search_node
+				end
+				local path = Lib:CopyTB1(current_node_info.path)
+				table.insert(path, current_node)
+
+				local search_node_info = node_info_list[search_node]
+				if not search_node_info then
+					node_info_list[search_node] = {
+						value = current_node_info.value + value,
+						path = path,
+					}
+				else
+					if current_node_info.value + value < search_node_info.value then
+						search_node_info.value = current_node_info.value + value
+						search_node_info.path = path
+					end
+				end
+			end
+		end
+		U[current_node] = nil
+		for search_node, _ in pairs(U) do
+			if node_info_list[search_node] then
+				current_node = search_node
+				current_node_info = node_info_list[search_node]
+				break
+			end
+		end
+	end
+	return node_info_list
+end
+
+local connect_map = {
+	wuzhishan   = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1,},
+	mkj         = {["wuzhishan_5"] = 1,},
+	renshenguo  = {["wuzhishan_1"] = 1,},
+	wuzhishan_0 = {["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
+	wuzhishan_1 = {["renshenguo"] = 1, ["wuzhishan_5"] = 1, ["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
+	wuzhishan_2 = {["wuzhishan_4"] = 1,},
+	wuzhishan_3 = {["wuzhishan_4"] = 1,},
+	wuzhishan_4 = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1, ["wuzhishan_2"] = 1, ["wuzhishan_3"] = 1,},
+	wuzhishan_5 = {["mkj"] = 1, ["wuzhishan_1"] = 1,},
+}
+
+local result = Lib:Dijkstra(connect_map, "wuzhishan_0")
+Lib:ShowTB(result["mkj"].path)
