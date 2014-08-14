@@ -41,6 +41,13 @@ end
 
 function SkillNode:AddSkill(skill_id, skill_level, index)
 	assert(not self.skills[skill_id])	
+	return self:DoAddSkill(skill_id, skill_level, index)
+end
+
+function SkillNode:DoAddSkill(skill_id, skill_level, index)
+	if self.skills[skill_id] then
+		return
+	end
 	local data = Skill:GetData(skill_id)
 	local template_id = Skill:GetTemplateId(skill_id)
 	local skill_param = Lib:CopyTB1(Skill:GetLevelParam(skill_id, skill_level))
@@ -90,6 +97,11 @@ end
 
 function SkillNode:SetCurrentSkillId(skill_id)
 	self.current_skill_id = skill_id
+	if skill_id then
+		self.skill_times = 0
+	else
+		self.skill_times = nil
+	end
 end
 
 function SkillNode:GetCurrentSkillId()
@@ -197,11 +209,19 @@ function SkillNode:HitCallback()
 	if not skill_id or skill_id == 0 then
 		return
 	end
+	self.skill_times = self.skill_times + 1
+	local cast_skill_id = skill_id
+	local child_skill_list = Skill:GetChildSkill(skill_id)
+	if child_skill_list and child_skill_list[self.skill_times] then
+		cast_skill_id = child_skill_list[self.skill_times]
+	end
 	local target_list = self:GetTargetList()
-	local skill = self.skills[skill_id]
+	print(self.skill_times, cast_skill_id)
+	local skill = self.skills[cast_skill_id]
 	if not skill then
 		return
 	end
 	local owner = self:GetParent()
+	
 	skill.skill_template:Cast(owner, target_list, skill.skill_param)
 end

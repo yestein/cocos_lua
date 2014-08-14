@@ -103,7 +103,7 @@ local function main()
     print("Debug:", __Debug)
     print("Project:", PROJECT_PATH)
     print("Platform:", platform_name[__platform] or __platform) 
-     if CCVersion then
+    if CCVersion then
 		print("Version: ", CCVersion())
 	end
     print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))

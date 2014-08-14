@@ -50,7 +50,7 @@ function Skill:GetTemplate(template_id)
 end
 
 
-function Skill:AddData(skill_id, template_id, icon, level_data, effect_list)
+function Skill:AddData(skill_id, template_id, icon, level_data, effect_list, child_skill)
 	local skill_data = self.skill_data[skill_id]
  	if not skill_data then
 	 	self.skill_data[skill_id] = {
@@ -58,12 +58,14 @@ function Skill:AddData(skill_id, template_id, icon, level_data, effect_list)
 	 		effect_list = effect_list,
 			template_id = template_id,			
 			level_data  = level_data,
+			child_skill = child_skill,
 	 	}
 	 else	 	
 		skill_data.icon        = icon
 		skill_data.template_id = template_id
 		skill_data.level_data  = level_data
 		skill_data.effect_list = effect_list
+		skill_data.child_skill = child_skill
 	 end
 end
 
@@ -100,6 +102,14 @@ function Skill:GetIcon(skill_id)
 		return
 	end
 	return raw_data.icon
+end
+
+function Skill:GetChildSkill(skill_id)
+	local raw_data = self:GetData(skill_id)
+	if not raw_data then
+		return
+	end
+	return raw_data.child_skill
 end
 
 function Skill:GetLevelParam(skill_id, level)

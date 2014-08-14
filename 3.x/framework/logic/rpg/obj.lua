@@ -12,30 +12,30 @@ end
 
 
 function RpgObj:_Uninit( ... )
-	self.attack_speed      = nil
-	self.target_id         = nil
-	self.template_id       = nil
-	self.camp              = nil
-	self.property          = nil
-	self.position          = nil
-	self.attack_skill      = nil
-	self.near_attack_skill = nil
-	self.direction         = nil
+	self.attack_speed         = nil
+	self.target_id            = nil
+	self.template_id          = nil
+	self.camp                 = nil
+	self.property             = nil
+	self.position             = nil
+	self.attack_skill_id      = nil
+	self.near_attack_skill_id = nil
+	self.direction            = nil
 
 	return 1
 end
 
 function RpgObj:_Init()
-	self.camp              = Def.CAMP_NONE
-	self.obj_type          = Def.TYPE_NONE
-	self.template_id       = template_id
-	self.property          = {}
-	self.position          = {x = -1, y = -1}
-	self.attack_skill      = nil
-	self.near_attack_skill = nil
-	self.direction         = "none"
-	self.target_id         = 0
-	self.attack_speed      = 1
+	self.camp                 = Def.CAMP_NONE
+	self.obj_type             = Def.TYPE_NONE
+	self.template_id          = template_id
+	self.property             = {}
+	self.position             = {x = -1, y = -1}
+	self.attack_skill_id      = nil
+	self.near_attack_skill_id = nil
+	self.direction            = "none"
+	self.target_id            = 0
+	self.attack_speed         = 1
 
 	return 1
 end
@@ -80,19 +80,31 @@ function RpgObj:InitCommand( )
 	return 1
 end
 
-function RpgObj:InitSkill(attack_skill, near_attack_skill, extra_skill_list)
-	self:SetAttackSkillId(attack_skill)
-	self:SetNearAttackSkillId(near_attack_skill)
+function RpgObj:InitSkill(attack_skill_id, near_attack_skill_id, extra_skill_list)
+	self:SetAttackSkillId(attack_skill_id)
+	self:SetNearAttackSkillId(near_attack_skill_id)
 	local skill_node = self:AddComponent("skill", "SKILL")
-	if attack_skill then
-		skill_node:AddSkill(attack_skill, 1, 100)
+	local skill_lists = {}
+	if attack_skill_id then
+		skill_node:AddSkill(attack_skill_id, 1, 100)
+		skill_lists[#skill_lists + 1] = {attack_skill_id, 1}
 	end
-	if near_attack_skill then
-		skill_node:AddSkill(near_attack_skill, 1, 101)
+	if near_attack_skill_id then
+		skill_node:AddSkill(near_attack_skill_id, 1, 101)
+		skill_lists[#skill_lists + 1] = {near_attack_skill_id, 1}
 	end
 	if extra_skill_list then
 		for _, skill_config in ipairs(extra_skill_list) do
 			skill_node:AddSkill(skill_config.skill_id, skill_config.level)
+			skill_lists[#skill_lists + 1] = {skill_config.skill_id, skill_config.level}
+		end
+	end
+	for _, skill_info in ipairs(skill_lists) do
+		local child_skill = Skill:GetChildSkill(skill_info[1])
+		if child_skill then				
+			for _, child_skill_id in pairs(child_skill) do
+				skill_node:DoAddSkill(child_skill_id, skill_info[2])
+			end
 		end
 	end
 	return 1
@@ -157,24 +169,24 @@ function RpgObj:GetActionState()
 	return self:GetChild("action"):GetState()
 end
 
-function RpgObj:SetAttackSkillId(attack_skill)
-	self.attack_skill = attack_skill
+function RpgObj:SetAttackSkillId(attack_skill_id)
+	self.attack_skill_id = attack_skill_id
 end
 
 function RpgObj:GetAttackSkillId()
-	return self.attack_skill
+	return self.attack_skill_id
 end
 
-function RpgObj:SetNearAttackSkillId(near_attack_skill)
-	self.near_attack_skill = near_attack_skill
+function RpgObj:SetNearAttackSkillId(near_attack_skill_id)
+	self.near_attack_skill_id = near_attack_skill_id
 end
 
 function RpgObj:GetNearAttackSkillId()
-	return self.near_attack_skill
+	return self.near_attack_skill_id
 end
 
 function RpgObj:GetAttackRange()
-	return self:TryCall("GetSkillRange", self.attack_skill)
+	return self:TryCall("GetSkillRange", self.attack_skill_id)
 end
 
 function RpgObj:SetTargetId(id)

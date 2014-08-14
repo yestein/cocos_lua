@@ -310,7 +310,9 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 		return
 	end
 	local speed_scale = self:GetAnimationSpeed(animation_name)
-	self.armature:getAnimation():setSpeedScale(speed_scale)
+	if speed_scale then
+		self.armature:getAnimation():setSpeedScale(speed_scale)
+	end
 	self.armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 	self.current_animation = animation_name
 end
