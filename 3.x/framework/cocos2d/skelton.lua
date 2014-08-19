@@ -317,6 +317,10 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 	self.current_animation = animation_name
 end
 
+function Skelton:PlayRawAnimation(resource_name, duration_frame, is_loop)
+	self.armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
+end
+
 function Skelton:GetCurrentAnimation()
 	return self.current_animation
 end

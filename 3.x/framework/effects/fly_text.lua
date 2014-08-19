@@ -198,7 +198,7 @@ function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 	jumped_text:runAction(cc.Spawn:create(unpack(action_spawn)))
 end
 
-function FlyText:VerticalShakeWithIcon(target_obj, custom_font_path, icon_name, text, param)
+function FlyText:VerticalShakeWithIcon(layer, target_obj, custom_font_path, icon_name, text, param)
 	if not param then
 		param = {}
 	end
@@ -207,26 +207,38 @@ function FlyText:VerticalShakeWithIcon(target_obj, custom_font_path, icon_name, 
 	if param.text_scale then
 		jumped_text:setScale(param.text_scale)
 	end
-
 	local color = param.color or "white"	
 	jumped_text:setColor(Def:GetColor(color))
-	target_obj:addChild(jumped_text)
+	layer:addChild(jumped_text)
 
+	if param.zorder then
+		jumped_text:setLocalZOrder(param.zorder)
+	else
+		jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	end
 
-	local icon = cc.Sprite:createWithSpriteFrameName(icon_name)
+	local icon = cc.Sprite:create(icon_name)
 	if param.icon_scale then
 		icon:setScale(param.icon_scale)
 	end
-	target_obj:addChild(icon)
+	layer:addChild(icon)
+	if param.zorder then
+		icon:setLocalZOrder(param.zorder)
+	else
+		icon:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	end
 
+	local x, y = target_obj:getPosition()
+	local offset_x = param.offset_x or 0
+	local offset_y = param.offset_y or 0
 	local sprite_rect = target_obj:getBoundingBox()
 	local icon_rect = icon:getBoundingBox()
 	local text_rect = jumped_text:getBoundingBox()
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 1
-	local icon_x = sprite_rect.width * percent_x - (icon_rect.width + text_rect.width) * 0.5 + icon_rect.width / 2
+	local icon_x = x + sprite_rect.width * percent_x - (icon_rect.width + text_rect.width) * 0.5 + icon_rect.width / 2 + offset_x
 	local text_x = icon_x + icon_rect.width / 2 + text_rect.width / 2
-	local icon_y = sprite_rect.height * percent_y
+	local icon_y = y + sprite_rect.height * percent_y + offset_y
 	local text_y = icon_y
 
 	jumped_text:setPosition(text_x, text_y)

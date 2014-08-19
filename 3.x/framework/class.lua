@@ -12,7 +12,7 @@ if not Class then
 	Class = {}
 end
 
---Class.is_debug = 1
+-- Class.is_debug = 1
 
 local MetaTable = {
 	__index = function(table, key)

@@ -39,7 +39,7 @@ function BuffNode:OnActive(frame)
 	end
 end
 
-function BuffNode:AddBuff(buff_id, luancher_id, count, lasts_time)
+function BuffNode:AddBuff(buff_id, luancher_id, count)
 	if not self.buff_list then
 		return 0
 	end

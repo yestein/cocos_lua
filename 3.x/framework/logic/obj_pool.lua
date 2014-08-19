@@ -18,6 +18,9 @@ function ObjPool:IsValid()
 end
 
 function ObjPool:_Uninit()
+	for id, obj in pairs(self.obj_pool) do
+		obj:Uninit()
+	end
 	self.obj_pool = nil
 	self.next_id = nil
 	return 1
@@ -62,7 +65,7 @@ function ObjPool:UpdateNextId()
 end
 
 function ObjPool:Add(obj_template, ...)
-	local obj = Class:New(obj_template)
+	local obj = Class:New(obj_template, self.obj_name)
 	local id = self:GetNextId()
 	self.obj_pool[id] = obj
 	if obj:Init(id, ...) == 1 then		

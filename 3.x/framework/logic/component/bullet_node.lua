@@ -66,9 +66,9 @@ function BulletNode:MoveTo(x, y)
 		self.cur_speed_x = x - self.position.x
 		self.cur_speed_y = y - self.position.y
 		if self.cur_speed_x > 0 then
-			self:GetParent():SetDirection("right")
+			self:GetParent():TryCall("SetDirection", "right")
 		elseif self.cur_speed_x < 0 then
-			self:GetParent():SetDirection("left")
+			self:GetParent():TryCall("SetDirection", "left")
 		end
 		self.position.x = x
 		self.position.y = y
