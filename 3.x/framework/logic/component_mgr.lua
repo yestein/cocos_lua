@@ -19,6 +19,15 @@ function ComponentMgr:CreateComponent(component_name)
 	return class_module
 end
 
+function ComponentMgr:CreateInheritComponent(component_name, parent_name)
+	assert(not ComponentMgr.component_list[component_name])
+	local parent_component = ComponentMgr.component_list[parent_name]
+	assert(parent_component)
+	local class_module = Class:New(parent_component, component_name)
+	ComponentMgr.component_list[component_name] = class_module
+	return class_module
+end
+
 function ComponentMgr:GetComponent(component_name)
 	return ComponentMgr.component_list[component_name]
 end

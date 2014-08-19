@@ -75,6 +75,11 @@ function RpgObj:InitMove(move_speed)
 	return 1
 end
 
+function RpgObj:InitMovie()
+	self:AddComponent("movie", "MOVIE", self:GetPosition())
+	return 1
+end
+
 function RpgObj:InitCommand( )
 	self:AddComponent("cmd", "COMMAND")
 	return 1
