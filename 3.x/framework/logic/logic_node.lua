@@ -18,12 +18,17 @@ end
 
 function LogicNode:_Init( ... )	
 	self:RegisterEventListen()
-
+	self.real_timer_id_list = {}
+	self.logic_timer_id_list = {}
 	return 1
 end
 
 function LogicNode:_Uninit( ... )
 	self.__uninit = 1
+	self:UnRegistAllTimer()
+	self.real_timer_id_list = nil
+	self.logic_timer_id_list = nil
+	
 	self:UninitChild()
 	self:UnregisterEventListen()
 	self.max_order        = nil
@@ -237,4 +242,48 @@ function LogicNode:AddComponent(child_name, component_name, ...)
 	component:Init(...)
 	self:AddChild(child_name, component)
 	return component
+end
+
+function LogicNode:RegistRealTimer(frame, call_back)
+	local timer_id = RealTimer:RegistTimer(frame, {self.OnRealTimer, self, call_back})
+	self.real_timer_id_list[timer_id] = 1
+	return timer_id
+end
+
+function LogicNode:UnregistRealTimer(timer_id)
+	RealTimer:CloseTimer(timer_id)
+	self.real_timer_id_list[timer_id] = nil
+end
+
+function LogicNode:OnRealTimer(call_back, timer_id)
+	self.real_timer_id_list[timer_id] = nil
+	Lib:SafeCall(call_back)	
+end
+
+function LogicNode:RegistLogicTimer(frame, call_back)
+	local timer_id = LogicTimer:RegistTimer(frame, {self.OnLogicTimer, self, call_back})
+	self.logic_timer_id_list[timer_id] = 1
+	return timer_id
+end
+
+function LogicNode:UnregistLogicTimer(timer_id)
+	LogicTimer:CloseTimer(timer_id)
+	self.real_timer_id_list[timer_id] = nil
+end
+
+function LogicNode:OnLogicTimer(call_back, timer_id)
+	self.logic_timer_id_list[timer_id] = nil
+	Lib:SafeCall(call_back)	
+end
+
+function LogicNode:UnRegistAllTimer()
+	for timer_id, _ in pairs(self.real_timer_id_list) do
+		RealTimer:CloseTimer(timer_id)
+	end
+	self.real_timer_id_list = {}
+
+	for timer_id, _ in pairs(self.logic_timer_id_list) do
+		LogicTimer:CloseTimer(timer_id)
+	end
+	self.logic_timer_id_list = {}
 end
