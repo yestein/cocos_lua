@@ -16,7 +16,7 @@ local SCALE_RATE = 0.005
 function SceneBase:_Uninit()
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
-	self.cc_scene_obj:removeChild(layer_main)
+	--self.cc_scene_obj:removeChild(layer_main)
 	Ui:UninitScene(self.scene_name)
 
 	self.playing_effect = nil
@@ -40,8 +40,6 @@ function SceneBase:_Init(scene_name)
 	self.obj_list = {}
 	self.load_sound_effect = {}
 	self.playing_effect = {}
-
-	
 
 	-- 场景默认设为屏幕大小
 	self.min_width_scale = 0

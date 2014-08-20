@@ -130,7 +130,7 @@ function SceneMgr:DestroyScene(scene_name)
     return 1
 end
 
-function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
+function SceneMgr:FirstLoadScene(scene_template_name, scene_name, trans_func)
     if not scene_name then
         scene_name = scene_template_name
     end
@@ -144,10 +144,13 @@ function SceneMgr:FirstLoadScene(scene_template_name, scene_name)
     end
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
+    if trans_func then
+        cc_scene = trans_func(cc_scene)
+    end
     CCDirector:getInstance():runWithScene(cc_scene)
 end
 
-function SceneMgr:LoadScene(scene_template_name, scene_name)
+function SceneMgr:LoadScene(scene_template_name, scene_name, trans_func)
     if not scene_name then
         scene_name = scene_template_name
     end
@@ -161,7 +164,33 @@ function SceneMgr:LoadScene(scene_template_name, scene_name)
     end
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
+    if trans_func then
+        cc_scene = trans_func(cc_scene)
+    end
     CCDirector:getInstance():pushScene(cc_scene)
+    return scene
+end
+
+function SceneMgr:ReplaceScene(scene_template_name, scene_name, trans_func)
+     local current_scene_name = self:GetCurrentSceneName()
+    self:DestroyScene(current_scene_name)
+    if not scene_name then
+        scene_name = scene_template_name
+    end
+    table.insert(self.current_scene_list, scene_name)
+    local scene = self:GetScene(scene_name)
+    if not scene then
+        scene = self:CreateScene(scene_name, scene_template_name)
+    end
+    if not scene then
+        return
+    end
+    scene:PlayBGM()
+    local cc_scene = scene:GetCCObj()
+    if trans_func then
+        cc_scene = trans_func(cc_scene)
+    end
+    CCDirector:getInstance():replaceScene(cc_scene)
     return scene
 end
 
