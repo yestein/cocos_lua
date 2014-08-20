@@ -50,10 +50,10 @@ function MovieNode:MovieSay(call_back, text, font_size, delay_time)
 	self:RegistRealTimer(math.ceil(delay_time * GameMgr:GetFPS()), {self.OnTimer, self, call_back})
 end
 
-function MovieNode:MoviePlayAnimation(call_back, animation_name, delay_time)
+function MovieNode:MoviePlayAnimation(call_back, animation_name, is_loop, delay_time)
 	local owner = self:GetParent()
 	local event_name = owner:GetClassName()..".PLAY_ANIMATION"
-	Event:FireEvent(event_name, owner:GetId(), animation_name)
+	Event:FireEvent(event_name, owner:GetId(), animation_name, is_loop)
 	self:RegistRealTimer(math.ceil(delay_time * GameMgr:GetFPS()), {self.OnTimer, self, call_back})
 end
 

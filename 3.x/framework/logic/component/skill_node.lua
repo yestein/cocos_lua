@@ -216,7 +216,6 @@ function SkillNode:HitCallback()
 		cast_skill_id = child_skill_list[self.skill_times]
 	end
 	local target_list = self:GetTargetList()
-	print(self.skill_times, cast_skill_id)
 	local skill = self.skills[cast_skill_id]
 	if not skill then
 		return
