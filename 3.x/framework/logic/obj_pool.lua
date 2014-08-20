@@ -19,7 +19,7 @@ end
 
 function ObjPool:_Uninit()
 	for id, obj in pairs(self.obj_pool) do
-		obj:Uninit()
+		self:Remove(id)
 	end
 	self.obj_pool = nil
 	self.next_id = nil
