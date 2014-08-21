@@ -223,6 +223,7 @@ end
 function SceneMgr:UnLoadCurrentScene()
     local current_scene_name = self:GetCurrentSceneName()
     self:DestroyScene(current_scene_name)
+    Debug:ShowTimer()
     CCDirector:getInstance():popScene()
     local scene = self:GetCurrentScene()
     if scene then

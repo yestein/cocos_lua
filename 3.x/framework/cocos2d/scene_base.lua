@@ -24,8 +24,7 @@ function SceneBase:_Uninit()
 	self.obj_list = nil
 	self.layer_list = nil
 	self.cc_scene_obj = nil
-	self.scene_name = nil	
-	Debug:ShowTimer()
+	self.scene_name = nil
 
 	return 1
 end
