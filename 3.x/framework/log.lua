@@ -25,7 +25,7 @@ function Log:Init(log_level, view_level)
 	local log_path = self:GetLogFileByTime("log")
 	self.fp = io.open(__write_path..log_path, "w")
 	self.log_level = log_level or Log.LOG_DEBUG
-	self.view_level = view_level or Log.LOG_DEBUG
+	self.view_level = view_level or Log.LOG_INFO
 end
 
 function Log:GetLogFileByTime(prefix)

@@ -66,7 +66,9 @@ end
 function Event:FireEvent(event_type, ...)
 	if self.watcher_call_back_function then
 		if not self.event_black_list or not self.event_black_list[event_type] then
-			self.watcher_call_back_function(event_type, ...)
+			self.watcher_call_back_function(Log.LOG_INFO, event_type, ...)
+		else
+			self.watcher_call_back_function(self.event_black_list[event_type], event_type, ...)
 		end
 	end
 	self:CallBack(self.global_event_list[event_type], ...)

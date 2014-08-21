@@ -29,7 +29,6 @@ end
 function MovieNode:MovieGoto(call_back, x, y, time)
 	local owner = self:GetParent()
 	local event_name = owner:GetClassName()..".MOVIE_MOVETO"
-
 	Event:FireEvent(event_name, owner:GetId(), x, y, time)
 	self:RegistRealTimer(math.ceil(time * GameMgr:GetFPS()), {self.OnTimer, self, call_back})
 	if x > self.position.x then

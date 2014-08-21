@@ -26,18 +26,17 @@ function cclog(fmt, ...)
     assert(false)
 end
 
-function PrintEvent(...)
+function PrintEvent(log_level, ...)
 	local text = ""
 	local count = select("#", ...)
 	for i = 1, count do
 		text = text .. "\t" .. tostring(select(i, ...))
 	end
-	Log:Print(Log.LOG_DEBUG, "[Event] %s", text)
+	Log:Print(log_level, "[Event] %s", text)
 end
 
-
-function Debug:AddBlackEvent(event_type)
-	self.watch_event_black_list[event_type] = 1
+function Debug:AddBlackEvent(event_type, log_level)
+	self.watch_event_black_list[event_type] = log_level or Log.LOG_DEBUG
 end
 
 function Debug:Init(mode)
