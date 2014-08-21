@@ -53,8 +53,8 @@ function MoveNode:_Init(position, speed)
 	self.cur_speed_y = 0
 	self.interval_frame = math.floor(self.interval * GameMgr:GetFPS())
 
-	self.next_pos   = {x = -1, y = -1}
-	self.target_pos = {x = -1, y = -1}
+	self.next_pos   = {x = nil, y = nil}
+	self.target_pos = {x = nil, y = nil}
 	self.jump_target_x = nil
 	self.jump_target_y = nil
 	return 1
@@ -74,10 +74,10 @@ function MoveNode:OnActive(frame)
 end
 
 function MoveNode:StopMove()
-	self.target_pos.x = -1
-	self.target_pos.y = -1
-	self.next_pos.x   = -1
-	self.next_pos.y   = -1
+	self.target_pos.x = nil
+	self.target_pos.y = nil
+	self.next_pos.x   = nil
+	self.next_pos.y   = nil
 	self.cur_speed_x  = 0
 	self.cur_speed_y  = 0
 	self.move_frame = nil
@@ -237,14 +237,14 @@ function MoveNode:GetCurSpeed()
 end
 
 function MoveNode:IsHaveTarget()
-	if self.target_pos.x < 0 or self.target_pos.y < 0 then
+	if not self.target_pos.x or not self.target_pos.y then
 		return 0
 	end
 	return 1
 end
 
 function MoveNode:IsHaveNextPos()
-	if self.next_pos.x < 0 or self.next_pos.y < 0 then
+	if not self.next_pos.x or not self.next_pos.y then
 		return 0
 	end
 	return 1
