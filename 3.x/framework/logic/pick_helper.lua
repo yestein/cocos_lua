@@ -66,7 +66,7 @@ function PickHelper:Drop(id, x, y)
 	if not info then
 		return 0
 	end
-	local old_x, old_y = info.x, info.y
+	local old_x, old_y = unpack(info)
 	self.container[id] = nil
 	self.pick_num = self.pick_num - 1
 
