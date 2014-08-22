@@ -15,6 +15,8 @@ function SlideHelper:_Uninit()
 	self.container = nil
 	self.offset_y = nil
 	self.offset_x = nil
+
+	return 1
 end
 
 function SlideHelper:_Init(is_drag, offset_x, offset_y)

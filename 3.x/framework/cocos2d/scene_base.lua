@@ -17,6 +17,9 @@ function SceneBase:_Uninit()
 	self.scale = nil
 	local layer_main = self:GetLayer("main")
 	--self.cc_scene_obj:removeChild(layer_main)
+
+	Movie:RemoveFunction("movie_border_end")
+	Movie:RemoveFunction("movie_border_start")
 	Ui:UninitScene(self.scene_name)
 
 	self.playing_effect = nil
@@ -51,6 +54,9 @@ function SceneBase:_Init(scene_name)
 	self:SetHeight(visible_size.height)
 
 	Ui:InitScene(scene_name, self.cc_scene_obj)
+
+	Movie:AddFunction("movie_border_start", self.MovieBorderStart, self)
+	Movie:AddFunction("movie_border_end", self.MovieBorderEnd, self)
 	--self:AddReturnMenu()
 	local layer_main = self:CreateLayer("main", Def.ZOOM_LEVEL_WORLD)
 	layer_main:setAnchorPoint(cc.p(0, 0))

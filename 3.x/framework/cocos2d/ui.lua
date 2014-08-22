@@ -45,6 +45,7 @@ function Ui:InitScene(scene_name, cc_scene)
         ["LABELTTF"] = {},
         ["LABELBMFONT"] = {},
         ["LABEL"] = {},
+        ["DRAW"] = {},
     }
 
     ui_frame.sysmsg_list = {}    
@@ -66,6 +67,21 @@ function Ui:InitScene(scene_name, cc_scene)
 
     ui_frame.cc_scene = cc_scene
     ui_frame.cc_layer_ui = cc_layer_ui
+
+    local border_height = Movie:GetBorderHeight()
+    local movie_boder_up = cc.DrawNode:create()
+    local fillColor = cc.c4b(0, 0, 0, 1)
+    local borderColor = cc.c4b(255, 0, 255, 125)
+    local polygon = {cc.p(0, 0), cc.p(visible_size.width, 0), cc.p(visible_size.width, border_height), cc.p(0, border_height)}
+    movie_boder_up:drawPolygon(polygon, 4, fillColor, 0, borderColor)
+    Ui:AddElement(ui_frame, "DRAW", "MovieBorderUp", 0, visible_size.height, movie_boder_up)
+
+    local movie_boder_down = cc.DrawNode:create()
+    local fillColor = cc.c4b(0, 0, 0, 1)
+    local borderColor = cc.c4b(255, 0, 255, 125)
+    local polygon = {cc.p(0, 0), cc.p(visible_size.width, 0), cc.p(visible_size.width, border_height), cc.p(0, border_height)}
+    movie_boder_down:drawPolygon(polygon, 4, fillColor, 0, borderColor)
+    Ui:AddElement(ui_frame, "DRAW", "MovieBorderDown", 0, -border_height, movie_boder_down)
 
     self.scene_ui_list[scene_name] = ui_frame
 end

@@ -28,6 +28,7 @@ function GameMgr:Init()
 	self.is_movie_mode = 0
 
 	self:SetFPS(25)
+	assert(Movie:Init(100) == 1)
 	assert(RealTimer:Init() == 1)
 
 	assert(LogicTimer:Init() == 1)

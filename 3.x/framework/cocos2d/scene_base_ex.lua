@@ -224,3 +224,52 @@ function SceneBase:ShakeScreen(range, call_back)
 	shake_action:setTag(SHAKE_ACTION_TAG)
 	layer_main:runAction(shake_action)
 end
+
+function SceneBase:SetMovieBorderZOrder(z_order)
+	local ui_frame = self:GetUI()
+	local movie_boder_up = Ui:GetElement(ui_frame, "DRAW", "MovieBorderUp")
+	assert(movie_boder_up)
+	movie_boder_up:setLocalZOrder(z_order)
+	local movie_boder_down = Ui:GetElement(ui_frame, "DRAW", "MovieBorderDown")
+	assert(movie_boder_down)
+	movie_boder_down:setLocalZOrder(z_order)
+end
+
+function SceneBase:StartMovie(time)
+	local ui_frame = self:GetUI()
+	local border_height = Movie:GetBorderHeight()
+	local movie_boder_up = Ui:GetElement(ui_frame, "DRAW", "MovieBorderUp")
+	assert(movie_boder_up)
+	local move_down_action = cc.MoveTo:create(time, cc.p(0, visible_size.height - border_height))
+	movie_boder_up:runAction(move_down_action)
+
+	local movie_boder_down = Ui:GetElement(ui_frame, "DRAW", "MovieBorderDown")
+	assert(movie_boder_down)
+	local move_up_action = cc.MoveTo:create(time, cc.p(0, 0))
+	movie_boder_down:runAction(move_up_action)
+end
+
+function SceneBase:EndMovie(time)
+	local ui_frame = self:GetUI()
+	local border_height = Movie:GetBorderHeight()
+	local movie_boder_up = Ui:GetElement(ui_frame, "DRAW", "MovieBorderUp")
+	assert(movie_boder_up)
+	local move_up_action = cc.MoveTo:create(time, cc.p(0, visible_size.height))
+	movie_boder_up:runAction(move_up_action)
+
+	local movie_boder_down = Ui:GetElement(ui_frame, "DRAW", "MovieBorderDown")
+	assert(movie_boder_down)
+	local move_down_action = cc.MoveTo:create(time, cc.p(0, -border_height))
+	movie_boder_down:runAction(move_down_action)
+end
+
+function SceneBase:MovieBorderStart(call_back, template_name, time)
+	self:StartMovie(time)
+	self:RegistRealTimer(math.ceil(time * GameMgr:GetFPS()), {call_back})
+end
+
+function SceneBase:MovieBorderEnd(call_back, template_name, time)
+	self:EndMovie(time)
+
+	self:RegistRealTimer(math.ceil(time * GameMgr:GetFPS()), {call_back})
+end
