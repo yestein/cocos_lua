@@ -9,7 +9,7 @@ if not SlideHelper then
 	SlideHelper = NewLogicNode("Slide")
 end
 
-function SlideHelper:_Unnit()
+function SlideHelper:_Uninit()
 	self.timer_id = nil
 	self.is_working = nil
 	self.container = nil
