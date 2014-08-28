@@ -15,6 +15,8 @@ function PickHelper:_Uninit()
 	self.container = nil
 	self.offset_y = nil
 	self.offset_x = nil
+
+	return 1
 end
 
 function PickHelper:_Init(max_pick_num)
