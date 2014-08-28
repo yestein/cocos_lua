@@ -48,17 +48,20 @@ function ModuleMgr:ForEachActiveModule(func)
 	end
 end
 
-function ModuleMgr:RegisterActive(module_name, fun_name)
-	local active_module = self.module_list[module_name]
-	assert(active_module)
-	local active_function = active_module[fun_name]
+function ModuleMgr:RegisterUpdate(module_name, fun_name)
+	local l_module = self.module_list[module_name]
+	assert(l_module)
+	
+	local active_function = l_module[fun_name]
 	assert(active_function)
-	assert(not self.active_module[active_module])
-	self.active_module[active_module] = active_function
+	
+	assert(not self.active_module[l_module])
+	self.active_module[l_module] = active_function
 end
 
-function ModuleMgr:UnregisterActive(module_name)
-	local active_module = self.module_list[module_name]
-	assert(active_module)
-	self.active_module[active_module] = nil
+function ModuleMgr:UnregisterUpdate(module_name)
+	local l_module = self.module_list[module_name]
+	assert(l_module)
+	
+	self.active_module[l_module] = nil
 end
