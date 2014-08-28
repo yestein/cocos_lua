@@ -294,6 +294,13 @@ function RpgObj:ChangeProperty(key, change_value)
 	end
 end
 
+function RpgObj:ReceiveDamage(luancher_id, damage, is_critical)
+	local event_name = self:GetClassName()..".RECEIVE_DAMAGE"
+	Event:FireEvent(event_name, self:GetId(), luancher_id, damage, is_critical)
+	self:ChangeProperty("life", -damage)
+	self:SetLastDamager(luancher_id)	
+end
+
 function RpgObj:CanUseSkill(skill_id, target_id)
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then

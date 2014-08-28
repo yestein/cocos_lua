@@ -82,17 +82,24 @@ function SkillTemplate:CanCast(luancher, target_list, skill_param)
 	return 1
 end
 
-function SkillTemplate:Cast(luancher, target_list, skill_param)
-	return self.cast_method:Execute(luancher, target_list, self, skill_param)
+function SkillTemplate:CriticalTest(owner, skill_param)
+	if not self.cast_method.CriticalTest then
+		return 0
+	end
+	return self.cast_method:CriticalTest(owner, skill_param)
 end
 
-function SkillTemplate:ProduceEffect(luancher, target, param)
+function SkillTemplate:Cast(luancher, target_list, skill_param, is_critical)
+	return self.cast_method:Execute(luancher, target_list, self, skill_param, is_critical)
+end
+
+function SkillTemplate:ProduceEffect(luancher, target, param, is_critical)
 	if self.camp_judge_func(luancher, target) ~= 1 then
 		return 0
 	end
 	Event:FireEvent("SKILL.PRODUCE_EFFECT", param.skill_id, luancher:GetId(), target:GetId(), param)
 	for _, effect in ipairs(self.effect_list) do
-		effect:Execute(luancher, target, param)
+		effect:Execute(luancher, target, param, 1, is_critical)
 	end
 	return 1
 end

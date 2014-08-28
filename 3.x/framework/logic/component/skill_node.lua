@@ -108,6 +108,14 @@ function SkillNode:GetCurrentSkillId()
 	return self.current_skill_id
 end
 
+function SkillNode:SetSkillCritical(is_critical)
+	self.is_critical = is_critical
+end
+
+function SkillNode:IsSkillCritical()
+	return self.is_critical
+end
+
 function SkillNode:SetTargetList(target_list)
 	self.target_list = target_list
 end
@@ -182,7 +190,7 @@ function SkillNode:SearchTarget(skill_id)
 	return skill.skill_template:SearchTarget(owner, skill.skill_param)
 end
 
-function SkillNode:CastSkill(skill_id, is_force)
+function SkillNode:CastSkill(skill_id)
 	local target_list = self:SearchTarget(skill_id)
 	local can_cast_skill, reason = self:CanCastSkill(skill_id, target_list)
 	if can_cast_skill ~= 1 then
@@ -195,12 +203,21 @@ function SkillNode:CastSkill(skill_id, is_force)
 	if owner:TryCall("SetActionState", Def.STATE_SKILL) ~= 1 then
 		return 0, "state error"
 	end
+	local skill = self.skills[skill_id]
+	if not skill then
+		assert(false)
+		return 0
+	end
+	local owner = self:GetParent()
+	local is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
+	print("start", is_critical)
 	self:GetChild("cd"):StartCD(skill_id)
 	self:SetTargetList(target_list)
 	self:SetCurrentSkillId(skill_id)
-		
+	self:SetSkillCritical(is_critical)
+
 	local event_name = owner:GetClassName()..".CAST_SKILL"
-	Event:FireEvent(event_name, self:GetParent():GetId(), skill_id, is_force)
+	Event:FireEvent(event_name, self:GetParent():GetId(), skill_id, is_critical)
 	return 1
 end
 
@@ -221,6 +238,6 @@ function SkillNode:HitCallback()
 		return
 	end
 	local owner = self:GetParent()
-	
-	skill.skill_template:Cast(owner, target_list, skill.skill_param)
+	local is_critical = self:IsSkillCritical()
+	skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical)
 end
