@@ -168,6 +168,7 @@ function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 	local down_y = param.down_y or 0
 	local delay_time = param.delay_time or 0
 	local fade_time = param.fade_time or 0
+	local fade_up_y = param.fade_up_y or 0
 
 	local action_list_text = {}
 
@@ -183,8 +184,21 @@ function FlyText:VerticalShake(layer, target_obj, custom_font_path, text, param)
 		action_list_text[#action_list_text + 1] = cc.DelayTime:create(delay_time)
 	end
 	
+	local action_fade = nil
+	local action_fade_move = nil
 	if fade_time > 0 then
-		action_list_text[#action_list_text + 1] = CCFadeOut:create(fade_time)
+		action_fade = CCFadeOut:create(fade_time)		
+		if fade_up_y > 0 then
+			action_fade_move = cc.MoveBy:create(fade_time, cc.p(0, fade_up_y))
+		end
+	end	
+
+	if action_fade and action_fade_move then
+		action_list_text[#action_list_text + 1] = cc.Spawn:create(action_fade, action_fade_move)
+	elseif action_fade then
+		action_list_text[#action_list_text + 1] = action_fade
+	elseif action_fade_move then
+		action_list_text[#action_list_text + 1] = action_fade_move
 	end
 
 	action_list_text[#action_list_text + 1] = cc.RemoveSelf:create()
