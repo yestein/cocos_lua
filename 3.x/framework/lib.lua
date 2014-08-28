@@ -10,20 +10,37 @@ if not Lib then
 	Lib = {}
 end
 
-function Lib:Show2DTB(tb, row, column)
+function Lib:Show2DTB(tb, row, column, is_reverse)
 	local title = "\t"
-	for i = 1, column do
-		title = title.."\t"..i
-	end
-	print(title)
-	print("-----------------------------------------------------------------------------------------------")
-	for i = 1, row do
-		local msg = i.."\t|"
-		if tb[row] then
-			for j = 1, column do
-				msg = msg .."\t"..tostring(tb[i][j])
+	if is_reverse ~= 1 then
+		for i = 1, column do
+			title = title.."\t"..i
+		end
+		print(title)
+		print("-----------------------------------------------------------------------------------------------")
+		for i = 1, row do
+			local msg = i.."\t|"
+			if tb[row] then
+				for j = 1, column do
+					msg = msg .."\t"..tostring(tb[i][j])
+				end
+				print(msg)
 			end
-			print(msg)
+		end
+	else
+		for i = 1, row do
+			title = title.."\t"..i
+		end
+		print(title)
+		print("-----------------------------------------------------------------------------------------------")
+		for i = 1, column do
+			local msg = i.."\t|"
+			if tb[column] then
+				for j = 1, row do
+					msg = msg .."\t"..tostring(tb[j][i])
+				end
+				print(msg)
+			end
 		end
 	end
 end
