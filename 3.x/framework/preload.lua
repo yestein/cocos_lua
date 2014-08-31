@@ -75,6 +75,7 @@ AddPreloadFile("framework/logic/slide_helper.lua")
 AddPreloadFile("framework/logic/component_mgr.lua")
 AddPreloadFile("framework/logic/pick_helper.lua")
 AddPreloadFile("framework/logic/movie.lua")
+AddPreloadFile("framework/logic/wait_helper.lua")
 
 AddPreloadFile("framework/logic/ai/ai_mgr.lua")
 AddPreloadFile("framework/logic/buff/buff_base.lua")
