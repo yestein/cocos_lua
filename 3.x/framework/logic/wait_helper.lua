@@ -10,10 +10,17 @@ if not WaitHelper then
 	WaitHelper = NewLogicNode("WaitHelper")
 end
 
+WaitHelper.is_debug = 1
+
 function WaitHelper:_Uninit()
-	self.max_wait_frame = nil
-	self.job_count     = nil
-	self.job_list      = nil
+	self.next_job_id        = nil
+	self.func_timer_over    = nil	
+	self.complete_call_back = nil
+	self.max_wait_frame     = nil
+	self.job_count          = nil
+	self.job_list           = nil
+
+	return 1
 end
 
 function WaitHelper:_Init(max_wait_time, complete_call_back, func_timer_over)
@@ -22,33 +29,38 @@ function WaitHelper:_Init(max_wait_time, complete_call_back, func_timer_over)
 	self.max_wait_frame = max_wait_time * GameMgr:GetFPS()
 	self.complete_call_back = complete_call_back
 	self.func_timer_over = func_timer_over
+	self.next_job_id = 1
 	return 1
 end
 
-function WaitHelper:WaitJob(id)
-	assert(not self.job_list[id])
-	self.job_list[id] = self:RegistRealTimer(self.max_wait_frame, {self.OnTimeOver, self, id})
+function WaitHelper:WaitJob()
+	local job_id = self.next_job_id
+	self.next_job_id = self.next_job_id + 1
+	self.job_list[job_id] = self:RegistRealTimer(self.max_wait_frame, {self.OnTimeOver, self, job_id})
 	self.job_count = self.job_count + 1
-	print("wait job", id)
-	print("job count:", self.job_count)
-end
-
-
-function WaitHelper:OnTimeOver(id, timer_id)
-	if self.func_timer_over then
-		self.func_timer_over(id)
+	if self.is_debug == 1 then
+		print("wait job", job_id)
+		print("job count:", self.job_count)
 	end
-	self:JobComplete(id)
+	return job_id
 end
 
-function WaitHelper:JobComplete(id)
-	local timer_id = self.job_list[id]
-	self:UnregistRealTimer(timer_id)
-	self.job_list[id] = nil
-	self.job_count = self.job_count - 1
-	print("job complete", id)
-	print("job count:", self.job_count)
+function WaitHelper:OnTimeOver(job_id, timer_id)
+	if self.func_timer_over then
+		self.func_timer_over(job_id)
+	end
+	self:JobComplete(job_id)
+end
 
+function WaitHelper:JobComplete(job_id)
+	local timer_id = self.job_list[job_id]
+	self:UnregistRealTimer(timer_id)
+	self.job_list[job_id] = nil
+	self.job_count = self.job_count - 1
+	if self.is_debug == 1 then
+		print("job complete", job_id)
+		print("job count:", self.job_count)
+	end
 
 	if self.job_count <= 0 then
 		Lib:SafeCall(self.complete_call_back)
