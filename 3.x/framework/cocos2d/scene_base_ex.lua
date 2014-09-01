@@ -219,8 +219,8 @@ function SceneBase:ShakeScreen(time, range, repeat_count, call_back)
 	for i = 1, repeat_count do
 		action_list[#action_list + 1] = move_left
 		action_list[#action_list + 1] = move_right
-		action_list[#action_list + 1] = move_right
 		action_list[#action_list + 1] = move_left
+		action_list[#action_list + 1] = move_right		
 	end
 	if call_back then
 		local call_back_action = cc.CallFunc:create(call_back)
