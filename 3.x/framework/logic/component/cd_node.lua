@@ -47,6 +47,10 @@ function CDNode:StartCD(id)
 	return 1
 end
 
+function CDNode:InstantCoolDown(id)
+	self.last_used_frame[id] = 0
+end
+
 function CDNode:GetList()
 	return self.cd_time, self.last_used_frame
 end

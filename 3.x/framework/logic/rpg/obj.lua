@@ -91,11 +91,11 @@ function RpgObj:InitSkill(attack_skill_id, near_attack_skill_id, extra_skill_lis
 	local skill_node = self:AddComponent("skill", "SKILL")
 	local skill_lists = {}
 	if attack_skill_id then
-		skill_node:AddSkill(attack_skill_id, 1, 100)
+		skill_node:AddSkill(attack_skill_id, 1, 1, 100)
 		skill_lists[#skill_lists + 1] = {attack_skill_id, 1}
 	end
 	if near_attack_skill_id then
-		skill_node:AddSkill(near_attack_skill_id, 1, 101)
+		skill_node:AddSkill(near_attack_skill_id, 1, 1, 101)
 		skill_lists[#skill_lists + 1] = {near_attack_skill_id, 1}
 	end
 	if extra_skill_list then

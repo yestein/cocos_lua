@@ -39,12 +39,12 @@ function SkillNode:_Init()
 	return 1
 end
 
-function SkillNode:AddSkill(skill_id, skill_level, index)
+function SkillNode:AddSkill(skill_id, skill_level, is_instant_cd, index)
 	assert(not self.skills[skill_id])	
-	return self:DoAddSkill(skill_id, skill_level, index)
+	return self:DoAddSkill(skill_id, skill_level, is_instant_cd, index)
 end
 
-function SkillNode:DoAddSkill(skill_id, skill_level, index)
+function SkillNode:DoAddSkill(skill_id, skill_level, is_instant_cd, index)
 	if self.skills[skill_id] then
 		return
 	end
@@ -64,7 +64,9 @@ function SkillNode:DoAddSkill(skill_id, skill_level, index)
 	end
 	self.skills_index[index] = skill_id
 	self:GetChild("cd"):Add(skill_id, (skill_param.cd_time or 0))
-	self:GetChild("cd"):StartCD(skill_id)
+	if is_instant_cd ~= 1 then
+		self:GetChild("cd"):StartCD(skill_id)
+	end
 end
 
 function SkillNode:RemoveSkill(skill_id)	
@@ -210,7 +212,6 @@ function SkillNode:CastSkill(skill_id)
 	end
 	local owner = self:GetParent()
 	local is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
-	print("start", is_critical)
 	self:GetChild("cd"):StartCD(skill_id)
 	self:SetTargetList(target_list)
 	self:SetCurrentSkillId(skill_id)
