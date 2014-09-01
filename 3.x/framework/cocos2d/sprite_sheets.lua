@@ -13,14 +13,17 @@ local cache = cc.SpriteFrameCache:getInstance()
 
 function SpriteSheets:Uninit()
 	self.animation_num_list = nil
+    return 1
 end
 
 function SpriteSheets:Init()
-	self.animation_num_list = {}
     return 1
 end
 
 function SpriteSheets:SetAnimationParam(animation_name, param)
+    if not self.animation_num_list then
+        self.animation_num_list = {}
+    end
 	self.animation_num_list[animation_name] = {frame_count = param.frame_count, time_interval = param.time_interval}
 end
 
