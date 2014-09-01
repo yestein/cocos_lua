@@ -200,9 +200,9 @@ end
 function Skelton:AddChildElement(name, child, x, y, is_change_position)
 	local index = 1
 	local child_name = name
-	while self.child_list[child_name] do
-		child_name = name.."_"..index
-		index = index + 1
+	if self.child_list[child_name] then
+		self.child_list[child_name].ref = self.child_list[child_name].ref + 1
+		return
 	end
 	if not x or not y then
 		x, y = 0, 0
@@ -212,7 +212,7 @@ function Skelton:AddChildElement(name, child, x, y, is_change_position)
 	else
 		child:setPosition(x, y)
 	end
-	self.child_list[child_name] = {obj = child, raw_x = x}
+	self.child_list[child_name] = {obj = child, raw_x = x, ref = 1}
 	self.sprite:addChild(child)
 	if is_change_position == 1 then
 		self.change_pos_child[child_name] = 1
@@ -231,10 +231,13 @@ function Skelton:RemoveChildElement(name)
 		assert(false, "No Child[%s]", name)
 		return
 	end
-	self.sprite:removeChild(self.child_list[name].obj, true)
-	self.child_list[name] = nil
-	if self.change_pos_child[name] then
-		self.change_pos_child[name] = nil
+	self.child_list[name].ref = self.child_list[name].ref - 1
+	if self.child_list[name].ref <= 0 then
+		self.sprite:removeChild(self.child_list[name].obj, true)
+		self.child_list[name] = nil
+		if self.change_pos_child[name] then
+			self.change_pos_child[name] = nil
+		end
 	end
 end
 
