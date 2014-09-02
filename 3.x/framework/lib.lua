@@ -67,6 +67,17 @@ function Lib:CopyTB1(tb)
 	return table_copy
 end
 
+function Lib:Copy2DTB(tb)
+	local table_copy = {}
+	for i, row in pairs(tb) do
+		table_copy[i] = {}
+		for j, v in pairs(row) do
+			table_copy[i][j] = v
+		end
+	end
+	return table_copy
+end
+
 function Lib:CountTB(tb)
 	local count = 0
 	for k, v in pairs(tb) do
