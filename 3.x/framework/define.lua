@@ -52,6 +52,7 @@ Def.STATE_JUMP   = "S_JUMP"
 Def.STATE_HIT    = "S_HIT"
 Def.STATE_SKILL  = "S_SKILL"
 Def.STATE_DEAD   = "S_DEAD"
+Def.STATE_REBORN   = "S_REBORN"
 
 --DEBUFF
 Def.BUFF_SLEEP     = "sleep"

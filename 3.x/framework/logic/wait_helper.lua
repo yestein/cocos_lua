@@ -10,7 +10,7 @@ if not WaitHelper then
 	WaitHelper = NewLogicNode("WaitHelper")
 end
 
-WaitHelper.is_debug = 1
+-- WaitHelper.is_debug = 1
 
 function WaitHelper:_Uninit()
 	self.next_job_id        = nil
