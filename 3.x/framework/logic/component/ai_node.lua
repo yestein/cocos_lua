@@ -100,3 +100,7 @@ end
 function AINode:GetBrainValue(key)
 	return self.brain_data[key]
 end
+
+function AINode:ClearBrain()
+	self.brain_data = {}
+end

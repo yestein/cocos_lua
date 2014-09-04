@@ -23,7 +23,9 @@ end
 function DataCenter:LoadData(load_data)
 	for module_name, module_data in pairs(load_data) do
 		local load_module = ModuleMgr:GetModule(module_name)
-		load_module:Load(module_data)
+		if load_module then
+			load_module:Load(module_data)
+		end
 	end
 	return save_data
 end

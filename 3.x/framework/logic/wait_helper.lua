@@ -10,8 +10,6 @@ if not WaitHelper then
 	WaitHelper = NewLogicNode("WaitHelper")
 end
 
--- WaitHelper.is_debug = 1
-
 function WaitHelper:_Uninit()
 	self.next_job_id        = nil
 	self.complete_call_back = nil
@@ -29,6 +27,10 @@ function WaitHelper:_Init(complete_call_back)
 	return 1
 end
 
+function WaitHelper:EnableDebug()
+	self.is_debug = 1
+end
+
 function WaitHelper:WaitJob(max_wait_time, func_over_time)
 	local job_id = self.next_job_id
 	self.next_job_id = self.next_job_id + 1	
@@ -36,7 +38,7 @@ function WaitHelper:WaitJob(max_wait_time, func_over_time)
 	self.job_list[job_id] = {timer_id, func_over_time}
 	self.job_count = self.job_count + 1
 	if self.is_debug == 1 then
-		print("wait job", job_id)
+		print(string.format("wait job[%d]", job_id))
 		print("job count:", self.job_count)
 	end
 	return job_id
@@ -47,6 +49,9 @@ function WaitHelper:OnTimeOver(job_id)
 	if func_timer_over then
 		func_timer_over(job_id)
 	end
+	if self.is_debug == 1 then
+		print(string.format("job [%d] over time", job_id))
+	end
 	self:JobComplete(job_id)
 end
 
@@ -56,7 +61,7 @@ function WaitHelper:JobComplete(job_id)
 	self.job_list[job_id] = nil
 	self.job_count = self.job_count - 1
 	if self.is_debug == 1 then
-		print("job complete", job_id)
+		print(string.format("job [%d] complete", job_id))
 		print("job count:", self.job_count)
 	end
 

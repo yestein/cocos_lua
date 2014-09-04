@@ -39,6 +39,10 @@ function Debug:AddBlackEvent(event_type, log_level)
 	self.watch_event_black_list[event_type] = log_level or Log.LOG_DEBUG
 end
 
+function Debug:AddWhiteEvent(event_type, log_level)
+	self.watch_event_list[event_type] = log_level or Log.LOG_DEBUG
+end
+
 function Debug:Init(mode)
 	self:SetMode(mode)
 
@@ -51,8 +55,8 @@ function Debug:SetMode(mode)
 		Event:RegistWatcher(Debug.watch_event_black_list, PrintEvent)
 	elseif mode == self.MODE_WHITE_LIST then
 		self.event_watch_list = {}
-		for _, event_type in ipairs(Debug.watch_event_list) do
-			self.event_watch_list[event_type] = Event:RegistEvent(event_type, PrintEvent, event_type)
+		for event_type, log_level in pairs(Debug.watch_event_list) do
+			self.event_watch_list[event_type] = Event:RegistEvent(event_type, PrintEvent, log_level, event_type)
 		end
 	end
 end
