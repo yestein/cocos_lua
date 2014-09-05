@@ -86,7 +86,10 @@ function Event:CallBack(event_list, ...)
 			local call_back_args = callback[2]
 
 			if #call_back_args > 0 then
-				Lib:SafeCall({call_back_function, unpack(call_back_args), ...})
+				local tb_1 = {unpack(call_back_args)}
+				local tb_2 = {...}
+				Lib:MergeTable(tb_1, tb_2)
+				Lib:SafeCall({call_back_function, unpack(tb_1)})
 			else
 				Lib:SafeCall({call_back_function, ...})
 			end
