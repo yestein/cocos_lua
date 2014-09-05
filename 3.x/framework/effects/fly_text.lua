@@ -251,7 +251,7 @@ function FlyText:VerticalShakeWithIcon(layer, target_obj, custom_font_path, icon
 	local percent_x = param.percent_x or 0.5
 	local percent_y = param.percent_y or 1
 	local icon_x = x + sprite_rect.width * percent_x - (icon_rect.width + text_rect.width) * 0.5 + icon_rect.width / 2 + offset_x
-	local text_x = icon_x + icon_rect.width / 2 + text_rect.width / 2
+	local text_x = icon_x + icon_rect.width / 2 + text_rect.width / 2 + (param.blank_width or 0)
 	local icon_y = y + sprite_rect.height * percent_y + offset_y
 	local text_y = icon_y
 

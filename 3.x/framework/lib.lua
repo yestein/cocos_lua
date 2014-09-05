@@ -342,17 +342,17 @@ function Lib:Dijkstra(map, start_node, end_node)
 	return node_info_list
 end
 
-local connect_map = {
-	wuzhishan   = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1,},
-	mkj         = {["wuzhishan_5"] = 1,},
-	renshenguo  = {["wuzhishan_1"] = 1,},
-	wuzhishan_0 = {["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
-	wuzhishan_1 = {["renshenguo"] = 1, ["wuzhishan_5"] = 1, ["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
-	wuzhishan_2 = {["wuzhishan_4"] = 1,},
-	wuzhishan_3 = {["wuzhishan_4"] = 1,},
-	wuzhishan_4 = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1, ["wuzhishan_2"] = 1, ["wuzhishan_3"] = 1,},
-	wuzhishan_5 = {["mkj"] = 1, ["wuzhishan_1"] = 1,},
-}
+-- local connect_map = {
+-- 	wuzhishan   = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1,},
+-- 	mkj         = {["wuzhishan_5"] = 1,},
+-- 	renshenguo  = {["wuzhishan_1"] = 1,},
+-- 	wuzhishan_0 = {["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
+-- 	wuzhishan_1 = {["renshenguo"] = 1, ["wuzhishan_5"] = 1, ["wuzhishan"] = 1, ["wuzhishan_4"] = 1,},
+-- 	wuzhishan_2 = {["wuzhishan_4"] = 1,},
+-- 	wuzhishan_3 = {["wuzhishan_4"] = 1,},
+-- 	wuzhishan_4 = {["wuzhishan_0"] = 1, ["wuzhishan_1"] = 1, ["wuzhishan_2"] = 1, ["wuzhishan_3"] = 1,},
+-- 	wuzhishan_5 = {["mkj"] = 1, ["wuzhishan_1"] = 1,},
+-- }
 
-local result = Lib:Dijkstra(connect_map, "wuzhishan_0")
-Lib:ShowTB(result["mkj"].path)
+-- local result = Lib:Dijkstra(connect_map, "wuzhishan_0")
+-- Lib:ShowTB(result["mkj"].path)
