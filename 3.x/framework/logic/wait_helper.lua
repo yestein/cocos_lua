@@ -38,8 +38,8 @@ function WaitHelper:WaitJob(max_wait_time, func_over_time)
 	self.job_list[job_id] = {timer_id, func_over_time}
 	self.job_count = self.job_count + 1
 	if self.is_debug == 1 then
-		print(string.format("wait job[%d]", job_id))
-		print("job count:", self.job_count)
+		print(string.format("[%s] wait job[%d]", self:GetClassName(), job_id))
+		print(string.format("[%s]job count: %d", self:GetClassName(), self.job_count))
 	end
 	return job_id
 end
@@ -50,7 +50,7 @@ function WaitHelper:OnTimeOver(job_id)
 		func_timer_over(job_id)
 	end
 	if self.is_debug == 1 then
-		print(string.format("job [%d] over time", job_id))
+		print(string.format("[%s] job [%d] over time", self:GetClassName(), job_id))
 	end
 	self:JobComplete(job_id)
 end
@@ -61,8 +61,8 @@ function WaitHelper:JobComplete(job_id)
 	self.job_list[job_id] = nil
 	self.job_count = self.job_count - 1
 	if self.is_debug == 1 then
-		print(string.format("job [%d] complete", job_id))
-		print("job count:", self.job_count)
+		print(string.format("[%s]job [%d] complete", self:GetClassName(), job_id))
+		print(string.format("[%s]job count: %d", self:GetClassName(), self.job_count))
 	end
 
 	if self.job_count <= 0 then
