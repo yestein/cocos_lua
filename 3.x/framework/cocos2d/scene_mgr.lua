@@ -154,14 +154,18 @@ function SceneMgr:LoadScene(scene_template_name, scene_name, trans_func)
     if not scene_name then
         scene_name = scene_template_name
     end
-    table.insert(self.current_scene_list, scene_name)
     local scene = self:GetScene(scene_name)
-    if not scene then
-        scene = self:CreateScene(scene_name, scene_template_name)
-    end
-    if not scene then
+    if scene then
+        assert(false)
         return
     end
+    table.insert(self.current_scene_list, scene_name)
+    scene = self:CreateScene(scene_name, scene_template_name)
+    if not scene then
+        table.remove(self.current_scene_list, #self.current_scene_list)
+        assert(false)
+        return
+    end    
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
     if trans_func then
@@ -177,14 +181,18 @@ function SceneMgr:ReplaceScene(scene_template_name, scene_name, trans_func)
     if not scene_name then
         scene_name = scene_template_name
     end
-    table.insert(self.current_scene_list, scene_name)
     local scene = self:GetScene(scene_name)
-    if not scene then
-        scene = self:CreateScene(scene_name, scene_template_name)
-    end
-    if not scene then
+    if scene then
+        assert(false)
         return
     end
+    table.insert(self.current_scene_list, scene_name)
+    scene = self:CreateScene(scene_name, scene_template_name)
+    if not scene then
+        table.remove(self.current_scene_list, #self.current_scene_list)
+        assert(false)
+        return
+    end    
     scene:PlayBGM()
     local cc_scene = scene:GetCCObj()
     if trans_func then
