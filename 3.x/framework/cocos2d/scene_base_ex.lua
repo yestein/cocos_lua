@@ -65,8 +65,7 @@ function SceneBase:SetBackGroundImage(image_list, is_suit4screen)
 		if bg_height < size.height then
 			bg_height = size.height
 		end
-		background:setTag(1)
-		main_layer:addChild(background)
+		self:AddObj("main", "back_ground", image_file, background)
 	end
 	bg_width = x
 	return bg_width, bg_height
