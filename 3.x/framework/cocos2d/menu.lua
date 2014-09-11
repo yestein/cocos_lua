@@ -36,9 +36,9 @@ function Menu:GenerateByImage(element_list, params)
 				element.disabled_image
 			)
 			menu:registerScriptTapHandler(element.callback_function)
-			local item_width = menu:getContentSize().width
+			local item_width = menu:getBoundingBox().width
 			if item_height == 0 then
-		    	item_height = menu:getContentSize().height
+		    	item_height = menu:getBoundingBox().height
 		    end
 
 			if align_type == "right" then
@@ -119,9 +119,9 @@ function Menu:GenerateByString(element_list, params)
 			end
 			local menu = CCMenuItemLabel:create(ccLabel)
 			menu:registerScriptTapHandler(element["callback_function"])
-			local item_width = menu:getContentSize().width
+			local item_width = menu:getBoundingBox().width
 			if item_height == 0 then
-		    	item_height = menu:getContentSize().height
+		    	item_height = menu:getBoundingBox().height
 		    end
 
 			if align_type == "right" then
@@ -187,9 +187,10 @@ function Menu:GenerateBySprite(element_list, params)
 			)
 			menu:registerScriptTapHandler(element.callback_function)
 
-			local item_width = menu:getContentSize().width
+			local item_width = menu:getBoundingBox().width
+			print(item_width)
 			if item_height == 0 then
-		    	item_height = menu:getContentSize().height
+		    	item_height = menu:getBoundingBox().height
 		    end
 
 			if align_type == "right" then
