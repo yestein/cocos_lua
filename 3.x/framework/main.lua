@@ -77,15 +77,15 @@ local function main()
 	collectgarbage("setstepmul", 5000)
 	print("main start")
 	local director = cc.Director:getInstance()
-    visible_size = director:getVisibleSize()
-	local glview = director:getOpenGLView()
-	resolution_size = glview:getDesignResolutionSize()
-
 	CCDirector:getInstance():setDisplayStats(true)
 
     if GameMgr.Preset then
     	GameMgr:Preset()
-    end	
+    end
+
+    visible_size = director:getVisibleSize()
+	local glview = director:getOpenGLView()
+	resolution_size = glview:getDesignResolutionSize()
 	
 	math.randomseed(os.time())
 	math.random(100)
