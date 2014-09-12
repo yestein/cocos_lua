@@ -304,14 +304,15 @@ end
 function RpgObj:CanUseSkill(skill_id, target_id)
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then
-		return 0
+		return 0, "Target Inalid"
 	end
 	local target_list = {target_id}
-	if self:TryCall("CanCastSkill", skill_id, target_list) == 1 then
-		return 1
+	local result, reason = self:TryCall("CanCastSkill", skill_id, target_list)
+	if result ~= 1 then
+		return result, reason
 	end
 
-	return 0
+	return 1
 end
 
 function RpgObj:IsTargetValid(skill_id, target_id)

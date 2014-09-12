@@ -188,7 +188,6 @@ function Menu:GenerateBySprite(element_list, params)
 			menu:registerScriptTapHandler(element.callback_function)
 
 			local item_width = menu:getBoundingBox().width
-			print(item_width)
 			if item_height == 0 then
 		    	item_height = menu:getBoundingBox().height
 		    end
