@@ -122,10 +122,10 @@ function Ui:GetLayer(ui_frame)
 end
 
 function Ui:GetTypeElement(ui_frame, element_type)
-    local tb_ret = ui_frame.element_list[element_type]
-    if not tb_ret then
-        assert(false)
+    if not ui_frame.element_list[element_type] then
+        ui_frame.element_list[element_type] = {}
     end
+    tb_ret = ui_frame.element_list[element_type]
     return tb_ret
 end
 

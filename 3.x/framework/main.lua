@@ -76,14 +76,16 @@ local function main()
 	collectgarbage("setpause", 100)
 	collectgarbage("setstepmul", 5000)
 	print("main start")
-	
-    if GameMgr.Preset then
-    	GameMgr:Preset()
-    end
-    local director = cc.Director:getInstance()
-	visible_size = director:getVisibleSize()
+	local director = cc.Director:getInstance()
+    visible_size = director:getVisibleSize()
 	local glview = director:getOpenGLView()
 	resolution_size = glview:getDesignResolutionSize()
+
+	CCDirector:getInstance():setDisplayStats(true)
+
+    if GameMgr.Preset then
+    	GameMgr:Preset()
+    end	
 	
 	math.randomseed(os.time())
 	math.random(100)
@@ -97,7 +99,6 @@ local function main()
     assert(Resource:Init() == 1)
     assert(Physics:Init() == 1)
     assert(Ui:Init() == 1)
-    CCDirector:getInstance():setDisplayStats(true)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("================================================")
     print("Debug:", __Debug)
