@@ -240,5 +240,10 @@ function SkillNode:HitCallback()
 	end
 	local owner = self:GetParent()
 	local is_critical = self:IsSkillCritical()
+	if is_critical == 1 then
+		self:SetSkillCritical(nil)
+	else
+		is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
+	end
 	skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical)
 end
