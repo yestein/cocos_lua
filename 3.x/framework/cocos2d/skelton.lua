@@ -10,6 +10,7 @@ if not Skelton then
 	Skelton = Class:New(nil, "SKELTON")
 	Skelton.default_animation_name = {}
 	Skelton.animation_name = {}
+	Skelton.animation_next = {}
 end
 
 function Skelton:SetDefaultAnimationName(animation_name, resource_name)
@@ -43,6 +44,21 @@ function Skelton:GetSkeltonAnimationName(skelton_name, animation_name)
 	return resource_name	
 end
 
+function Skelton:SetAnimationNext(skelton_name, resource_name, next_resource_name)
+	if not self.animation_next[skelton_name] then
+		self.animation_next[skelton_name] = {}
+	end
+	self.animation_next[skelton_name][resource_name] = next_resource_name
+end
+
+function Skelton:GetAnimationNext(resource_name)
+	local skelton_name = self.skelton_name
+	if not self.animation_next[skelton_name] then
+		return
+	end
+	return self.animation_next[skelton_name][resource_name]
+end
+
 function NewSkelton(skelton_name, orgin_direction, param)
 	if not skelton_name then
 		assert(false, "skelton_name is nil")
@@ -72,6 +88,34 @@ function Skelton:_Uninit()
 	Resource:UnloadSkelton(self.skelton_name)
 	self.skelton_name      = nil
 
+	return 1
+end
+
+function Skelton:_Init(skelton_name, orgin_direction, param)
+	self.sprite = cc.Sprite:create()
+	self.child_list = {}	
+	self.change_pos_child = {}
+	self.direction = 1
+	self.logic_direction = "left"
+	self.is_debug_boundingbox = param.is_debug_boundingbox	
+	self.animation_speed = {}
+	self.animation_func = {}
+	self.frame_func = {}
+	self.scale = 1
+	self.raw_scale = 1
+	if param.scale then
+		self.raw_scale = param.scale
+	end
+
+	if self:SetArmature(skelton_name, orgin_direction, param) ~= 1 then
+		return 0
+	end
+
+	self:PlayAnimation("normal")
+
+	if self:IsDebugBoundingBox() == 1 then
+		self:InitDebugBox()
+	end
 	return 1
 end
 
@@ -107,7 +151,7 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 		if not func then
 			return
 		end
-		func(self, armature)
+		func(self, movement_type, movement_id)
     end
 	armature:getAnimation():setMovementEventCallFunc(animationEvent)
 
@@ -142,34 +186,6 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 		end
 	end
 	self.armature:setScale(self.raw_scale)
-	return 1
-end
-
-function Skelton:_Init(skelton_name, orgin_direction, param)
-	self.sprite = cc.Sprite:create()
-	self.child_list = {}	
-	self.change_pos_child = {}
-	self.direction = 1
-	self.logic_direction = "left"
-	self.is_debug_boundingbox = param.is_debug_boundingbox	
-	self.animation_speed = {}
-	self.animation_func = {}
-	self.frame_func = {}
-	self.scale = 1
-	self.raw_scale = 1
-	if param.scale then
-		self.raw_scale = param.scale
-	end
-
-	if self:SetArmature(skelton_name, orgin_direction, param) ~= 1 then
-		return 0
-	end
-
-	self:PlayAnimation("normal")
-
-	if self:IsDebugBoundingBox() == 1 then
-		self:InitDebugBox()
-	end
 	return 1
 end
 
@@ -301,8 +317,12 @@ function Skelton:GetAnimationResourceName(animation_name)
 	if type(resource_name) == "string" then
 		return resource_name
 	elseif type(resource_name) == "table" then
-		local random_index = math.random(1, #resource_name)
-		return resource_name[random_index]
+		if self.animation_next[self.skelton_name] then
+			return resource_name[1]
+		else
+			local random_index = math.random(1, #resource_name)
+			return resource_name[random_index]
+		end
 	end
 end
 
