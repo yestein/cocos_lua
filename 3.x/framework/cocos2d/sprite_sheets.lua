@@ -50,24 +50,7 @@ function SpriteSheets:GetAnimationInterval(animation_name)
 	return param.time_interval
 end
 
-
-function SpriteSheets:RunAnimation(sprite, animation_name, time_interval)
-	local frames = {}
-	local frame_count = self:GetAnimationCount(animation_name)
-    for i = 1, frame_count do 
-        frames[i] = cache:getSpriteFrame(string.format("%s%d.png", animation_name, i))
-        assert(frames[i])
-    end
-    if not time_interval then
-    	time_interval = self:GetAnimationInterval(animation_name)
-    end
-    local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
-    local action = cc.RepeatForever:create(cc.Animate:create(animation))
-    sprite:stopAllActions()
-    sprite:runAction(action)
-end
-
-function SpriteSheets:RunAnimationNoLoop(sprite, animation_name, time_interval)
+function SpriteSheets:RunAnimation(sprite, animation_name, time_interval, loop_count)
     local frames = {}
     local frame_count = self:GetAnimationCount(animation_name)
     for i = 1, frame_count do 
@@ -79,6 +62,7 @@ function SpriteSheets:RunAnimationNoLoop(sprite, animation_name, time_interval)
     end
     local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
     sprite:stopAllActions()
+    animation:setLoops(loop_count or -1)
     sprite:runAction(cc.Animate:create(animation))
 end
 

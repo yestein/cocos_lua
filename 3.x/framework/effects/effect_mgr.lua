@@ -35,18 +35,14 @@ local GenearteFuncion = {
 	["particles"] = function(particles_name)
 		return Particles:CreateParticles(particles_name)
 	end,
-	["sprite_sheets"] = function(animation_name, no_loop)
+	["sprite_sheets"] = function(animation_name, loop_count)
 		local effect = cc.Sprite:create()
-		if no_loop == 1 then
-			SpriteSheets:RunAnimationNoLoop(effect, animation_name)
-		else
-			SpriteSheets:RunAnimation(effect, animation_name)
-		end
+		SpriteSheets:RunAnimation(effect, animation_name, nil, loop_count)
 		return effect
 	end,
 }
 
-function EffectMgr:GenerateEffect(effect_name, no_loop)
+function EffectMgr:GenerateEffect(effect_name, loop_count)
 	local effect_type = self:GetEffectType(effect_name)
 	if not effect_type then
 		assert(false, "No Effect[%s]", effect_name)
@@ -57,6 +53,6 @@ function EffectMgr:GenerateEffect(effect_name, no_loop)
 		assert(false, "No Effect Type[%s]", effect_type)
 		return
 	end
-	return func(effect_name, no_loop)
+	return func(effect_name, loop_count)
 end
 
