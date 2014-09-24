@@ -72,9 +72,14 @@ function AINode:OnActive(frame)
 	if self:GetParent():TryCall("GetActionState") == Def.STATE_DEAD then
 		return
 	end
+	if self:IsDebug() == 1 then
+		print("================================")
+	end
 	for _, ai_class in ipairs(self.order_list) do
 		if self:IsDebug() == 1 then
-			print(string.format("[AI]...[%d] %s  Active", self:GetParent():GetId(), ai_class:GetClassName()))
+			local t = os.date("*t",time)
+			local time = string.format("%02d:%02d:%02d",t.hour, t.min, t.sec)
+			print(string.format("%s [AI]...[%d] %s  Active", time, self:GetParent():GetId(), ai_class:GetClassName()))
 		end
 		if ai_class:OnActive(frame, self:GetParent(), self) == 0 then
 			return

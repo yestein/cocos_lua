@@ -139,6 +139,7 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
 		end
 	end
+	armature:setLocalZOrder(10)
 	self.sprite:addChild(armature)
 	self.armature = armature
 
@@ -213,7 +214,7 @@ function Skelton:SetLocalZOrder(order)
 	self.sprite:setLocalZOrder(order)
 end
 
-function Skelton:AddChildElement(name, child, x, y, is_change_position)
+function Skelton:AddChildElement(name, child, x, y, is_change_position, z_order)
 	local index = 1
 	local child_name = name
 	if self.child_list[child_name] then
@@ -229,6 +230,11 @@ function Skelton:AddChildElement(name, child, x, y, is_change_position)
 		child:setPosition(x, y)
 	end
 	self.child_list[child_name] = {obj = child, raw_x = x, ref = 1}
+	if not z_order then
+		child:setLocalZOrder(10)
+	else
+		child:setLocalZOrder(z_order)
+	end
 	self.sprite:addChild(child)
 	if is_change_position == 1 then
 		self.change_pos_child[child_name] = 1

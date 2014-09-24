@@ -271,9 +271,6 @@ end
 function RpgObj:ChangeProperty(key, change_value)
 	local old_value = self:GetProperty(key)
 	local new_value = old_value + change_value
-	if new_value < 0 then
-		new_value = 0
-	end
 
 	local max_key = "max_"..key
 	local max_value = self:GetProperty(max_key)
