@@ -13,7 +13,7 @@ You can visit my `blog`: [http://yestein.com](http://yestein.com "yestein.com") 
 How to Use it on cocos2d-x?
 --------------------------------------------
 * Step 1: Create a Project with Lua by project-creator which supplied by cosos2d-x.
-* Step 2: Copy the whole folder to the resourse folder of project.
+* Step 2: Copy the “framework" folder to the script folder.Eg: In Cocos2d-x 3.x, copy to ...\src
 * Step 3: Enter the "framework" folder, execute the "install.py"
 * (Step 4: Add the folder "framework" and "script" into your xcode project resource if cocos2d-x version is old)
 
