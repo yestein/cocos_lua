@@ -8,12 +8,12 @@ And it can easiy updated for furture versions, reason is below.
 Why choose it?
 ---------------
 
-###* Do never modify core code of cocos2d-x, so you can update your cocos2d-x version easily.
+####* Do never modify core code of cocos2d-x, so you can update your cocos2d-x version easily.
 (Please forget those endless conflicts when updating version.)
 
-###* Need only write Lua script but no C++ code in your game developing.
+####* Need only write Lua script but no C++ code in your game developing.
 
-###* Support Scene Reload, Script Reload(now only in windwos), but do not reboot your application. 
+####* Support Scene Reload, Script Reload(now only in windwos), but do not reboot your application. 
 
 For more `documents` and `tutorials`
 
