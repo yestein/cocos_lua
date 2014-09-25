@@ -11,6 +11,8 @@ Why choose it?
 ####* Do never modify core code of cocos2d-x, so you can update your cocos2d-x version easily.
 (Please forget those endless conflicts when updating version.)
 
+####* Supply a Game Logic Framework besides make cocos2d-x suit for Lua developing.
+
 ####* Need only write Lua script but no C++ code in your game developing.
 
 ####* Support Scene Reload, Script Reload(now only in windwos), but do not reboot your application. 
