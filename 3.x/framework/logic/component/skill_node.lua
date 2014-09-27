@@ -152,7 +152,7 @@ function SkillNode:CanCastSkill(skill_id, target_list)
 		return 0, "no skill"
 	end
 	local owner = self:GetParent()
-	if owner:IsInState(Def.STATE_DEAD) == 1 then
+	if owner:TryCall("GetState") == Def.STATE_DEAD then
 		return 0, "dead"
 	end
 	local can_cast_skill = 1
@@ -199,10 +199,10 @@ function SkillNode:CastSkill(skill_id)
 		return can_cast_skill, reason
 	end
 	local owner = self:GetParent()
-	if owner:TryCall("Stop") ~= 1 then
+	if owner:TryCall("Stop") == 0 then
 		return 0, "can not stop"
 	end
-	if owner:TryCall("SetActionState", Def.STATE_SKILL) ~= 1 then
+	if owner:TryCall("SetActionState", Def.STATE_SKILL) == 0 then
 		return 0, "state error"
 	end
 	local skill = self.skills[skill_id]

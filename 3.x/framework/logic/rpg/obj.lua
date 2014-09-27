@@ -166,8 +166,11 @@ function RpgObj:GetTemplateId()
 end
 
 function RpgObj:SetActionState(action_state)
-	local result = self:GetChild("action"):SetState(action_state)
-	return result
+	local action_node = self:GetChild("action")
+	if action_node then
+		local result = action_node:SetState(action_state)
+		return result
+	end
 end
 
 function RpgObj:GetActionState()
