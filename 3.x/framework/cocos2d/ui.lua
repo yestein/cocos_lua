@@ -171,7 +171,7 @@ end
 
 function Ui:SetVisible(ui_frame, element_type, element_name, is_visible)
     local element = self:GetElement(ui_frame, element_type, element_name)
-    element:setVisible(is_show)
+    element:setVisible(is_visible)
 end
 
 function Ui:SetSysMsgSize(ui_frame, font_size)
