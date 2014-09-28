@@ -61,9 +61,15 @@ function SpriteSheets:RunAnimation(sprite, animation_name, time_interval, loop_c
         time_interval = self:GetAnimationInterval(animation_name)
     end
     local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
+    local action = nil
     sprite:stopAllActions()
-    animation:setLoops(loop_count or -1)
-    sprite:runAction(cc.Animate:create(animation))
+    if loop_count then
+        animation:setLoops(loop_count)
+        action = cc.Animate:create(animation)
+    else
+        action = cc.RepeatForever:create(cc.Animate:create(animation))
+    end
+    sprite:runAction(action)
 end
 
 function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval, remove_fun)
