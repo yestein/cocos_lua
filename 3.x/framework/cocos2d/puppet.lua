@@ -19,17 +19,23 @@ function Puppet:_Uninit( ... )
 	return 1
 end
 
-function Puppet:_Init(name, sprite, orgin_direction, ...)
+function Puppet:_Init(name, sprite, orgin_direction)
 	self.name = name
 	self.sprite = sprite or cc.Sprite:create()
 	self.orgin_direction = orgin_direction
 	self.direction = 1
-	self.logic_direction = "left"
+	self.logic_direction = orgin_direction or "left"
 	self.child_list = {}	
 	self.change_pos_child = {}
 	self.scale = 1
 
 	return 1
+end
+
+function NewPuppet(name, sprite, orgin_direction)
+	local puppet = Class:New(Puppet, Puppet:GetClassName().. "_" ..name)
+	puppet:Init(name, sprite, orgin_direction)
+	return puppet
 end
 
 function Puppet:GetScale()

@@ -65,8 +65,9 @@ function ObjPool:UpdateNextId()
 end
 
 function ObjPool:Add(obj_template, ...)
-	local obj = Class:New(obj_template, self.obj_name)
 	local id = self:GetNextId()
+	local obj = Class:New(obj_template, self.obj_name)
+	
 	self.obj_pool[id] = obj
 	if obj:Init(id, ...) == 1 then		
 		self:UpdateNextId()

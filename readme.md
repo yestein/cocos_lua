@@ -1,7 +1,21 @@
 cocos_lua
 =========
 
-This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`, `cocos2d-x 3.2`
+This Framework can work on `Cosos2d-x 3.0`, `cocos2d-x 3.1`, `cocos2d-x 3.2`  Now.
+
+And it can easiy updated for furture versions, reason is below.
+
+Why choose it?
+---------------
+
+####* Do never modify core code of cocos2d-x, so you can upgrade your cocos2d-x version easily.
+(Please forget those endless conflicts when updating version.)
+
+####* Supply a Game Logic Framework besides make cocos2d-x suit for Lua developing.
+
+####* Need only write Lua script but no C++ code in your game developing.
+
+####* Support Scene Reload, Script Reload(now only in windwos), and no need to reboot your application. 
 
 For more `documents` and `tutorials`
 
@@ -13,11 +27,12 @@ You can visit my `blog`: [http://yestein.com](http://yestein.com "yestein.com") 
 How to Use it on cocos2d-x?
 --------------------------------------------
 * Step 1: Create a Project with Lua by project-creator which supplied by cosos2d-x.
-* Step 2: Copy the whole folder to the resourse folder of project.
-* Step 3: Enter the "framework" folder, execute the "install.py"
-* (Step 4: Add the folder "framework" and "script" into your xcode project resource if cocos2d-x version is old)
-
-Now, You can start your journey by editing the "script/game_mgr.lua" and "preload.lua" ^_^.
+* Step 2: Copy the `framework` folder to the script folder.(Eg: In Cocos2d-x 3.x, copy to ...\src)
+* Step 3: Enter the `framework` folder, execute the "install.py"
+* (Step 4: Add the folder `framework` and `script` into your xcode project resource if cocos2d-x version is old)
+* (Step 5: You can Modify the `project.lua`, change the project name you wish, its mean which folder framework will luanched, default is `script`.)
+* 
+Now, You can start your journey by editing the `script/game_mgr.lua` and `preload.lua` ^_^.
 
 PS:
 * "game_mgr.lua" contains 1 function which called "GameMgr:_Init"
@@ -30,7 +45,12 @@ PS:
 ```
 	AddPreloadFile("script/main_scene.lua")
 ```
-or you can find the samples in "framework/preload.lua"
+or you can write it like this, then you no not write the project folder path.
+```
+	AddProjectFile("main_scene.lua")
+```
+
+you can find the samples in `framework/preload.lua`
 
 
 
