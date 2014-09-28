@@ -107,6 +107,10 @@ local function main()
     if CCVersion then
 		print("Version: ", CCVersion())
 	end
+
+	if LuaJITVersion then
+		print("Lua: ", LuaJITVersion())
+	end
     print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
     print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))   
 	print("================================================")
