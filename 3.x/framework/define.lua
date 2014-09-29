@@ -10,6 +10,8 @@ if not Def then
 	Def = {}
 end
 
+Def.DEFAULT_FPS = 25
+
 Def.ZOOM_LEVEL_WORLD = 1
 Def.ZOOM_LEVEL_BULLET = 2
 Def.ZOOM_LEVEL_TITLE = 3

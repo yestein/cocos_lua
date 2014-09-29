@@ -27,7 +27,7 @@ function GameMgr:Init()
 	self.is_pause = 0
 	self.is_movie_mode = 0
 
-	self:SetFPS(25)
+	self:SetFPS(Def.DEFAULT_FPS)
 	assert(Movie:Init(100) == 1)
 	assert(RealTimer:Init() == 1)
 

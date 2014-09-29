@@ -250,6 +250,10 @@ function LogicNode:RegistRealTimer(frame, call_back)
 	return timer_id
 end
 
+function LogicNode:RegistRealTimerBySeconds(sec, call_back)
+	return self:RegistRealTimer(math.floor(sec * GameMgr:GetFPS()), call_back)
+end
+
 function LogicNode:UnregistRealTimer(timer_id)
 	RealTimer:CloseTimer(timer_id)
 	self.real_timer_id_list[timer_id] = nil
@@ -264,6 +268,10 @@ function LogicNode:RegistLogicTimer(frame, call_back)
 	local timer_id = LogicTimer:RegistTimer(frame, {self.OnLogicTimer, self, call_back})
 	self.logic_timer_id_list[timer_id] = 1
 	return timer_id
+end
+
+function LogicNode:RegistLogicTimerBySeconds(sec, call_back)
+	return self:RegistLogicTimer(math.floor(sec * GameMgr:GetFPS()), call_back)
 end
 
 function LogicNode:UnregistLogicTimer(timer_id)
