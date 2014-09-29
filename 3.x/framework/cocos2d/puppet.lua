@@ -32,9 +32,9 @@ function Puppet:_Init(name, orgin_direction)
 	return 1
 end
 
-function NewPuppet(name, sprite, orgin_direction)
+function NewPuppet(name, orgin_direction)
 	local puppet = Class:New(Puppet, Puppet:GetClassName().. "_" ..name)
-	puppet:Init(name, sprite, orgin_direction)
+	puppet:Init(name, orgin_direction)
 	return puppet
 end
 
