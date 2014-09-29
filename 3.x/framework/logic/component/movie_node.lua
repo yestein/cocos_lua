@@ -42,9 +42,18 @@ end
 function MovieNode:MovieSay(call_back, text, font_size, delay_time)
 	local owner = self:GetParent()
 	Event:FireEvent("SHOW_NORMAL_POPO", owner:GetId(), text, {font_size = font_size})
-	local function OnTimerCallBack()
-		call_back()
-	end
+	self:RegistRealTimer(math.ceil(delay_time * GameMgr:GetFPS()), {call_back})
+end
+
+function MovieNode:MovieEmoj(call_back, emoj_id, scale, delay_time)
+	local owner = self:GetParent()
+	Event:FireEvent("SHOW_EMOJ", owner:GetId(), emoj_id, {scale = scale})
+	self:RegistRealTimer(math.ceil(delay_time * GameMgr:GetFPS()), {call_back})
+end
+
+function MovieNode:MovieCloseEmoj(call_back, delay_time)
+	local owner = self:GetParent()
+	Event:FireEvent("HIDE_EMOJ", owner:GetId())
 	self:RegistRealTimer(math.ceil(delay_time * GameMgr:GetFPS()), {call_back})
 end
 

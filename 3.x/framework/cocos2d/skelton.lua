@@ -65,7 +65,7 @@ function NewSkelton(skelton_name, orgin_direction, param)
 		return
 	end
 	local skelton = Class:New(Skelton)
-	if skelton:Init(skelton_name, nil, orgin_direction, param) ~= 1 then
+	if skelton:Init(skelton_name, orgin_direction, param) ~= 1 then
 		return 
 	end
 	return skelton
@@ -84,17 +84,25 @@ function Skelton:_Uninit()
 	return 1
 end
 
-function Skelton:_Init(name, sprite, orgin_direction, param)
+function Skelton:_Init(name, orgin_direction, param)
 	self.is_debug_boundingbox = param.is_debug_boundingbox	
 	self.animation_speed = {}
 	self.animation_func = {}
 	self.frame_func = {}
+
+	local sprite = self:GetSprite()
+	sprite:setAnchorPoint(cc.p(0.5, 0))
+
 
 	if self:SetArmature(name, orgin_direction, param) ~= 1 then
 		return 0
 	end
 
 	self:PlayAnimation("normal")
+
+	local armature = self:GetArmature()
+	sprite:setContentSize(armature:getBoundingBox())
+	Lib:ShowTB(sprite:getBoundingBox())
 
 	if self:IsDebugBoundingBox() == 1 then
 		self:InitDebugBox()
@@ -174,10 +182,10 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 end
 
 function Skelton:GetBoundingBox()
-	local rect = self:GetArmature():getBoundingBox()
-	local x, y = self.sprite:getPosition()
-	rect.x = rect.x + x
-	rect.y = rect.y + y
+	-- local rect = self:GetArmature():getBoundingBox()
+	local rect = self.sprite:getBoundingBox()
+	-- rect.x = rect.x + x
+	-- rect.y = rect.y + y
 	return rect
 end
 

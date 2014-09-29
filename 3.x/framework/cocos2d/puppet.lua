@@ -19,9 +19,9 @@ function Puppet:_Uninit( ... )
 	return 1
 end
 
-function Puppet:_Init(name, sprite, orgin_direction)
+function Puppet:_Init(name, orgin_direction)
 	self.name = name
-	self.sprite = sprite or cc.Sprite:create()
+	self.sprite = cc.Sprite:create()
 	self.orgin_direction = orgin_direction
 	self.direction = 1
 	self.logic_direction = orgin_direction or "left"
