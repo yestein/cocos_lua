@@ -38,17 +38,27 @@ require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
 assert(PreloadScript() == 1)
 
+function InsertConsoleCmd(cmd_string)
+	wait_execute_cmd_string = cmd_string
+end
+
+local function ExecuteCmdString(cmd_string)
+	if cmd_string then
+		local func_cmd = loadstring(cmd_string)
+		if func_cmd then
+			xpcall(func_cmd, __G__TRACKBACK__)
+		else
+			cclog("Invalid CMD! %s", cmd_string)
+		end
+	end
+end
 local function MainLoop(delta)
 	if FetchConsoleCmd then
-		local string = FetchConsoleCmd()
-		if string then
-			local f = loadstring(string)
-			if f then
-				xpcall(f, __G__TRACKBACK__)
-			else
-				cclog("Invalid CMD! %s", string)
-			end
-		end
+		ExecuteCmdString(FetchConsoleCmd())
+	end
+	if wait_execute_cmd_string then
+		ExecuteCmdString(wait_execute_cmd_string)
+		wait_execute_cmd_string = nil
 	end
 	local tbModule = nil
 	function ModulLoop()

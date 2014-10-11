@@ -35,6 +35,10 @@ function GameMgr:Init()
 	assert(GM:Init() == 1)
 	assert(SpriteSheets:Init() == 1)
 	assert(EffectMgr:Init() == 1)
+	local function execute_cmd(handler, cmd_string)
+    	InsertConsoleCmd(cmd_string)
+    end
+    self:AddConsoleCommand("lua", "Execute a Lua Command String.", execute_cmd)
 	return self:_Init()
 end
 
@@ -102,4 +106,12 @@ end
 
 function GameMgr:SetMovieMode(is_movie)
 	self.is_movie_mode = is_movie
+end
+
+function GameMgr:EnableListenOnTCP(port_number)
+	return cc.Director:getInstance():getConsole():listenOnTCP(port_number)
+end
+
+function GameMgr:AddConsoleCommand(name, help, call_back)
+	return cc.Director:getInstance():getConsole():addCommand({name = name, help = help}, call_back)
 end
