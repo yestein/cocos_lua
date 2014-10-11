@@ -102,7 +102,6 @@ function Skelton:_Init(name, orgin_direction, param)
 
 	local armature = self:GetArmature()
 	sprite:setContentSize(armature:getBoundingBox())
-	Lib:ShowTB(sprite:getBoundingBox())
 
 	if self:IsDebugBoundingBox() == 1 then
 		self:InitDebugBox()
@@ -303,7 +302,7 @@ function Skelton:InitDebugBox()
 	if not draw_node then
 		draw_node = cc.DrawNode:create()
 
-		local rect = self:GetArmature():getBoundingBox()
+		local rect = self:GetBoundingBox()
 		draw_node:drawPolygon(
 			{cc.p(rect.x, rect.y), cc.p(rect.x + rect.width, rect.y), 
 			cc.p(rect.x + rect.width, rect.y + rect.height), cc.p(rect.x, rect.y+ rect.height),},

@@ -22,8 +22,7 @@ Debug.watch_event_black_list = {
 }
 
 function cclog(fmt, ...)
-    Log:Print(Log.LOG_DEBUG, fmt, ...)
-    assert(false)
+    Log:Print(Log.LOG_ERROR, fmt, ...)
 end
 
 function PrintEvent(log_level, ...)
