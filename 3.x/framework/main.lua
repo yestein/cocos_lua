@@ -44,9 +44,9 @@ end
 
 local function ExecuteCmdString(cmd_string)
 	if cmd_string then
-		local func_cmd = loadstring(cmd_string)
-		if func_cmd then
-			xpcall(func_cmd, __G__TRACKBACK__)
+		local cmd_func = loadstring(cmd_string)
+		if cmd_func then
+			xpcall(cmd_func, __G__TRACKBACK__)
 		else
 			cclog("Invalid CMD! %s", cmd_string)
 		end

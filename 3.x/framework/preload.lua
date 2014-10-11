@@ -88,6 +88,7 @@ AddPreloadFile("framework/logic/skill/skill_effect.lua")
 
 AddPreloadFile("framework/logic/editor/gm.lua")
 AddPreloadFile("framework/logic/rpg/obj.lua")
+AddPreloadFile("framework/logic/rpg/calculator.lua")
 
 AddPreloadFile("framework/logic/component/move_node.lua")
 AddPreloadFile("framework/logic/component/bullet_node.lua")
