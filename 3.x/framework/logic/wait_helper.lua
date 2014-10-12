@@ -56,6 +56,9 @@ function WaitHelper:OnTimeOver(job_id)
 end
 
 function WaitHelper:JobComplete(job_id)
+	if not self.job_list then
+		return
+	end
 	local timer_id = self.job_list[job_id][1]
 	self:UnregistRealTimer(timer_id)
 	self.job_list[job_id] = nil
