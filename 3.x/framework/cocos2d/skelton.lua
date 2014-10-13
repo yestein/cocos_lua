@@ -93,7 +93,6 @@ function Skelton:_Init(name, orgin_direction, param)
 	local sprite = self:GetSprite()
 	sprite:setAnchorPoint(cc.p(0.5, 0))
 
-
 	if self:SetArmature(name, orgin_direction, param) ~= 1 then
 		return 0
 	end
