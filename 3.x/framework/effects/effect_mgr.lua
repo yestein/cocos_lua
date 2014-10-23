@@ -40,6 +40,10 @@ local GenearteFuncion = {
 		SpriteSheets:RunAnimation(effect, animation_name, nil, loop_count)
 		return effect
 	end,
+	["skelton"] = function(skelton_name)
+		local skelton = NewSkelton(skelton_name, nil, {})
+		return skelton:GetSprite()
+	end,
 }
 
 function EffectMgr:GenerateEffect(effect_name, loop_count)
@@ -48,6 +52,10 @@ function EffectMgr:GenerateEffect(effect_name, loop_count)
 		assert(false, "No Effect[%s]", effect_name)
 		return
 	end
+	return self:GenerateEffectByType(effect_name, effect_type, loop_count)
+end
+
+function EffectMgr:GenerateEffectByType(effect_name, effect_type, loop_count)
 	local func = GenearteFuncion[effect_type]
 	if not func then
 		assert(false, "No Effect Type[%s]", effect_type)
