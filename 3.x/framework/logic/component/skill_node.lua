@@ -182,6 +182,16 @@ function SkillNode:IsSkillTargetValid(skill_id, target)
 	return skill.skill_template:IsTargetValid(owner, target, skill.skill_param)
 end
 
+function SkillNode:IsInSkillRange(skill_id, target_x, target_y)
+	local skill = self.skills[skill_id]
+	if not skill then
+		assert(false, "Luancher Have No Skill[%s]", tostring(skill_id))
+		return
+	end
+	local owner = self:GetParent()
+	return owner:IsPositionInAround(target_x, target_y, skill.skill_param.range, skill.skill_param.range_y)
+end
+
 function SkillNode:SearchTarget(skill_id)
 	local skill = self.skills[skill_id]
 	if not skill then
