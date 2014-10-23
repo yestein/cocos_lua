@@ -33,7 +33,8 @@ function Ui:Init()
     return 1
 end
 
-function Ui:InitScene(scene_name, cc_scene)
+function Ui:InitScene(scene, cc_scene)
+    local scene_name = scene:GetName()
     if self.scene_ui_list[scene_name] then
         cclog("[%s]Already Exists", scene_name)
         return
@@ -84,6 +85,8 @@ function Ui:InitScene(scene_name, cc_scene)
     Ui:AddElement(ui_frame, "DRAW", "MovieBorderDown", 0, -border_height, movie_boder_down)
 
     self.scene_ui_list[scene_name] = ui_frame
+
+    self:PreloadCocosUI(scene_name, scene.cocos_ui)
 end
 
 function Ui:UninitScene(scene_name)

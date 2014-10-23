@@ -53,7 +53,7 @@ function SceneBase:_Init(scene_name)
 	self:SetWidth(visible_size.width)
 	self:SetHeight(visible_size.height)
 
-	Ui:InitScene(scene_name, self.cc_scene_obj)
+	Ui:InitScene(self, self.cc_scene_obj)
 
 	Movie:AddFunction("movie_border_start", self.MovieBorderStart, self)
 	Movie:AddFunction("movie_border_end", self.MovieBorderEnd, self)
@@ -66,10 +66,6 @@ function SceneBase:_Init(scene_name)
 	local min_height_scale = visible_size.height / self:GetHeight()
 
 	self.min_scale = min_width_scale > min_height_scale and min_width_scale or min_height_scale
-
-	if self.cocos_ui then
-    	Ui:PreloadCocosUI(self:GetName(), self.cocos_ui)
-    end
 
     if self:CanTouch() == 1 then
 		self:RegisterTouchEvent()
