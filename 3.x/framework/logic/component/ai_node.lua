@@ -65,6 +65,10 @@ function AINode:GenerateOrderList()
 	end
 end
 
+function AINode:OnLoop()
+	return self:OnActive()
+end
+
 function AINode:OnActive(frame)
 	if not self.ai_list then
 		return
