@@ -18,9 +18,16 @@ function Calculator:ExchangeLevelExp(level, exp, level_config)
 	local ret_level, ret_exp = level, exp
 	local max_exp = level_config[ret_level]
 	while max_exp and (ret_exp >= max_exp) do
-		ret_level = ret_level + 1
-		ret_exp = ret_exp - max_exp
-		max_exp = level_config[ret_level]
+		if level_config[ret_level + 1] then
+			ret_level = ret_level + 1
+			ret_exp = ret_exp - max_exp
+			max_exp = level_config[ret_level]
+		else
+			if ret_exp > max_exp then
+				ret_exp = max_exp
+			end
+			break
+		end
 	end
 	return ret_level, ret_exp
 end
