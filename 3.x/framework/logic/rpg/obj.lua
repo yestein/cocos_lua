@@ -271,7 +271,7 @@ function RpgObj:GetLifePercentage()
 	return percentage
 end
 
-function RpgObj:ChangeProperty(key, change_value)
+function RpgObj:ChangeProperty(key, change_value,is_critical)
 	local old_value = self:GetProperty(key)
 	local new_value = old_value + change_value
 
@@ -288,7 +288,7 @@ function RpgObj:ChangeProperty(key, change_value)
 	end
 	self:SetProperty(key, new_value)
 	local event_name = self:GetClassName()..".CHANGE_PROPERTY"
-	Event:FireEvent(event_name, self:GetId(), key, old_value, new_value)
+	Event:FireEvent(event_name, self:GetId(), key, old_value, new_value, is_critical)
 	if key == "life" and new_value <= 0 then
 		self:Dead()
 	end
@@ -297,14 +297,14 @@ end
 function RpgObj:ReceiveDamage(luancher_id, damage, is_critical)
 	local event_name = self:GetClassName()..".RECEIVE_DAMAGE"
 	Event:FireEvent(event_name, self:GetId(), luancher_id, damage, is_critical)
-	self:ChangeProperty("life", -damage)
+	self:ChangeProperty("life", -damage, is_critical)
 	self:SetLastDamager(luancher_id)	
 end
 
 function RpgObj:CanUseSkill(skill_id, target_id)
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then
-		return 0, "Target Inalid"
+		return 0, "Target Invalid"
 	end
 	local target_list = {target_id}
 	local result, reason = self:TryCall("CanCastSkill", skill_id, target_list)
