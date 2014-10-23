@@ -96,11 +96,7 @@ function Skelton:_Init(name, orgin_direction, param)
 	if self:SetArmature(name, orgin_direction, param) ~= 1 then
 		return 0
 	end
-
 	self:PlayAnimation("normal")
-
-	local armature = self:GetArmature()
-	sprite:setContentSize(armature:getBoundingBox())
 
 	if self:IsDebugBoundingBox() == 1 then
 		self:InitDebugBox()
@@ -117,18 +113,6 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	self.bone_diplay_name = {}
 	self.bone_diplay_index = {}
 	self.orgin_direction = orgin_direction
-
-	if armature.getOffsetPoints then
-		local offsetPoints = armature:getOffsetPoints()
-		local rect = armature:getBoundingBox()
-		local offset = Resource.bone_offset[skelton_name]
-		if offset then
-			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
-		else
-			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
-		end
-	end
-	self:AddChildElement("armature", armature, 0, 0, 1, 10)
 
 	local function animationEvent(armature, movement_type, movement_id)
 		if not self.animation_func[movement_id] then
@@ -153,6 +137,23 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	end
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
+	if param and param.scale then
+		armature:setScale(param.scale)
+	end
+	self.sprite:setContentSize(armature:getBoundingBox())
+
+	if armature.getOffsetPoints then
+		local offsetPoints = armature:getOffsetPoints()
+		local rect = armature:getBoundingBox()
+		local offset = Resource.bone_offset[skelton_name]
+		if offset then
+			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
+		else
+			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
+		end
+	end
+	self:AddChildElement("armature", armature, 0, 0, 1, 10)
+
 	if param then
 		if param.change_equip then
 			for bone_name, index in pairs(param.change_equip) do
@@ -173,18 +174,12 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 			self.animation_list = param.animation_list
 		end
 	end
-	if param.scale then
-		self:GetArmature():setScale(param.scale)
-	end	
+
 	return 1
 end
 
 function Skelton:GetBoundingBox()
-	-- local rect = self:GetArmature():getBoundingBox()
-	local rect = self.sprite:getBoundingBox()
-	-- rect.x = rect.x + x
-	-- rect.y = rect.y + y
-	return rect
+	return self.sprite:getBoundingBox()
 end
 
 function Skelton:GetArmature()
@@ -262,16 +257,17 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 		print(string.format("No Animation[%s]", animation_name))
 		return
 	end
+	local armature = self:GetArmature()
 	local speed_scale = self:GetAnimationSpeed(animation_name)
 	if speed_scale then
-		self:GetArmature():getAnimation():setSpeedScale(speed_scale)
+		armature:getAnimation():setSpeedScale(speed_scale)
 	end
-	self:GetArmature():getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
+	armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 	self.current_animation = animation_name
 end
 
 function Skelton:PlayRawAnimation(resource_name, duration_frame, is_loop)
-	self:GetArmature():getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
+	return self:GetArmature():getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 end
 
 function Skelton:GetCurrentAnimation()
@@ -302,9 +298,10 @@ function Skelton:InitDebugBox()
 		draw_node = cc.DrawNode:create()
 
 		local rect = self:GetBoundingBox()
+		local anchor_points = self.sprite:getAnchorPointInPoints()
 		draw_node:drawPolygon(
-			{cc.p(rect.x, rect.y), cc.p(rect.x + rect.width, rect.y), 
-			cc.p(rect.x + rect.width, rect.y + rect.height), cc.p(rect.x, rect.y+ rect.height),},
+			{cc.p(-anchor_points.x, -anchor_points.y), cc.p(rect.width-anchor_points.x, -anchor_points.y), 
+			cc.p(rect.width-anchor_points.x,rect.height-anchor_points.y), cc.p(-anchor_points.x, rect.height-anchor_points.y),},
 			4, 
 			cc.c4b(0, 0, 0, 0),
 			1,
@@ -334,7 +331,8 @@ function Skelton:SetBoneColor(bone_name, color)
 end
 
 function Skelton:AddParticles(bone_name, particles_name, scale)
-	local bone = self:GetArmature():getBone(bone_name)
+	local armature = self:GetArmature()
+	local bone = armature:getBone(bone_name)
 	if not bone then
 		assert(false, "[%s] have no Bone[%s]", self.skelton_name, bone_name)
 		return
@@ -360,14 +358,15 @@ function Skelton:AddParticles(bone_name, particles_name, scale)
     	particles_bone:setScale(scale)
     end
 
-    self:GetArmature():addBone(particles_bone, bone_name)
+    armature:addBone(particles_bone, bone_name)
     self.bone_particles[particles_bone_name] = particles_bone
 
     return 1
 end
 
 function Skelton:RemoveParticles(bone_name, particles_name)
-	local bone = self:GetArmature():getBone(bone_name)
+	local armature = self:GetArmature()
+	local bone = armature:getBone(bone_name)
 	if not bone then
 		assert(false, "[%s] have no Bone[%s]", self.skelton_name, bone_name)
 		return
@@ -385,7 +384,7 @@ function Skelton:RemoveParticles(bone_name, particles_name)
 
 
 	local particles_bone = self.bone_particles[particles_bone_name]
-	self:GetArmature():removeBone(particles_bone, true)
+	armature:removeBone(particles_bone, true)
 	self.bone_particles[particles_bone_name] = nil
 end
 

@@ -80,11 +80,8 @@ function Puppet:AddChildElement(name, child, x, y, is_change_position, z_order)
 	if not x or not y then
 		x, y = 0, 0
 	end
-	if is_change_position then
-		child:setPosition(x * self.direction, y)
-	else
-		child:setPosition(x, y)
-	end
+	local point = self.sprite:getAnchorPointInPoints()
+	child:setPosition(x + point.x, y + point.y)
 	self.child_list[child_name] = {obj = child, raw_x = x, ref = 1}
 	if not z_order then
 		child:setLocalZOrder(10)
@@ -134,7 +131,7 @@ function Puppet:SetDirection(direction)
 		local child_info = self.child_list[child_name]
 		local child = child_info.obj
 		local x, y = child:getPosition()
-		child:setPosition(child_info.raw_x * self.direction, y)
+		-- child:setPosition(child_info.raw_x * self.direction, y)
 		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
 	end
 end
