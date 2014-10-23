@@ -108,14 +108,21 @@ function Menu:GenerateByString(element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(row_elements) do
-			local ccLabel = CCLabelTTF:create(element["item_name"] or "错误的菜单项", font_file_path, font_size)
-			-- ccLabel:enableShadow(cc.size(1,1), 255, 2)
-			-- local ccLabel = cc.Label:createWithTTF(ttfConfig, element["item_name"] or "错误的菜单项")
-			-- if outline_color and outline_width then
-			-- 	ccLabel:enableOutline(outline_color, outline_width)
-			-- end
+			local ccLabel = cc.Label:createWithSystemFont(element["item_name"] or "错误的菜单项", font_file_path, font_size)
+			if shadow_color and shadow_size then
+				ccLabel:enableShadow(shadow_color, shadow_size)
+			end
+			if __platform == cc.PLATFORM_OS_IPHONE or __platform == cc.PLATFORM_OS_IPAD or __platform == cc.PLATFORM_OS_ANDROID then
+				if outline_color and outline_width then
+					ccLabel:enableOutline(outline_color, outline_width)
+				end
+			end
 			if font_color then
-				ccLabel:setColor(Def:GetColor(font_color))
+				if __platform == cc.PLATFORM_OS_IPHONE then
+					ccLabel:setTextColor(Def:GetColor(font_color))
+				else
+					ccLabel:setColor(Def:GetColor(font_color))
+				end
 			end
 			local menu = CCMenuItemLabel:create(ccLabel)
 			menu:registerScriptTapHandler(element["callback_function"])

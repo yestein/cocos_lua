@@ -119,7 +119,7 @@ function SceneBase:AddReloadMenu(font_size)
 		}
 	end
     local menu_array = Menu:GenerateByString(element_list, 
-    	{font_size = font_size or 30, align_type = "left", interval_x = 20}
+    	{font_size = font_size or 30, align_type = "left", interval_x = 20, outline_color = cc.c4b(0, 0, 0, 150), outline_width = 2}
     )
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))
