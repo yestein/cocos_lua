@@ -56,6 +56,10 @@ Def.STATE_SKILL  = "S_SKILL"
 Def.STATE_DEAD   = "S_DEAD"
 Def.STATE_REBORN   = "S_REBORN"
 
+Def.JUMP_WAIT    = 1
+Def.JUMP_NO_WAIT = 2
+Def.JUMP_ASSIST  = 3
+
 --DEBUFF
 Def.BUFF_SLEEP     = "sleep"
 Def.BUFF_STUN      = "stun"

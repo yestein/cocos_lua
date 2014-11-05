@@ -34,6 +34,7 @@ local forbid_move_state = {
 function MoveNode:_Uninit()
 	self.jump_target_x = nil
 	self.jump_target_y = nil
+	self.jump_method   = nil
 	self.position  = nil
 	self.speed     = nil
 
@@ -57,6 +58,7 @@ function MoveNode:_Init(position, speed)
 	self.target_pos = {x = nil, y = nil}
 	self.jump_target_x = nil
 	self.jump_target_y = nil
+	self.jump_method   = nil
 	return 1
 end
 
@@ -194,14 +196,14 @@ function MoveNode:MoveByDirection(direction)
 	self:MoveTo(self.position.x + (offset_x * self.speed), self.position.y + (offset_y * self.speed))
 end
 
-function MoveNode:DirectMove(x, y, is_initiative)
+function MoveNode:DirectMove(x, y)
 	local owner = self:GetParent()
 	if owner:TryCall("SetActionState", Def.STATE_MOVE) ~= 1 then
 		return 0
 	end	
 	self:StopMove()
 	local event_name = owner:GetClassName()..".DIRECT_MOVE"
-	Event:FireEvent(event_name, owner:GetId(), x, y, is_initiative)
+	Event:FireEvent(event_name, owner:GetId(), x, y)
 	self.position.x = x
 	self.position.y = y
 	return 1
@@ -264,7 +266,7 @@ function MoveNode:SetMaxSpeed(max_speed)
 	self.MAX_SPEED = max_speed
 end
 
-function MoveNode:Jump(target_x, target_y)
+function MoveNode:Jump(target_x, target_y, method)
 	local owner = self:GetParent()
 	local can_move = 1
 	for state, _ in pairs(forbid_move_state) do
@@ -286,25 +288,28 @@ function MoveNode:Jump(target_x, target_y)
 	self:StopMove()
 	self.jump_target_x = target_x
 	self.jump_target_y = target_y
+	self.jump_method = method
 	local event_name = owner:GetClassName()..".JUMP"
-	Event:FireEvent(event_name, owner:GetId(), target_x, target_y)
-	return 1
-end
+	Event:FireEvent(event_name, owner:GetId(), target_x, target_y, method)
 
-function MoveNode:JumpNoWait(target_x, target_y)
-	if self:Jump(target_x, target_y) ~= 1 then
-		return 0
+	if method ~= Def.JUMP_WAIT then
+		self:JumpToTarget()
 	end
-	self:JumpToTarget()
 	return 1
 end
 
 function MoveNode:JumpToTarget()
-	if not self.jump_target_x or not self.jump_target_y then
+	if not self.jump_target_x or not self.jump_target_y or not self.jump_method then
 		return 0
 	end
-	self:DirectMove(self.jump_target_x, self.jump_target_y, 1)
+	local owner = self:GetParent()
+	self:StopMove()
+	local event_name = owner:GetClassName()..".JUMP_TO_TARGET"
+	Event:FireEvent(event_name, owner:GetId(), self.jump_target_x, self.jump_target_y, self.jump_method)
+	self.position.x = self.jump_target_x
+	self.position.y = self.jump_target_y
 	self.jump_target_x = nil
 	self.jump_target_y = nil
+	self.jump_method = nil
 	return 1
 end
