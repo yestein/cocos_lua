@@ -90,12 +90,12 @@ end
 -- 	end
 -- end
 
-function ObjPool:Remove(id)
+function ObjPool:Remove(id, ...)
 	if not id or not self.obj_pool[id] then
 		return 0
 	end
 
-	Event:FireEvent(self.obj_name..".REMOVE", id)
+	Event:FireEvent(self.obj_name..".REMOVE", id, ...)
 	self.obj_pool[id]:Uninit()
 	self.obj_pool[id] = nil
 	if self.is_recycle == 1 then
