@@ -99,7 +99,7 @@ function Skelton:_Init(name, orgin_direction, param)
 	self:PlayAnimation("normal")
 
 	if self:IsDebugBoundingBox() == 1 then
-		self:InitDebugBox()
+		self:InitDebugSkelton()
 	end
 	return 1
 end
@@ -137,21 +137,22 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	end
 	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
-	if param and param.scale then
-		armature:setScale(param.scale)
-	end
-	self.sprite:setContentSize(armature:getBoundingBox())
+	
 
 	if armature.getOffsetPoints then
 		local offsetPoints = armature:getOffsetPoints()
 		local rect = armature:getBoundingBox()
-		local offset = Resource.bone_offset[skelton_name]
+		local offset = param.offset
 		if offset then
 			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width + offset.x, offset.y))
 		else
 			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
 		end
 	end
+	if param and param.scale then
+		armature:setScale(param.scale)
+	end
+	self.sprite:setContentSize(armature:getBoundingBox())
 	self:AddChildElement("armature", armature, 0, 0, 1, 10)
 
 	if param then
@@ -262,6 +263,7 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 	if speed_scale then
 		armature:getAnimation():setSpeedScale(speed_scale)
 	end
+	armature:resume()
 	armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 	self.current_animation = animation_name
 end
@@ -274,7 +276,7 @@ function Skelton:GetCurrentAnimation()
 	return self.current_animation
 end
 
-function Skelton:MoveTo(target_x, target_y, during_time)
+function Skelton:MoveTo(target_x, target_y, during_time, call_back)
 	local x, y = self.sprite:getPosition()
 	local function playStop()
 		if self:GetCurrentAnimation() == "run" then
@@ -284,37 +286,22 @@ function Skelton:MoveTo(target_x, target_y, during_time)
 	if self:GetCurrentAnimation() ~= "run" then
 		self:PlayAnimation("run")
 	end
-	local move_action = cc.MoveBy:create(during_time, cc.p(target_x - x, target_y - y))
-	local play_stop = cc.CallFunc:create(playStop)
-	local sequece_action = cc.Sequence:create(move_action, play_stop)
+	local action_list = {}
+	action_list[#action_list + 1] = cc.MoveBy:create(during_time, cc.p(target_x - x, target_y - y))
+	action_list[#action_list + 1] = cc.CallFunc:create(playStop)
+	if call_back then
+		action_list[#action_list + 1] = cc.CallFunc:create(call_back)
+	end
+	local sequece_action = cc.Sequence:create(unpack(action_list))
 	sequece_action:setTag(Def.TAG_MOVE_ACTION)
 	self.sprite:stopActionByTag(Def.TAG_MOVE_ACTION)
 	self.sprite:runAction(sequece_action)
 end
 
-function Skelton:InitDebugBox()
-	local draw_node = self:GetChildElement("box")
-	if not draw_node then
-		draw_node = cc.DrawNode:create()
-
-		local rect = self:GetBoundingBox()
-		local anchor_points = self.sprite:getAnchorPointInPoints()
-		draw_node:drawPolygon(
-			{cc.p(-anchor_points.x, -anchor_points.y), cc.p(rect.width-anchor_points.x, -anchor_points.y), 
-			cc.p(rect.width-anchor_points.x,rect.height-anchor_points.y), cc.p(-anchor_points.x, rect.height-anchor_points.y),},
-			4, 
-			cc.c4b(0, 0, 0, 0),
-			1,
-			cc.c4b(0, 1, 0, 1)
-		)
-		draw_node:setLocalZOrder(10000)
-		draw_node:drawDot(cc.p(0, 0), 7, cc.c4b(1, 0, 0, 1))
-		self:AddChildElement("box", draw_node, 0, 0, 1)
-
-		local dot_node = cc.DrawNode:create()
-		dot_node:drawDot(cc.p(0, 0), 5, cc.c4b(0, 0, 1, 1))
-		self:GetArmature():addChild(dot_node, 10000)
-	end
+function Skelton:InitDebugSkelton()
+	local draw_node = cc.DrawNode:create()
+	draw_node:drawDot(cc.p(0, 0), 5, cc.c4b(0, 0, 1, 1))
+	self:GetArmature():addChild(draw_node, 10000)
 end
 
 function Skelton:IsDebugBoundingBox()
@@ -411,6 +398,10 @@ end
 function Skelton:ChangeBoneDisplayByName(bone_name, display_name)
 	self.bone_diplay_name[bone_name] = display_name
 	local bone = self:GetArmature():getBone(bone_name)
+	if not bone then
+		assert(false, "[%s]No Bone[%s]", self.skelton_name, bone_name)
+		return
+	end
 	bone:changeDisplayWithName(display_name, true)
 end
 
@@ -443,7 +434,17 @@ function Skelton:ReplaceArmature(skelton_name, orgin_direction, param)
 		end
 	end
 	self:SetDirection(self.logic_direction)
-	self:PlayAnimation("normal")
+	self:PlayAnimation("normal", -1, 1)
 	Event:FireEvent("SKELTON.REPLACE", old_skelton_name, self.skelton_name)
 	return 1
+end
+
+function Skelton:Pause()
+	self.sprite:pause()
+	self:GetArmature():pause()
+end
+
+function Skelton:Resume()
+	self.sprite:resume()
+	self:GetArmature():resume()
 end
