@@ -378,3 +378,11 @@ function RpgObj:Dead()
 	local event_name = self:GetClassName()..".DEAD"
 	Event:FireEvent(event_name, self:GetId())
 end
+
+function RpgObj:SetLevel(level)
+	self.level = level
+end
+
+function RpgObj:GetLevel()
+	return self.level
+end
