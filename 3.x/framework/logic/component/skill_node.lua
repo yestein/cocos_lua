@@ -18,6 +18,7 @@ local forbid_skill_state = {
 }
 
 function SkillNode:_Uninit( ... )
+	self.is_critical      = nil
 	self.next_skill_index = nil
 	self.skills_index     = nil
 	self.skills           = nil
@@ -33,6 +34,7 @@ function SkillNode:_Init()
 	self.skills                = {}
 	self.skills_index          = {}
 	self.next_skill_index      = 1
+	self.is_critical           = 0
 
 	self:AddComponent("cd", "COOL_DOWN")
 
@@ -145,7 +147,7 @@ function SkillNode:GetSkillRange(skill_id)
 	return skill.skill_param.range
 end
 
-function SkillNode:CanCastSkill(skill_id, target_list)
+function SkillNode:CanCastSkill(skill_id, target_list, ...)
 	local skill = self.skills[skill_id]
 	if not skill then
 		assert(false, "Luancher Have No Skill[%s]", tostring(skill_id))
@@ -169,7 +171,7 @@ function SkillNode:CanCastSkill(skill_id, target_list)
 	if rest_frame > 0 then
 		return 0, "cd"
 	end
-	return skill.skill_template:CanCast(owner, target_list, skill.skill_param)
+	return skill.skill_template:CanCast(owner, target_list, skill.skill_param, ...)
 end
 
 function SkillNode:IsSkillTargetValid(skill_id, target)
@@ -192,19 +194,19 @@ function SkillNode:IsInSkillRange(skill_id, target_x, target_y)
 	return owner:IsPositionInAround(target_x, target_y, skill.skill_param.range, skill.skill_param.range_y)
 end
 
-function SkillNode:SearchTarget(skill_id)
+function SkillNode:SearchTarget(skill_id, ...)
 	local skill = self.skills[skill_id]
 	if not skill then
 		assert(false, "Luancher Have No Skill[%s]", tostring(skill_id))
 		return 0, "no skill"
 	end
 	local owner = self:GetParent()
-	return skill.skill_template:SearchTarget(owner, skill.skill_param)
+	return skill.skill_template:SearchTarget(owner, skill.skill_param, ...)
 end
 
-function SkillNode:CastSkill(skill_id)
-	local target_list = self:SearchTarget(skill_id)
-	local can_cast_skill, reason = self:CanCastSkill(skill_id, target_list)
+function SkillNode:CastSkill(skill_id, ...)
+	local target_list = self:SearchTarget(skill_id, ...)
+	local can_cast_skill, reason = self:CanCastSkill(skill_id, target_list, ...)
 	if can_cast_skill ~= 1 then
 		return can_cast_skill, reason
 	end
@@ -221,11 +223,12 @@ function SkillNode:CastSkill(skill_id)
 		return 0
 	end
 	local owner = self:GetParent()
-	local is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
+	local is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param, ...)
 	self:GetChild("cd"):StartCD(skill_id)
 	self:SetTargetList(target_list)
 	self:SetCurrentSkillId(skill_id)
 	self:SetSkillCritical(is_critical)
+	self:SetCastParam({...})
 
 	local event_name = owner:GetClassName()..".CAST_SKILL"
 	Event:FireEvent(event_name, self:GetParent():GetId(), skill_id, is_critical)
@@ -251,9 +254,18 @@ function SkillNode:HitCallback()
 	local owner = self:GetParent()
 	local is_critical = self:IsSkillCritical()
 	if is_critical == 1 then
-		self:SetSkillCritical(nil)
+		self:SetSkillCritical(0)
 	else
 		is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
 	end
-	skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical)
+	local param = self:GetCastParam()
+	skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical, unpack(param))
+end
+
+function SkillNode:SetCastParam(param)
+	self.param = param
+end
+
+function SkillNode:GetCastParam()
+	return self.param
 end

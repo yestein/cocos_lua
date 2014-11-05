@@ -64,7 +64,7 @@ end
 function Movie:_NextScript()
 	local config = self:GetConfig(self.script_name)
 	if not config then
-		assert(false)
+		assert(false, self.script_name)
 		return
 	end
 	self.play_index = self.play_index + 1

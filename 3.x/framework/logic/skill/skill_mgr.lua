@@ -50,25 +50,9 @@ function Skill:GetTemplate(template_id)
 end
 
 
-function Skill:AddData(skill_id, template_id, lasts_time, icon, level_data, effect_list, child_skill)
+function Skill:AddData(skill_id, tb_data)
 	local skill_data = self.skill_data[skill_id]
- 	if not skill_data then
-	 	self.skill_data[skill_id] = {
-			icon        = icon,
-			effect_list = effect_list,
-			template_id = template_id,
-			lasts_time  = lasts_time,	
-			level_data  = level_data,
-			child_skill = child_skill,
-	 	}
-	 else	 	
-		skill_data.icon        = icon
-		skill_data.template_id = template_id
-		skill_data.level_data  = level_data
-		skill_data.effect_list = effect_list
-		skill_data.child_skill = child_skill
-		skill_data.lasts_time  = lasts_time
-	 end
+ 	self.skill_data[skill_id] = tb_data
 end
 
 function Skill:ConvertTime2Frame()

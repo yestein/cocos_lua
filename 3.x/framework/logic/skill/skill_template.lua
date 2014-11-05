@@ -89,8 +89,8 @@ function SkillTemplate:CriticalTest(owner, skill_param)
 	return self.cast_method:CriticalTest(owner, skill_param)
 end
 
-function SkillTemplate:Cast(luancher, target_list, skill_param, is_critical)
-	return self.cast_method:Execute(luancher, target_list, self, skill_param, is_critical)
+function SkillTemplate:Cast(luancher, target_list, skill_param, is_critical, ...)
+	return self.cast_method:Execute(luancher, target_list, self, skill_param, is_critical, ...)
 end
 
 function SkillTemplate:ProduceEffect(luancher, target, param, is_critical)
