@@ -90,6 +90,7 @@ function Puppet:AddChildElement(name, child, x, y, is_change_position, z_order)
 	end
 	self.sprite:addChild(child)
 	if is_change_position == 1 then
+		child:setScaleX(math.abs(child:getScaleX()) * self.direction)
 		self.change_pos_child[child_name] = 1
 	end
 	return child_name

@@ -80,6 +80,9 @@ function AINode:OnActive(frame)
 		print("================================")
 	end
 	for _, ai_class in ipairs(self.order_list) do
+		if not self.brain_data then
+			return
+		end
 		if self:IsDebug() == 1 then
 			local t = os.date("*t",time)
 			local time = string.format("%02d:%02d:%02d",t.hour, t.min, t.sec)
