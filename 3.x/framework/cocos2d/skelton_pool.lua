@@ -7,8 +7,8 @@
 --=======================================================================
 local SkeltonPool = {}
 
-function NewSkeltonPool(scene_name)
-	local pool = Class:New(SkeltonPool)
+function NewSkeltonPool(scene_name, name)
+	local pool = Class:New(SkeltonPool, name)
 	pool:Init(scene_name)
 	return pool
 end
@@ -36,7 +36,7 @@ function SkeltonPool:Create(layer_name, id, skelton_name, orgin_direction, param
 		return
 	end
 	local sprite = skelton:GetSprite()
-	self.scene:AddObj(layer_name, "skelton", id, sprite)
+	self.scene:AddObj(layer_name, self:GetClassName(), id, sprite)
 	self.skelton_list[id] = {skelton, layer_name}
 	return skelton
 end
@@ -62,7 +62,7 @@ end
 function SkeltonPool:RemoveById(id)
 	local skelton, layer_name = self:GetById(id)
 	if skelton then
-		self.scene:RemoveObj(layer_name, "skelton", id, true)
+		self.scene:RemoveObj(layer_name, self:GetClassName(), id, true)
 		skelton:Uninit()		
 		self.skelton_list[id] = nil
 	end
