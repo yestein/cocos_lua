@@ -36,31 +36,34 @@ local GenearteFuncion = {
 		return Particles:CreateParticles(particles_name)
 	end,
 	["sprite_sheets"] = function(animation_name, loop_count)
-		local effect = cc.Sprite:create()
+		local effect = cc.Sprite:createWithSpriteFrameName(string.format("%s%d.png", animation_name, 1))
 		SpriteSheets:RunAnimation(effect, animation_name, nil, loop_count)
 		return effect
 	end,
-	["skelton"] = function(skelton_name)
+	["skelton"] = function(skelton_name, animation_name)
 		local skelton = NewSkelton(skelton_name, nil, {})
-		return skelton:GetSprite()
+		if animation_name then
+			skelton:PlayAnimation(animation_name)
+		end
+		return skelton:GetSprite(), skelton
 	end,
 }
 
-function EffectMgr:GenerateEffect(effect_name, loop_count)
+function EffectMgr:GenerateEffect(effect_name, ...)
 	local effect_type = self:GetEffectType(effect_name)
 	if not effect_type then
 		assert(false, "No Effect[%s]", effect_name)
 		return
 	end
-	return self:GenerateEffectByType(effect_name, effect_type, loop_count)
+	return self:GenerateEffectByType(effect_name, effect_type, ...)
 end
 
-function EffectMgr:GenerateEffectByType(effect_name, effect_type, loop_count)
+function EffectMgr:GenerateEffectByType(effect_name, effect_type, ...)
 	local func = GenearteFuncion[effect_type]
 	if not func then
 		assert(false, "No Effect Type[%s]", effect_type)
 		return
 	end
-	return func(effect_name, loop_count)
+	return func(effect_name, ...)
 end
 
