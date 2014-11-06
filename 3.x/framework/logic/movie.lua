@@ -99,7 +99,6 @@ function Movie:ExecuteAction(template_name, template_action)
 	local index = 0	
 	local function OnActionDone()
 		self.action_status[template_name] = 1
-		print("call back")
 		if self:IsAllActionDone() == 1 then
 			self:_NextScript()
 		end

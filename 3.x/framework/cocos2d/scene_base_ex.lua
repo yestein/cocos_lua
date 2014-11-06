@@ -93,7 +93,7 @@ function SceneBase:AddReturnMenu(font_size)
     Ui:AddElement(ui_frame, "MENU", "ReturnMenu", visible_size.width, visible_size.height, menu_tools)
 end
 
-function SceneBase:AddReloadMenu(font_size)
+function SceneBase:AddReloadMenu(font_size, is_no_reload_scene)
     local element_list = {}
     if __platform == cc.PLATFORM_OS_WINDOWS then
     	local one = 
@@ -107,7 +107,7 @@ function SceneBase:AddReloadMenu(font_size)
 		}
 		table.insert(element_list, one)
 	end
-	if SceneMgr:IsRootScene() ~= 1 then
+	if SceneMgr:IsRootScene() ~= 1 and is_no_reload_scene ~= 1 then
 		element_list[2] = {
 			{
 				item_name = "重载场景",

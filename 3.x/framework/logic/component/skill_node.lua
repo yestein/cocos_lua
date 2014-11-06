@@ -246,7 +246,7 @@ function SkillNode:HitCallback()
 	if child_skill_list and child_skill_list[self.skill_times] then
 		cast_skill_id = child_skill_list[self.skill_times]
 	end
-	local target_list = self:GetTargetList()
+	local target_list = self:SearchTarget(skill_id)
 	local skill = self.skills[cast_skill_id]
 	if not skill then
 		return
