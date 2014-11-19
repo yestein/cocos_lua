@@ -119,6 +119,23 @@ function SceneBase:GetLayer(layer_name)
 	return self.layer_list[layer_name]
 end
 
+function SceneBase:RemoveLayer(layer_name)
+	local layer = self.layer_list[layer_name]
+	if layer then
+		if self.obj_list[layer_name] then
+			for type, id_list in pairs(self.obj_list[layer_name]) do
+				for id, obj in pairs(self.obj_list[layer_name]) do
+					layer:removeChild(obj, true)
+				end
+			end
+			self.obj_list[layer_name] = nil
+		end
+		self.cc_scene_obj:removeChild(layer, true)
+		self.layer_list[layer_name] = nil
+	end
+end
+
+
 function SceneBase:AddObj(layer_name, obj_type, id, obj)
 	local layer = self:GetLayer(layer_name)
 	if not self.obj_list[layer_name] then
