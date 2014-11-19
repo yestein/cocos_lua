@@ -45,27 +45,34 @@ function SceneBase:GetModifyPosition(position_x, position_y)
     return position_x, position_y
 end
 
-function SceneBase:SetBackGroundImage(image_list, is_suit4screen)
-	local main_layer = self:GetLayer("main")
+function SceneBase:SetBackGroundImage(layer, image_list, screen_width, screen_height)
 	local x, y = 0, 0
 	local bg_width, bg_height = 0, 0
+	if not layer then
+		return x, y
+	end
 	for _, image_file in ipairs(image_list) do
 		local background = cc.Sprite:create(image_file)
 		background:setAnchorPoint(cc.p(0, 0))
 		background:setPosition(x, y)
 		local size = background:getBoundingBox()
-		if is_suit4screen == 1 then
-			local scale1 = visible_size.width / size.width
-			local scale2 = visible_size.height / size.height
-			local scale = scale1 > scale2 and scale1 or scale2
-			background:setScale(scale)
-			size = background:getBoundingBox()
+		local scale_width = 1
+		if screen_width then
+			scale_width = visible_size.width / size.width
 		end
+
+		local scale_height = 1
+		if screen_height then
+			scale_height = visible_size.height / size.height
+		end
+		local scale = scale_width > scale_height and scale_width or scale_height
+		background:setScale(scale)
+		size = background:getBoundingBox()
 		x = x + size.width
 		if bg_height < size.height then
 			bg_height = size.height
 		end
-		self:AddObj("main", "back_ground", image_file, background)
+		layer:addChild(background)
 	end
 	bg_width = x
 	return bg_width, bg_height
@@ -86,7 +93,7 @@ function SceneBase:AddReturnMenu(font_size)
 	    },
 	}	
     local menu_array = Menu:GenerateByString(element_list, 
-    	{font_size = font_size or 30, align_type = "right", interval_x = 20}
+    	{font_size = font_size or 30, align_type = "right", interval_x = 20, outline_color = cc.c4b(0.5, 0.5, 0.5, 1), outline_width = 2}
     )
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))
