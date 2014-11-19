@@ -103,8 +103,7 @@ end
 function SceneBase:AddReloadMenu(font_size, is_no_reload_scene)
     local element_list = {}
     if __platform == cc.PLATFORM_OS_WINDOWS then
-    	local one = 
-    	{
+    	local one = {
     		{
     			item_name = "重载脚本",
 				callback_function = function()
@@ -115,7 +114,7 @@ function SceneBase:AddReloadMenu(font_size, is_no_reload_scene)
 		table.insert(element_list, one)
 	end
 	if SceneMgr:IsRootScene() ~= 1 and is_no_reload_scene ~= 1 then
-		element_list[2] = {
+		local one = {
 			{
 				item_name = "重载场景",
 	        	callback_function = function()
@@ -124,6 +123,7 @@ function SceneBase:AddReloadMenu(font_size, is_no_reload_scene)
 	        	end,
 	        },
 		}
+		table.insert(element_list, one)
 	end
     local menu_array = Menu:GenerateByString(element_list, 
     	{font_size = font_size or 30, align_type = "left", interval_x = 20, outline_color = cc.c4b(0, 0, 0, 150), outline_width = 2}

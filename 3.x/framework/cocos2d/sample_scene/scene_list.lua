@@ -77,7 +77,7 @@ function Scene:ShowSceneList(scene_list)
 	end
 
     local menu_array, width, height = Menu:GenerateByString(element_list, 
-    	{font_size = 40, align_type = "center", interval_x = 50, interval_y = 20}
+    	{font_size = 50, align_type = "center", interval_x = 50, interval_y = 20}
     )
 
     local menu_tools = cc.Menu:create(unpack(menu_array))
