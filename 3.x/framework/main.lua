@@ -111,15 +111,23 @@ local function main()
     assert(Ui:Init() == 1)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("================================================")
-    print("Debug:", __Debug)
-    print("Project:", PROJECT_PATH)
-    print("Platform:", platform_name[__platform] or __platform) 
-    if CCVersion then
-		print("Version: ", CCVersion())
+    print("Lua:", _VERSION)
+    if __platform == cc.PLATFORM_OS_WINDOWS then
+	    if __Debug == 1 then
+	    	print("Mode:", "Debug")
+	    else
+	    	print("Mode:", "Release")
+	    end
 	end
+	print("Platform:", platform_name[__platform] or __platform)
+	if CCVersion then
+		print("Cocos2d: ", CCVersion())
+	end
+    print("Project:", PROJECT_PATH) 
+   
 
 	if LuaJITVersion then
-		print("Lua: ", LuaJITVersion())
+		print("LuaJIT: ", LuaJITVersion() or "unknown")
 	end
     print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
     print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))   
