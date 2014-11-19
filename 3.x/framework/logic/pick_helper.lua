@@ -32,14 +32,14 @@ function PickHelper:GetPickNum()
 end
 
 function PickHelper:CanPick()
-	if self.pick_num >= self.max_pick_num then
+	if self.pick_num >= self.max_pick_num or self.container[id] then
 		return 0
 	end
 	return 1
 end
 
 function PickHelper:Pick(id, x, y)
-	if self.pick_num >= self.max_pick_num or self.container[id] then
+	if self:CanPick() ~= 1 then
 		return 0
 	end
 

@@ -194,6 +194,44 @@ function Lib:Table2Str(table)
 	return table_string
 end
 
+function Lib:Array2Str(tb, depth)
+	local table_string = "{\n"
+	local iterator = pairs
+	if table.maxn(tb) > 0 then
+		iterator = ipairs
+	end
+	if not depth then
+		depth = 1
+	end
+	for k, v in iterator(tb) do
+		for i = 1, depth do
+			table_string = table_string .. "\t"
+		end
+		if type(k) == "number" then
+			table_string = table_string .. "["..k.."]="
+		elseif type(k) == "string" then
+			table_string = table_string .. k .. "="
+		else
+			assert(false)
+			return
+		end
+
+		if type(v) == "table" then
+			table_string = table_string .. self:Array2Str(v, depth + 1)..",\n"
+		elseif type(v) == "string" then
+			-- TODO: string escape
+			table_string = table_string .. string.format("%q", v) .. ",\n"
+		else
+			table_string = table_string .. tostring(v)..",\n"
+		end
+	end
+	for i = 1, depth - 1 do
+		table_string = table_string .. "\t"
+	end
+	table_string = table_string .. "}"
+	return table_string
+end
+
 function Lib:Str2Val(str)
 	return assert(loadstring("return"..str)())
 end
@@ -377,4 +415,25 @@ function Lib:ShowBoundingBox(sprite, border_color)
 	draw_node:setLocalZOrder(10000)
 	draw_node:drawDot(cc.p(anchor_points.x, anchor_points.y), 7, cc.c4b(1, 0, 0, 1))
 	sprite:addChild(draw_node)
+end
+
+function Lib:HideBoundingBox(sprite)
+	local draw_flag = 333
+	while sprite:getChildByTag(draw_flag) do
+		sprite:removeChildByTag(draw_flag, true)
+	end
+end
+
+function Lib:LoadConfigFile(file_path)
+	local project_path = string.format("src/%s", PROJECT_PATH)
+	local full_path = cc.FileUtils:getInstance():fullPathForFilename(project_path.. "/" .. file_path)
+	local msg = string.format("Load %s", file_path)
+	local str_content = Lib:LoadFile(full_path)
+	if str_content then
+		msg = msg .. " Success!"
+	else
+		msg = msg .. " Failed!"
+	end
+	print(msg)
+	return str_content
 end

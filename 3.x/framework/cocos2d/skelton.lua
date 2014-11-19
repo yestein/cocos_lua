@@ -149,8 +149,23 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 			armature:setAnchorPoint(cc.p(offsetPoints.x / rect.width, 0))
 		end
 	end
-	if param and param.scale then
-		armature:setScale(param.scale)
+	if param then
+		local scale = 1
+		if param.scale then
+			scale = param.scale			
+		else
+			local rect = armature:getBoundingBox()
+			if param.width and param.height then
+				local scale_width = param.width / rect.width
+				local scale_height = param.height / rect.height
+				scale = scale_width < scale_height and scale_width or scale_height
+			elseif param.width then
+				scale = param.width / rect.width
+			elseif param.height then
+				scale = param.height / rect.height
+			end		
+		end
+		armature:setScale(scale)
 	end
 	self.sprite:setContentSize(armature:getBoundingBox())
 	self:AddChildElement("armature", armature, 0, 0, 1, 10)
@@ -410,7 +425,7 @@ function Skelton:GetBoneDisplayName(bone_name)
 end
 
 function Skelton:ReplaceArmature(skelton_name, orgin_direction, param)
-	local old_armature = self:GetArmature()
+	self:RemoveChildElement("armature")
 	local old_skelton_name = self.skelton_name
 	local old_animation_list = {}
 	for animation_name, _ in pairs(self.default_animation_name) do
@@ -420,9 +435,7 @@ function Skelton:ReplaceArmature(skelton_name, orgin_direction, param)
 	if self:SetArmature(skelton_name, orgin_direction, param) ~= 1 then
 		return 0
 	end
-	if old_armature then
-		self.sprite:removeChild(old_armature, true)
-	end
+
 
 	for animation_name, old_resource_name in pairs(old_animation_list) do
 		local new_resource_name = self:GetSkeltonAnimationName(self.skelton_name, animation_name)

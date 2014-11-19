@@ -59,6 +59,7 @@ Def.STATE_REBORN   = "S_REBORN"
 Def.JUMP_WAIT    = 1
 Def.JUMP_NO_WAIT = 2
 Def.JUMP_ASSIST  = 3
+Def.JUMP_OUT     = 4
 
 --DEBUFF
 Def.BUFF_SLEEP     = "sleep"

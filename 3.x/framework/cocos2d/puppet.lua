@@ -121,6 +121,10 @@ function Puppet:GetDirection()
 	return self.direction
 end
 
+function Puppet:GetLogicDirection()
+	return self.logic_direction
+end
+
 function Puppet:SetDirection(direction)
 	if direction == self.orgin_direction then
 		self.direction = 1

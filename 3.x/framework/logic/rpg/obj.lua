@@ -366,7 +366,7 @@ function RpgObj:BeHit(luancher)
 	Event:FireEvent(event_name, self:GetId(), luancher_id)
 end
 
-function RpgObj:Dead()
+function RpgObj:Dead(dead_type)
 	if self:TryCall("Stop") ~= 1 then
 		return
 	end
@@ -376,7 +376,7 @@ function RpgObj:Dead()
 		buff_node:ReceiveMessage("OnOwnerDead")
 	end
 	local event_name = self:GetClassName()..".DEAD"
-	Event:FireEvent(event_name, self:GetId())
+	Event:FireEvent(event_name, self:GetId(), dead_type)
 end
 
 function RpgObj:SetLevel(level)

@@ -261,11 +261,11 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 end
             end
             for button_name, widget_name in pairs(data.button or {}) do
-                 local widget_button = root_widget:getChildByName(widget_name)
-                 assert(widget2button)
-                 widget_button:addTouchEventListener(OnButtonEvent)
-                 widget2button[widget_name] = button_name
-                 button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
+                local widget_button = root_widget:getChildByName(widget_name)
+                assert(widget2button, widget_name)
+                widget_button:addTouchEventListener(OnButtonEvent)
+                widget2button[widget_name] = button_name
+                button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
             end
 
             ui_widget.text = {}
@@ -280,6 +280,33 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             for imageview_name, widget_name in pairs(data.image_view or {}) do
                 ui_widget.image_view[imageview_name] = tolua.cast(assert(root_widget:getChildByName(widget_name), widget_name), "ccui.ImageView")
                 ui_widget.widget2imageview[widget_name] = imageview_name
+            end
+
+            ui_widget.text_field = {}
+            ui_widget.widget2text_field = {}
+            local text_field_widget_list = ui_widget.text_field
+            local widget2text_field = ui_widget.widget2text_field
+            local function OnTextFieldEvent(node, event)
+                local widget_text_field = tolua.cast(node, "ccui.TextField")
+                local scene = SceneMgr:GetScene(scene_name)
+                local text_field_name = widget2text_field[widget_text_field:getName()]
+                if scene.OnCocosTextFieldEvent then
+                    scene:OnCocosTextFieldEvent(ui_name, text_field_name, event, widget_text_field)
+                end
+            end
+            for text_field_name, widget_name in pairs(data.text_field or {}) do
+                local widget_text_field = root_widget:getChildByName(widget_name)
+                assert(widget2text_field, widget_name)
+                widget_text_field:addTouchEventListener(OnTextFieldEvent)
+                ui_widget.text_field[text_field_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.TextField")
+                ui_widget.widget2text_field[widget_name] = text_field_name
+            end
+
+            ui_widget.scroll_view = {}
+            ui_widget.widget2scroll_view = {}
+            for scroll_view_name, widget_name in pairs(data.scroll_view or {}) do
+                ui_widget.scroll_view[scroll_view_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.ScrollView")
+                ui_widget.widget2scroll_view[widget_name] = scroll_view_name
             end
         end
     end
@@ -314,5 +341,19 @@ function Ui:GetCocosImageView(ui_frame, ui_name, image_view_name)
     if ui_frame and ui_frame.cocos_widget 
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].image_view then
         return ui_frame.cocos_widget[ui_name].image_view[image_view_name]
+    end
+end
+
+function Ui:GetCocosTextField(ui_frame, ui_name, text_field_name)
+    if ui_frame and ui_frame.cocos_widget
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].text_field then
+        return ui_frame.cocos_widget[ui_name].text_field[text_field_name]
+    end
+end
+
+function Ui:GetCocosScrollView(ui_frame, ui_name, scroll_view_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].scroll_view then
+        return ui_frame.cocos_widget[ui_name].scroll_view[scroll_view_name]
     end
 end
