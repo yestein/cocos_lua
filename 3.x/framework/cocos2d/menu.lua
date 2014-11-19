@@ -119,9 +119,9 @@ function Menu:GenerateByString(element_list, params)
 			end
 			if font_color then
 				if __platform == cc.PLATFORM_OS_IPHONE then
-					ccLabel:setTextColor(Def:GetColor(font_color))
+					ccLabel:setTextColor(font_color)
 				else
-					ccLabel:setColor(Def:GetColor(font_color))
+					ccLabel:setColor(font_color)
 				end
 			end
 			local menu = CCMenuItemLabel:create(ccLabel)
