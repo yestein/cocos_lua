@@ -286,3 +286,33 @@ function SceneBase:MovieBorderEnd(call_back, template_name, time)
 
 	self:RegistRealTimer(math.ceil(time * GameMgr:GetFPS()), {call_back})
 end
+
+function SceneBase:SimSlide(direction, time, speed, x, y)
+	if not x then
+		x = visible_size.width / 2
+	end
+	if not y then
+		y = visible_size.height / 2
+	end
+	self:OnTouchBegan(x, y)
+	
+	local function simTouch(rest_count)
+		if direction == "left" then
+			x = x - speed
+		elseif direction == "right" then
+			x = x + speed
+		elseif direction == "up" then
+			y = y + speed
+		elseif direction == "down" then
+			y = y - speed
+		end
+		if rest_count <= 0 then
+			self:OnTouchEnded(x, y)
+			self.is_move = nil
+		else
+			self.is_move = 1
+			self:OnTouchMoved(x, y)
+		end		
+	end
+	RealTimer:RegistCocosTimerByCount(math.floor(time / cc.Director:getInstance():getAnimationInterval()), {simTouch})
+end

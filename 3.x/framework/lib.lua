@@ -169,41 +169,12 @@ function Lib:GetDiamondLogicPosition(x, y, cell_width, cell_height, start_x, sta
 	return row, column
 end
 
-function Lib:Table2Str(table)
+function Lib:Table2Str(tb, depth)
 	local table_string = "{\n"
-	for k, v in pairs(table) do
-		if type(k) == "number" then
-			table_string = table_string .. "["..k.."]="
-		elseif type(k) == "string" then
-			table_string = table_string .. k .. "="
-		else
-			assert(false)
-			return
-		end
-
-		if type(v) == "table" then
-			table_string = table_string .. self:Table2Str(v)..",\n"
-		elseif type(v) == "string" then
-			-- TODO: string escape
-			table_string = table_string .. string.format("%q", v) .. ",\n"
-		else
-			table_string = table_string .. tostring(v)..",\n"
-		end
-	end
-	table_string = table_string .. "}"
-	return table_string
-end
-
-function Lib:Array2Str(tb, depth)
-	local table_string = "{\n"
-	local iterator = pairs
-	if table.maxn(tb) > 0 then
-		iterator = ipairs
-	end
 	if not depth then
 		depth = 1
 	end
-	for k, v in iterator(tb) do
+	for k, v in pairs(tb) do
 		for i = 1, depth do
 			table_string = table_string .. "\t"
 		end
@@ -217,7 +188,7 @@ function Lib:Array2Str(tb, depth)
 		end
 
 		if type(v) == "table" then
-			table_string = table_string .. self:Array2Str(v, depth + 1)..",\n"
+			table_string = table_string .. self:Table2Str(v, depth + 1)..",\n"
 		elseif type(v) == "string" then
 			-- TODO: string escape
 			table_string = table_string .. string.format("%q", v) .. ",\n"
@@ -225,6 +196,78 @@ function Lib:Array2Str(tb, depth)
 			table_string = table_string .. tostring(v)..",\n"
 		end
 	end
+	for i = 1, depth - 1 do
+		table_string = table_string .. "\t"
+	end
+	table_string = table_string .. "}"
+	return table_string
+end
+
+function ipairs_ex(array)
+	return function (_array, i)
+		i = i + 1
+		while (not _array[i]) and i < max_num do
+			i = i + 1
+		end
+		if i <= max_num then
+			return i, _array[i]
+		end
+	end, array, 0
+end
+
+function Lib:Table2OrderStr(tb, depth)
+	if not depth then
+		depth = 1
+	end
+	local table_string = "{\n"
+	local number_list = {}
+	local hash_list = {}
+	for k, v in pairs(tb) do
+		if type(k) == "number" then
+			table.insert(number_list, k)
+		elseif type(k) == "string" then
+			table.insert(hash_list, k)
+		else
+			assert(false)
+		end
+	end
+	local function cmp(a, b) return a < b end
+	table.sort(number_list, cmp)
+	table.sort(hash_list, cmp)
+
+	local function Translate2Str(k, v)
+		for i = 1, depth do
+			table_string = table_string .. "\t"
+		end
+		if type(k) == "number" then
+			table_string = table_string .. "["..k.."]="
+		elseif type(k) == "string" then
+			table_string = table_string .. k .. "="
+		else
+			assert(false)
+			return
+		end
+
+		if type(v) == "table" then
+			table_string = table_string .. self:Table2OrderStr(v, depth + 1)..",\n"
+		elseif type(v) == "string" then
+			-- TODO: string escape
+			table_string = table_string .. string.format("%q", v) .. ",\n"
+		else
+			table_string = table_string .. tostring(v)..",\n"
+		end
+	end
+
+	for _, k in ipairs(hash_list) do
+		local v = tb[k]
+		Translate2Str(k, v)
+	end
+
+	for _, k in ipairs(number_list) do
+		local v = tb[k]
+		Translate2Str(k, v)
+	end
+
 	for i = 1, depth - 1 do
 		table_string = table_string .. "\t"
 	end
@@ -247,6 +290,9 @@ function Lib:SaveFile(file_path, content)
 end
 
 function Lib:LoadFile(file_path)
+	if __platform == cc.PLATFORM_OS_ANDROID then
+		return cc.FileUtils:getInstance():getStringFromFile(file_path)
+	end
 	local file = io.open(file_path, "r")
 	if not file then
 		return
@@ -425,8 +471,8 @@ function Lib:HideBoundingBox(sprite)
 end
 
 function Lib:LoadConfigFile(file_path)
-	local project_path = string.format("src/%s", PROJECT_PATH)
-	local full_path = cc.FileUtils:getInstance():fullPathForFilename(project_path.. "/" .. file_path)
+	local full_path = cc.FileUtils:getInstance():fullPathForFilename(PROJECT_PATH.. "/" .. file_path)
+	print(full_path)
 	local msg = string.format("Load %s", file_path)
 	local str_content = Lib:LoadFile(full_path)
 	if str_content then

@@ -41,12 +41,12 @@ function SkillNode:_Init()
 	return 1
 end
 
-function SkillNode:AddSkill(skill_id, skill_level, is_instant_cd, index)
+function SkillNode:AddSkill(skill_id, skill_level, is_start_cd, index)
 	assert(not self.skills[skill_id])	
-	return self:DoAddSkill(skill_id, skill_level, is_instant_cd, index)
+	return self:DoAddSkill(skill_id, skill_level, is_start_cd, index)
 end
 
-function SkillNode:DoAddSkill(skill_id, skill_level, is_instant_cd, index)
+function SkillNode:DoAddSkill(skill_id, skill_level, is_start_cd, index)
 	if self.skills[skill_id] then
 		return
 	end
@@ -66,8 +66,11 @@ function SkillNode:DoAddSkill(skill_id, skill_level, is_instant_cd, index)
 	end
 	self.skills_index[index] = skill_id
 	self:GetChild("cd"):Add(skill_id, (skill_param.cd_time or 0))
-	if is_instant_cd ~= 1 then
+	if is_start_cd ~= 1 then
 		self:GetChild("cd"):StartCD(skill_id)
+	end
+	if skill_param.is_instant_cd == 1 then
+		self:GetChild("cd"):InstantCoolDown(skill_id)
 	end
 end
 

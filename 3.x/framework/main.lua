@@ -112,13 +112,11 @@ local function main()
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
     print("================================================")
     print("Lua:", _VERSION)
-    if __platform == cc.PLATFORM_OS_WINDOWS then
-	    if __Debug == 1 then
-	    	print("Mode:", "Debug")
-	    else
-	    	print("Mode:", "Release")
-	    end
-	end
+    if __Debug == 1 then
+    	print("Mode:", "Debug")
+    else
+    	print("Mode:", "Release")
+    end
 	print("Platform:", platform_name[__platform] or __platform)
 	if CCVersion then
 		print("Cocos2d: ", CCVersion())

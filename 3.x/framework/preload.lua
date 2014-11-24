@@ -41,7 +41,7 @@ function ReloadScript()
 	if __platform == cc.PLATFORM_OS_WINDOWS then
 		print("Reload Lua Script...")
 		for _, script_file in ipairs(g_script_list) do
-			dofile("src/"..script_file)
+			dofile("src/"..script_file .. ".lua")
 			print("Reload\t["..script_file.."]")
 		end
 

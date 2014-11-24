@@ -69,3 +69,15 @@ function CDNode:GetRestCDTime(id)
 
 	return cd_frame - past_frame, cd_frame
 end
+
+function CDNode:MinusLastUsedTime(id, minus_time)
+	local last_frame = self.last_used_frame[id]
+	if not last_frame or not minus_time then
+		return
+	end
+	local new_last_frame = last_frame - (minus_time * GameMgr:GetFPS())
+	if new_last_frame == 0 then
+		new_last_frame = -1
+	end
+	self.last_used_frame[id] = new_last_frame
+end
