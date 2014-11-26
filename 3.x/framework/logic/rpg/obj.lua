@@ -75,6 +75,14 @@ function RpgObj:InitMove(move_speed)
 	return 1
 end
 
+function RpgObj:InitPassiveMove(move_speed)
+	if not move_speed then
+		return 0
+	end
+	self:AddComponent("move", "PASSIVE_MOVE", self:GetPosition(), move_speed)
+	return 1
+end
+
 function RpgObj:InitMovie()
 	self:AddComponent("movie", "MOVIE", self:GetPosition())
 	return 1

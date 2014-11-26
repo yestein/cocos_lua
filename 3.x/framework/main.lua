@@ -53,6 +53,7 @@ local function ExecuteCmdString(cmd_string)
 	end
 end
 local function MainLoop(delta)
+	local fun = Stat:GetStatFunc("main loop")
 	if FetchConsoleCmd then
 		ExecuteCmdString(FetchConsoleCmd())
 	end
@@ -73,6 +74,9 @@ local function MainLoop(delta)
 
 	tbModule = SceneMgr
 	xpcall(ModulLoop, __G__TRACKBACK__)
+	if fun then
+		fun()
+	end
 end
 
 if __platform == cc.PLATFORM_OS_WINDOWS then
@@ -124,8 +128,8 @@ local function main()
     print("Project:", PROJECT_PATH) 
    
 
-	if LuaJITVersion then
-		print("LuaJIT: ", LuaJITVersion() or "unknown")
+	if jit then
+		print("LuaJIT: ", jit.version)
 	end
     print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
     print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))   

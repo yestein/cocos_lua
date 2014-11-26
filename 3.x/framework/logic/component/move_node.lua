@@ -69,9 +69,12 @@ function MoveNode:OnActive(frame)
 	if self:IsHaveNextPos() ~= 1 then
 		return
 	end
-
+	local fun = Stat:GetStatFunc("move active")
 	if (frame - self.move_frame) >= self.interval_frame then
 		self:MoveToTarget()
+	end
+	if fun then
+		fun()
 	end
 end
 
@@ -97,6 +100,8 @@ function MoveNode:Stop()
 end
 
 function MoveNode:MoveTo(x, y)
+	local fun = Stat:GetStatFunc("move to")
+	
 	x = math.floor(x)
 	y = math.floor(y)
 	local owner = self:GetParent()
@@ -112,8 +117,17 @@ function MoveNode:MoveTo(x, y)
 		can_move = 0
 	end
 	if can_move == 1 then
-		local event_name = owner:GetClassName()..".MOVETO"
-		Event:FireEvent(event_name, owner:GetId(), x, y)
+		local fun = Stat:GetStatFunc("event_move_to")
+		-- local event_name = owner:GetClassName()..".MOVETO"
+		-- Event:FireEvent(event_name, owner:GetId(), x, y)
+		local scene = SceneMgr:GetCurrentScene()
+		if scene.OnCharacterMove then
+			scene:OnCharacterMove(owner:GetId(), x, y)
+		end
+		Map:OnCharacterMove(owner:GetId(), x, y)
+		if fun then
+			fun()
+		end
 		local old_speed_x = self.cur_speed_x
 		local old_speed_y = self.cur_speed_y
 		self.cur_speed_x = x - self.position.x
@@ -135,6 +149,9 @@ function MoveNode:MoveTo(x, y)
 		self.cur_speed_y = 0
 	end
 	self.move_frame = GameMgr:GetCurrentFrame()
+	if fun then
+		fun()
+	end
 end
 
 function MoveNode:GoTo(x, y, call_back)

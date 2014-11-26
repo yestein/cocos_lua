@@ -118,7 +118,7 @@ function Lib:ShowTB(table_raw, n)
 		end
 		local str_blank = ""
 		for i = 1, deepth - 1 do
-			str_blank = str_blank .. "\t"
+			str_blank = str_blank .. "  "
 		end
 		for k, v in pairs(table) do
 			if type(v) ~= "table" then

@@ -87,10 +87,14 @@ function Log:WriteLog(log_level, text)
 	if not self.fp then
 		return
 	end
+	local fun = Stat:GetStatFunc("write_log")
 	local time_text = os.date("%Y-%m-%d %H:%M:%S")
 	local content = string.format("[%s][%s] %s",
 		LOG_TEXT[log_level] or tostring(log_level),
 		time_text, text)
 	self.fp:write(content.."\n")
 	self.fp:flush()
+	if fun then
+		fun()
+	end
 end

@@ -313,6 +313,13 @@ function Skelton:MoveTo(target_x, target_y, during_time, call_back)
 	self.sprite:runAction(sequece_action)
 end
 
+function Skelton:StopMove()
+	self.sprite:stopActionByTag(Def.TAG_MOVE_ACTION)
+	if self:GetCurrentAnimation() == "run" then
+		self:PlayAnimation("normal")
+	end
+end
+
 function Skelton:InitDebugSkelton()
 	local draw_node = cc.DrawNode:create()
 	draw_node:drawDot(cc.p(0, 0), 5, cc.c4b(0, 0, 1, 1))

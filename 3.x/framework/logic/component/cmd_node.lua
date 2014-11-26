@@ -26,8 +26,12 @@ function CmdNode:OnActive(frame)
 	if not command_list then
 		return
 	end
+	local fun = Stat:GetStatFunc("cmd active")
 	for _, command in ipairs(command_list) do
 		self:Execute(command)
+	end
+	if fun then
+		fun()
 	end
 	self.command_pool[frame] = nil
 end

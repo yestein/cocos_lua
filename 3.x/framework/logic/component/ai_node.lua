@@ -76,6 +76,7 @@ function AINode:OnActive(frame)
 	if self:GetParent():TryCall("GetActionState") == Def.STATE_DEAD then
 		return
 	end
+	local fun = Stat:GetStatFunc("ai active")
 	if self:IsDebug() == 1 then
 		print("================================")
 	end
@@ -88,9 +89,18 @@ function AINode:OnActive(frame)
 			local time = string.format("%02d:%02d:%02d",t.hour, t.min, t.sec)
 			print(string.format("%s [AI]...[%d] %s  Active", time, self:GetParent():GetId(), ai_class:GetClassName()))
 		end
-		if ai_class:OnActive(frame, self:GetParent(), self) == 0 then
+
+		local fun1 = Stat:GetStatFunc(ai_class:GetClassName())
+		local result = ai_class:OnActive(frame, self:GetParent(), self)
+		if fun1 then
+			fun1()
+		end
+		if result == 0 then
 			return
 		end
+	end
+	if fun then
+		fun()
 	end
 end
 
