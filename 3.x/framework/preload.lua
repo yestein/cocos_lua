@@ -78,6 +78,7 @@ AddPreloadFile("framework/logic/pick_helper")
 AddPreloadFile("framework/logic/movie")
 AddPreloadFile("framework/logic/wait_helper")
 AddPreloadFile("framework/logic/data_center")
+AddPreloadFile("framework/logic/slide_count_helper")
 
 AddPreloadFile("framework/logic/ai/ai_mgr")
 AddPreloadFile("framework/logic/buff/buff_base")
