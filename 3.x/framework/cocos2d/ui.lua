@@ -138,7 +138,7 @@ function Ui:AddElement(ui_frame, element_type, element_name, position_x, positio
         return
     end
     if element_list[element_name] then
-        cclog("[%s][%s]Already Exists", element_type, element_name)
+        assert(false, "[%s][%s]Already Exists", element_type, element_name)
         return
     end
     ui_frame.cc_layer_ui:addChild(element)
@@ -247,6 +247,16 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
 
             ui_widget.root_widget = root_widget
 
+            local function GetTheLastNode(widget_name)
+                local widget_array = Lib:Split(widget_name, "/")
+                local last_node = root_widget:getChildByName(widget_array[1])
+                for i=2, #widget_array do
+                    last_node = last_node:getChildByName(widget_array[i])
+                end
+                return last_node
+            end
+                
+
             ui_widget.button = {}
             ui_widget.widget2button = {}
             local button_widget_list = ui_widget.button
@@ -261,7 +271,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 end
             end
             for button_name, widget_name in pairs(data.button or {}) do
-                local widget_button = root_widget:getChildByName(widget_name)
+                local widget_button = GetTheLastNode(widget_name)
                 assert(widget2button, widget_name)
                 widget_button:addTouchEventListener(OnButtonEvent)
                 widget2button[widget_name] = button_name
@@ -271,14 +281,21 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             ui_widget.text = {}
             ui_widget.widget2text = {}
             for text_name, widget_name in pairs(data.text or {}) do
-                ui_widget.text[text_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.Text")
+                ui_widget.text[text_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.Text")
                 ui_widget.widget2text[widget_name] = text_name
+            end
+
+            ui_widget.textbmfont = {}
+            ui_widget.widget2bmftext = {}
+            for textbmfont_name, widget_name in pairs(data.textbmfont or {}) do
+                ui_widget.textbmfont[textbmfont_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.TextBMFont")
+                ui_widget.widget2bmftext[widget_name] = textbmfont_name
             end
 
             ui_widget.image_view = {}
             ui_widget.widget2imageview = {}
             for imageview_name, widget_name in pairs(data.image_view or {}) do
-                ui_widget.image_view[imageview_name] = tolua.cast(assert(root_widget:getChildByName(widget_name), widget_name), "ccui.ImageView")
+                ui_widget.image_view[imageview_name] = tolua.cast(assert(GetTheLastNode(widget_name), widget_name), "ccui.ImageView")
                 ui_widget.widget2imageview[widget_name] = imageview_name
             end
 
@@ -295,18 +312,25 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 end
             end
             for text_field_name, widget_name in pairs(data.text_field or {}) do
-                local widget_text_field = root_widget:getChildByName(widget_name)
+                local widget_text_field = GetTheLastNode(widget_name)
                 assert(widget2text_field, widget_name)
                 widget_text_field:addTouchEventListener(OnTextFieldEvent)
-                ui_widget.text_field[text_field_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.TextField")
+                ui_widget.text_field[text_field_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.TextField")
                 ui_widget.widget2text_field[widget_name] = text_field_name
             end
 
             ui_widget.scroll_view = {}
             ui_widget.widget2scroll_view = {}
             for scroll_view_name, widget_name in pairs(data.scroll_view or {}) do
-                ui_widget.scroll_view[scroll_view_name] = tolua.cast(assert(root_widget:getChildByName(widget_name)), "ccui.ScrollView")
+                ui_widget.scroll_view[scroll_view_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.ScrollView")
                 ui_widget.widget2scroll_view[widget_name] = scroll_view_name
+            end
+
+            ui_widget.progress_bar = {}
+            ui_widget.widget2progress_bar = {}
+            for progress_bar_name, widget_name in pairs(data.progress_bar or {}) do
+                ui_widget.progress_bar[progress_bar_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.LoadingBar")
+                ui_widget.widget2progress_bar[widget_name] = progress_bar_name
             end
         end
     end
@@ -337,6 +361,13 @@ function Ui:GetCocosText(ui_frame, ui_name, text_name)
     end
 end
 
+function Ui:GetCocosTextBMFont(ui_frame, ui_name, textbmfont_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].textbmfont then
+        return ui_frame.cocos_widget[ui_name].textbmfont[textbmfont_name]
+    end
+end
+
 function Ui:GetCocosImageView(ui_frame, ui_name, image_view_name)
     if ui_frame and ui_frame.cocos_widget 
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].image_view then
@@ -355,5 +386,12 @@ function Ui:GetCocosScrollView(ui_frame, ui_name, scroll_view_name)
     if ui_frame and ui_frame.cocos_widget 
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].scroll_view then
         return ui_frame.cocos_widget[ui_name].scroll_view[scroll_view_name]
+    end
+end
+
+function Ui:GetCocosProgressBar(ui_frame, ui_name, progress_bar_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].progress_bar then
+        return ui_frame.cocos_widget[ui_name].progress_bar[progress_bar_name]
     end
 end
