@@ -105,7 +105,11 @@ function AINode:OnActive(frame)
 end
 
 function AINode:SetParam(param)
-	self.param = param
+	self.param = Lib:CopyTB1(param)
+end
+
+function AINode:SetParamValue(key, value)
+	self.param[key] = value
 end
 
 function AINode:GetParam(key)

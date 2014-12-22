@@ -12,7 +12,7 @@ if not MoveNode then
 end
 
 MoveNode.interval = Def.MOVE_INTERVAL
-MoveNode.MAX_SPEED = 2000 * Def.MOVE_INTERVAL
+MoveNode.MAX_SPEED = 2000
 
 local move_offset = {
 	left       = {-1, 0}, 
@@ -236,7 +236,7 @@ function MoveNode:TransportTo(x, y)
 end
 
 function MoveNode:GetPosition()
-	return self:GetParent():GetPosition()
+	return self.position
 end
 
 function MoveNode:GetMoveSpeed()

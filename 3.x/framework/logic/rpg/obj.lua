@@ -64,7 +64,7 @@ function RpgObj:InitAI(ai_template_list, ai_param, id_debug)
 	if id_debug == 1 then
 		ai_node:EnableDebug(1)
 	end
-	return 1
+	return ai_node
 end
 
 function RpgObj:InitMove(move_speed)
@@ -79,7 +79,7 @@ function RpgObj:InitPassiveMove(move_speed)
 	if not move_speed then
 		return 0
 	end
-	self:AddComponent("move", "PASSIVE_MOVE", self:GetPosition(), move_speed)
+	self:AddComponent("move", "PASSIVE_MOVE", move_speed)
 	return 1
 end
 
@@ -249,13 +249,27 @@ function RpgObj:SetPosition(x, y)
 	self.position.y = y
 end
 
+function RpgObj:GetXY()
+	local move_node = self:GetChild("move")
+	if move_node then
+		return move_node:GetXY()
+	end
+end
+
 function RpgObj:GetPosition()
+	local move_node = self:GetChild("move")
+	if move_node then
+		local position = move_node:GetPosition()
+		if position then
+			self.position = position
+		end
+	end
 	return self.position
 end
 
 function RpgObj:SetDirection(direction)
 	if self.direction ~= direction then
-		self.direction = direction
+		self:RawSetDirection(direction)
 		local event_name = self:GetClassName()..".CHANGE_DIRECTION"
 		Event:FireEvent(event_name, self:GetId(), direction)
 	end
@@ -310,28 +324,45 @@ function RpgObj:ReceiveDamage(luancher_id, damage, is_critical)
 end
 
 function RpgObj:CanUseSkill(skill_id, target_id)
+	local skill_node = self:GetChild("skill")
+	if not skill_node then
+		return 0
+	end
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then
 		return 0, "Target Invalid"
 	end
 	local target_list = {target_id}
-	local result, reason = self:TryCall("CanCastSkill", skill_id, target_list)
-	if result ~= 1 then
-		return result, reason
-	end
-
-	return 1
+	return skill_node:CanCastSkill(skill_id, target_list)
 end
 
 function RpgObj:IsTargetValid(skill_id, target_id)
+	local fun = Stat:GetStatFunc("IsTargetValid")
 	if not target_id then
+		if fun then
+			fun()
+		end
+		return 0
+	end
+	local skill_node = self:GetChild("skill")
+	if not skill_node then
+		if fun then
+			fun()
+		end
 		return 0
 	end
 	local target = CharacterPool:GetById(target_id)
 	if not target or target:IsValid() ~= 1 then
+		if fun then
+			fun()
+		end
 		return 0
+	end	
+	local result = skill_node:IsSkillTargetValid(skill_id, target)
+	if fun then
+		fun()
 	end
-	return self:TryCall("IsSkillTargetValid", skill_id, target)
+	return result
 end
 
 function RpgObj:UseSkill(skill_id, target_id)
@@ -375,7 +406,7 @@ function RpgObj:BeHit(luancher)
 end
 
 function RpgObj:Dead(dead_type)
-	if self:TryCall("Stop") ~= 1 then
+	if self:TryCall("Stop") == 0 then
 		return
 	end
 	assert(self:SetActionState(Def.STATE_DEAD) == 1)

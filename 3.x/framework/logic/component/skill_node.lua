@@ -174,6 +174,13 @@ function SkillNode:CanCastSkill(skill_id, target_list, ...)
 	if rest_frame > 0 then
 		return 0, "cd"
 	end
+
+	local morale_total = MoraleMgr:GetMoraleTotal()
+	local cost_morale = skill.skill_param.cost_morale
+	if cost_morale and morale_total and morale_total - cost_morale < 0 then
+		return 0, "morale"
+	end 
+
 	return skill.skill_template:CanCast(owner, target_list, skill.skill_param, ...)
 end
 
@@ -181,7 +188,7 @@ function SkillNode:IsSkillTargetValid(skill_id, target)
 	local skill = self.skills[skill_id]
 	if not skill then
 		assert(false, "Luancher Have No Skill[%s]", tostring(skill_id))
-		return
+		return 0
 	end
 	local owner = self:GetParent()
 	return skill.skill_template:IsTargetValid(owner, target, skill.skill_param)
@@ -225,6 +232,12 @@ function SkillNode:CastSkill(skill_id, ...)
 		assert(false)
 		return 0
 	end
+
+	local cost_morale = skill.skill_param.cost_morale
+	if cost_morale and MoraleMgr:UseMorale(cost_morale) == 0 then
+		return 0, "morale"
+	end
+
 	local owner = self:GetParent()
 	local is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param, ...)
 	self:GetChild("cd"):StartCD(skill_id)
@@ -262,7 +275,7 @@ function SkillNode:HitCallback()
 		is_critical = skill.skill_template:CriticalTest(owner, skill.skill_param)
 	end
 	local param = self:GetCastParam()
-	skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical, unpack(param))
+	return skill.skill_template:Cast(owner, target_list, skill.skill_param, is_critical, unpack(param))
 end
 
 function SkillNode:SetCastParam(param)
