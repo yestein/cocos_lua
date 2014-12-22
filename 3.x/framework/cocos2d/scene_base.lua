@@ -355,20 +355,21 @@ function SceneBase:RegisterTouchEvent()
     		local touch_begin_point = touch_begin_points[touches[3]]
             local layer_x, layer_y = layer_main:getPosition()
             local bool_pick = 0
-            self.is_move = 1
-        	if self.OnTouchMoved then
-        		local scale = self:GetScale()
-        		
-        		if self:OnTouchMoved((x - layer_x) / scale, (y - layer_y) / scale) == 1 then
-        			bool_pick = 1
-        		end
-            end
-            if bool_pick ~= 1 and self:CanDrag() == 1 then
-                local new_layer_x, new_layer_y = layer_x + x - touch_begin_point.x, layer_y + y - touch_begin_point.y
-                self:MoveMainLayer(new_layer_x, new_layer_y)
-            end
-            touch_begin_point.x = x
-            touch_begin_point.y = y
+            if touch_begin_point.x ~= x or touch_begin_point.y ~= y then
+	            self.is_move = 1
+	        	if self.OnTouchMoved then
+	        		local scale = self:GetScale()        		
+	        		if self:OnTouchMoved((x - layer_x) / scale, (y - layer_y) / scale) == 1 then
+	        			bool_pick = 1
+	        		end
+	            end
+	            if bool_pick ~= 1 and self:CanDrag() == 1 then
+	                local new_layer_x, new_layer_y = layer_x + x - touch_begin_point.x, layer_y + y - touch_begin_point.y
+	                self:MoveMainLayer(new_layer_x, new_layer_y)
+	            end
+	            touch_begin_point.x = x
+	            touch_begin_point.y = y
+	        end
         elseif current_touches == 2 and self:CanScale() == 1 then
         	for i = 1, #touches, 3 do
 	    		touch_begin_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
