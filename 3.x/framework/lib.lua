@@ -475,7 +475,7 @@ function Lib:LoadConfigFile(file_path)
 	print(full_path)
 	local msg = string.format("Load %s", file_path)
 	local str_content = Lib:LoadFile(full_path)
-	if str_content then
+	if str_content and str_content ~= "" then
 		msg = msg .. " Success!"
 	else
 		msg = msg .. " Failed!"
@@ -483,3 +483,42 @@ function Lib:LoadConfigFile(file_path)
 	print(msg)
 	return str_content
 end
+
+function equal(a, b)
+	if type(a) ~= type(b) then
+		return false
+	end
+	local element_type = type(a)
+	if element_type == "number" then
+		if math.abs(a - b) < 0.001 then
+			return true
+		end
+	else
+		return a == b
+	end
+end
+
+function Lib:Split(str, delim, maxNb)   
+    -- Eliminate bad cases...   
+    if string.find(str, delim) == nil then  
+        return { str }  
+    end  
+    if maxNb == nil or maxNb < 1 then  
+        maxNb = 0    -- No limit   
+    end  
+    local result = {}  
+    local pat = "(.-)" .. delim .. "()"   
+    local nb = 0  
+    local lastPos   
+    for part, pos in string.gfind(str, pat) do  
+        nb = nb + 1  
+        result[nb] = part   
+        lastPos = pos   
+        if nb == maxNb then break end  
+    end  
+    -- Handle the last field   
+    if nb ~= maxNb then  
+        result[nb + 1] = string.sub(str, lastPos)   
+    end  
+    return result   
+end  
