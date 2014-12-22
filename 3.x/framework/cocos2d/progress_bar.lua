@@ -19,3 +19,15 @@ function ProgressBar:GenerateByFile(file_name, raw_percentage)
 	progress_bar:setPercentage(raw_percentage or 100)
 	return progress_bar
 end
+
+function ProgressBar:GenerateBySpriteVertical(sprite, raw_percentage)
+	if not sprite then
+		return
+	end
+	local progress_bar = cc.ProgressTimer:create(sprite)
+	progress_bar:setType(cc.PROGRESS_TIMER_TYPE_BAR)
+	progress_bar:setMidpoint(cc.p(0.5, 1))
+	progress_bar:setBarChangeRate(cc.p(0, 1))
+	progress_bar:setPercentage(raw_percentage or 100)
+	return progress_bar
+end

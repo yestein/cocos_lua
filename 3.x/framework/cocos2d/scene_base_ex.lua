@@ -314,5 +314,5 @@ function SceneBase:SimSlide(direction, time, speed, x, y)
 			self:OnTouchMoved(x, y)
 		end		
 	end
-	RealTimer:RegistCocosTimerByCount(math.floor(time / cc.Director:getInstance():getAnimationInterval()), {simTouch})
+	RealTimer:RegistCocosTimerByCount(math.floor(time / cc.Director:getInstance():getAnimationInterval()), 0, {simTouch})
 end

@@ -23,7 +23,30 @@ function TimerBase:_Init( ... )
 	return 1
 end
 
+function TimerBase:Trigger(regist_obj)
+	if not regist_obj then
+		return
+	end
+	local call_back = {unpack(regist_obj[1])}
+	call_back[#call_back + 1] = regist_obj[5]
+	local is_success, result = Lib:SafeCall(call_back)
+	if not is_success then
+		Log:Print(Log.LOG_ERROR, regist_obj[4])
+		return
+	end
+	if not result then
+		return
+	end
+
+	local next_frame = result
+	if next_frame <= 0 then
+		next_frame = regist_obj[2]
+	end
+	self:RegistTimer(next_frame, regist_obj[1])
+end
+
 function TimerBase:OnActive()
+	local current_frame = self.num_frame + 1
 	local current_frame = self.num_frame + 1
 	self.num_frame = current_frame
 	local event_list = self.frame_event[current_frame]
@@ -31,32 +54,16 @@ function TimerBase:OnActive()
 		return
 	end
 
-	local function Trigger(regist_obj)
-		if not regist_obj then
-			return
-		end
-		local is_success, result = Lib:SafeCall(regist_obj[1])
-		if not is_success then
-			Log:Print(Log.LOG_ERROR, regist_obj[4])
-			return
-		end
-		if not result then
-			return
-		end
-
-		local next_frame = result
-		if next_frame <= 0 then
-			next_frame = regist_obj[2]
-		end
-		self:RegistTimer(next_frame, regist_obj[1])
-	end
-
+	local fun = Stat:GetStatFunc("Trigger")
 	for _, timer_id in ipairs(event_list) do
 		local regist_obj = self.call_back_list[timer_id]
 		self.call_back_list[timer_id] = nil
-		Trigger(regist_obj)		
+		self:Trigger(regist_obj)
 	end
 	self.frame_event[current_frame] = nil
+	if fun then
+		fun()
+	end
 end
 
 --======================================================
@@ -66,15 +73,20 @@ end
 -- no return or return nil: Nothing happen
 --======================================================
 function TimerBase:RegistTimer(frame, call_back)
-	assert(frame > 0)
+
 	local trace_back = debug.traceback()
 	local current_frame = self.num_frame
 	local frame_index = current_frame + math.ceil(frame)
 
-	local timer_id = #self.call_back_list + 1
-	call_back[#call_back + 1] = timer_id
-	self.call_back_list[timer_id] = {call_back, frame, frame_index, trace_back}
+	local regist_obj = {call_back, frame, frame_index, trace_back}
+	if frame == 0 then
+		self:Trigger(regist_obj)
+		return
+	end
 
+	local timer_id = #self.call_back_list + 1
+	regist_obj[#regist_obj + 1] = timer_id
+	self.call_back_list[timer_id] = regist_obj	
 	
 	if not self.frame_event[frame_index] then
 		self.frame_event[frame_index] = {}
