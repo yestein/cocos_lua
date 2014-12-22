@@ -69,9 +69,7 @@ function Log:ParseText(fmt, ...)
 end
 
 function Log:Print(log_level, fmt, ...)
-	local text = self:ParseText(fmt, ...)
-	self:_Print(log_level, text)
-	return text
+	return self:_Print(log_level, self:ParseText(fmt, ...))
 end
 
 function Log:_Print(log_level, text)
@@ -81,6 +79,7 @@ function Log:_Print(log_level, text)
 	if not self.view_level or log_level >= self.view_level then
 		print(text)
 	end
+	return text
 end
 
 function Log:WriteLog(log_level, text)	

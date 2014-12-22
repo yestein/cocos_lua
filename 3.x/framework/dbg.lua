@@ -22,7 +22,7 @@ Debug.watch_event_black_list = {
 }
 
 function cclog(fmt, ...)
-    Log:Print(Log.LOG_ERROR, fmt, ...)
+    return Log:Print(Log.LOG_ERROR, fmt, ...)
 end
 
 function PrintEvent(log_level, ...)
@@ -31,7 +31,7 @@ function PrintEvent(log_level, ...)
 	for i = 1, count do
 		text = text .. "\t" .. tostring(select(i, ...))
 	end
-	Log:Print(log_level, "[Event] %s", text)
+	return Log:Print(log_level, "[Event] %s", text)
 end
 
 function Debug:AddBlackEvent(event_type, log_level)

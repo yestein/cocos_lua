@@ -64,11 +64,11 @@ Def.JUMP_OUT     = 4
 --DEBUFF
 Def.BUFF_SLEEP     = "sleep"
 Def.BUFF_STUN      = "stun"
-Def.BUFF_FREEZE    = "freeze"
-Def.BUFF_CHAOS     = "chaos"
-Def.BUFF_FEAR      = "fear"
-Def.BUFF_CHARM     = "charm"
-Def.BUFF_ANGRY     = "angry"
+Def.BUFF_FREEZE    = "freeze"  --冰冻
+Def.BUFF_CHAOS     = "chaos"   --混乱
+Def.BUFF_FEAR      = "fear"    --恐惧
+Def.BUFF_CHARM     = "charm"   --魅惑
+Def.BUFF_ANGRY     = "angry"   --被嘲讽，使目标生气攻击对方
 Def.BUFF_SLOW_MOVE = "slow_move"
 Def.BUFF_FAST_MOVE = "fast_move"
 Def.BUFF_POISON    = "poison"
