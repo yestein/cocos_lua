@@ -64,7 +64,6 @@ function Event:UnRegistEvent(event_type, register_id)
 end
 
 function Event:FireEvent(event_type, ...)
-
 	if self.watcher_call_back_function then
 		local fun = Stat:GetStatFunc("event_log")
 		if not self.event_black_list or not self.event_black_list[event_type] then
@@ -75,6 +74,12 @@ function Event:FireEvent(event_type, ...)
 		if fun then
 			fun()
 		end
+	end
+	if Stat:IsRunning() == 1 then
+		if not Stat.event_count[event_type] then
+			Stat.event_count[event_type] = 0
+		end
+		Stat.event_count[event_type] = Stat.event_count[event_type] + 1
 	end
 	self:CallBack(self.global_event_list[event_type], ...)
 end
