@@ -10,14 +10,12 @@ if not RealTimer then
 	RealTimer = Class:New(TimerBase, "RealTimer")
 end
 
-function RealTimer:RegistCocosTimerByCount(count, call_back)
+function RealTimer:RegistCocosTimerByCount(count, time, call_back)
 	local handle = nil
 	local director = cc.Director:getInstance()
-	local touch_frame = director:getTotalFrames()
-	local end_frame = touch_frame + count
+	local rest_count = count
 	local function onTimer()
-		local current_frame = director:getTotalFrames()
-		local rest_count = end_frame - current_frame
+		rest_count = rest_count - 1
 		call_back[#call_back + 1] = rest_count
 		Lib:SafeCall(call_back)
 		call_back[#call_back] = nil
@@ -25,7 +23,17 @@ function RealTimer:RegistCocosTimerByCount(count, call_back)
 			director:getScheduler():unscheduleScriptEntry(handle)
 		end
 	end
-	handle = director:getScheduler():scheduleScriptFunc(onTimer, 0, false)
+	handle = director:getScheduler():scheduleScriptFunc(onTimer, time, false)
+	return handle
+end
+
+function RealTimer:RegistCocosTimerLoop(time, call_back)
+	local handle = nil
+	local director = cc.Director:getInstance()
+	local function onTimer()
+		Lib:SafeCall(call_back)
+	end
+	handle = director:getScheduler():scheduleScriptFunc(onTimer, time, false)
 	return handle
 end
 

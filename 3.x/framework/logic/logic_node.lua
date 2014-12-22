@@ -246,7 +246,9 @@ end
 
 function LogicNode:RegistRealTimer(frame, call_back)
 	local timer_id = RealTimer:RegistTimer(frame, {self.OnRealTimer, self, call_back})
-	self.real_timer_id_list[timer_id] = 1
+	if timer_id then
+		self.real_timer_id_list[timer_id] = 1
+	end
 	return timer_id
 end
 
@@ -260,13 +262,17 @@ function LogicNode:UnregistRealTimer(timer_id)
 end
 
 function LogicNode:OnRealTimer(call_back, timer_id)
-	self.real_timer_id_list[timer_id] = nil
+	if timer_id then
+		self.real_timer_id_list[timer_id] = nil
+	end
 	Lib:SafeCall(call_back)	
 end
 
 function LogicNode:RegistLogicTimer(frame, call_back)
 	local timer_id = LogicTimer:RegistTimer(frame, {self.OnLogicTimer, self, call_back})
-	self.logic_timer_id_list[timer_id] = 1
+	if timer_id then
+		self.logic_timer_id_list[timer_id] = 1
+	end
 	return timer_id
 end
 
@@ -280,7 +286,9 @@ function LogicNode:UnregistLogicTimer(timer_id)
 end
 
 function LogicNode:OnLogicTimer(call_back, timer_id)
-	self.logic_timer_id_list[timer_id] = nil
+	if timer_id then
+		self.logic_timer_id_list[timer_id] = nil
+	end
 	Lib:SafeCall(call_back)	
 end
 
