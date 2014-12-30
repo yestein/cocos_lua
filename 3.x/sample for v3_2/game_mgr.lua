@@ -10,11 +10,11 @@ function GameMgr:Preset()
 	local director = cc.Director:getInstance()
     local glview = director:getOpenGLView()
     if nil == glview then
-        glview = cc.GLView:createWithRect("sample 3.2", cc.rect(0, 0, 640,320))
+        glview = cc.GLView:createWithRect("sample 3.2", cc.rect(0, 0, 1136,640))
         director:setOpenGLView(glview)
     end
 
-    glview:setDesignResolutionSize(640, 320, cc.ResolutionPolicy.SHOW_ALL)
+    glview:setDesignResolutionSize(1136, 640, cc.ResolutionPolicy.SHOW_ALL)
     -- turn on display FPS
     director:setDisplayStats(true)
 

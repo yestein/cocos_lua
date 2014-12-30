@@ -161,6 +161,11 @@ function MoveNode:IsHaveTarget()
 	return 1
 end
 
+function MoveNode:GetMoveTraget()
+	return self.target_pos
+end
+
+
 function MoveNode:IsArriveTarget()
 	if self:IsHaveTarget() ~= 1 then
 		return 0

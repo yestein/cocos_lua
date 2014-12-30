@@ -57,12 +57,12 @@ function SceneBase:SetBackGroundImage(layer, image_list, screen_width, screen_he
 		background:setPosition(x, y)
 		local size = background:getBoundingBox()
 		local scale_width = 1
-		if screen_width then
+		if screen_width == 1 then
 			scale_width = visible_size.width / size.width
 		end
 
 		local scale_height = 1
-		if screen_height then
+		if screen_height == 1 then
 			scale_height = visible_size.height / size.height
 		end
 		local scale = scale_width > scale_height and scale_width or scale_height

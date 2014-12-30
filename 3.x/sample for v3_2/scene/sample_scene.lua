@@ -23,6 +23,14 @@ function Scene:MainSample()
 	        	end,
 	        },
 	    },
+	    {
+	    	{
+				item_name = "puppet sample",
+	        	callback_function = function()
+	        		self:PuppetSample()
+	        	end,
+	        },
+	    },
 	}
 	
 
@@ -73,6 +81,50 @@ function Scene:SceneSample()
 				item_name =  "multi background image",
 	        	callback_function = function()
 	        		SceneMgr:LoadScene("SampleBackground", "Sampel4")
+	        	end,
+	        },
+	    },
+	    {
+	    	{
+				item_name =  "Return",
+	        	callback_function = function()
+	        		self:MainSample()
+	        	end,
+	        },
+	    },
+	}
+	
+
+    local menu_array, width, height = Menu:GenerateByString(element_list, 
+    	{font_size = 40, align_type = "center", interval_x = 50, interval_y = 20}
+    )
+    if height > visible_size.height then
+    	self:SetHeight(height)
+    end
+    local ui_frame = self:GetUI()
+    local menu_tools = cc.Menu:create(unpack(menu_array))
+    local exist_menu = Ui:GetElement(ui_frame, "MENU", "Welcome")
+    if exist_menu then
+    	Ui:RemoveElement(ui_frame, "MENU", "Welcome")
+    end
+    Ui:AddElement(ui_frame, "MENU", "Welcome", visible_size.width / 2, visible_size.height / 2 + height / 2, menu_tools)
+end
+
+function Scene:PuppetSample()
+	local element_list = {
+ 		{
+	    	{
+				item_name = "sprite_test",
+	        	callback_function = function()
+	        		SceneMgr:LoadScene("PuppetSample", "base_test")
+	        	end,
+	        },
+	    },
+	    {
+	    	{
+				item_name = "armature_test",
+	        	callback_function = function()
+	        		SceneMgr:LoadScene("PuppetSample", "base_test")
 	        	end,
 	        },
 	    },

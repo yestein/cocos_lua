@@ -15,6 +15,7 @@ Scene.property = {
 function Scene:_Init()
 	self:AddReturnMenu()
 	self:AddReloadMenu()
-	local width, height = self:SetBackGroundImage({"sample_resource/farm.jpg", }, 1)
+	local layer = self:GetLayer("main")
+	local width, height = self:SetBackGroundImage(layer, {"sample_resource/farm.jpg",}, 1, 1)
 	return 1
 end

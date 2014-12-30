@@ -446,20 +446,24 @@ function Lib:ShowBoundingBox(sprite, border_color)
 	while sprite:getChildByTag(draw_flag) do
 		sprite:removeChildByTag(draw_flag, true)
 	end
+	local offset_points = {x = 0, y = 0}
+	if sprite.getOffsetPoints then
+		offset_points = sprite:getOffsetPoints()
+	end
 	local draw_node = cc.DrawNode:create()
 	draw_node:setTag(draw_flag)
 	local rect = sprite:getBoundingBox()
 	local anchor_points = sprite:getAnchorPointInPoints()
 	draw_node:drawPolygon(
-		{cc.p(0, 0), cc.p(rect.width, 0), 
-		cc.p(rect.width, rect.height), cc.p(0, rect.height),},
+		{cc.p(-offset_points.x, -offset_points.y), cc.p(rect.width - offset_points.x, -offset_points.y), 
+		cc.p(rect.width - offset_points.x, rect.height - offset_points.y), cc.p(-offset_points.x, rect.height - offset_points.y),},
 		4, 
 		cc.c4b(0, 0, 0, 0),
 		1,
 		border_color
 	)
 	draw_node:setLocalZOrder(10000)
-	draw_node:drawDot(cc.p(anchor_points.x, anchor_points.y), 7, cc.c4b(1, 0, 0, 1))
+	draw_node:drawDot(cc.p(anchor_points.x - offset_points.x, anchor_points.y - offset_points.y), 7, cc.c4b(1, 0, 0, 1))
 	sprite:addChild(draw_node)
 end
 

@@ -255,7 +255,6 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 end
                 return last_node
             end
-                
 
             ui_widget.button = {}
             ui_widget.widget2button = {}
@@ -274,7 +273,8 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 local widget_button = GetTheLastNode(widget_name)
                 assert(widget2button, widget_name)
                 widget_button:addTouchEventListener(OnButtonEvent)
-                widget2button[widget_name] = button_name
+                local widget_array = Lib:Split(widget_name, "/")
+                widget2button[widget_array[#widget_array]] = button_name
                 button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
             end
 
@@ -316,7 +316,8 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 assert(widget2text_field, widget_name)
                 widget_text_field:addTouchEventListener(OnTextFieldEvent)
                 ui_widget.text_field[text_field_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.TextField")
-                ui_widget.widget2text_field[widget_name] = text_field_name
+                local widget_array = Lib:Split(widget_name, "/")
+                ui_widget.widget2text_field[widget_array[#widget_array]] = text_field_name
             end
 
             ui_widget.scroll_view = {}
@@ -331,6 +332,13 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             for progress_bar_name, widget_name in pairs(data.progress_bar or {}) do
                 ui_widget.progress_bar[progress_bar_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.LoadingBar")
                 ui_widget.widget2progress_bar[widget_name] = progress_bar_name
+            end
+
+            ui_widget.panel = {}
+            ui_widget.widget2panel = {}
+            for panel_name, widget_name in pairs(data.panel or {}) do
+                ui_widget.panel[panel_name] = assert(GetTheLastNode(widget_name))
+                ui_widget.widget2panel[widget_name] = panel_name
             end
         end
     end
@@ -393,5 +401,12 @@ function Ui:GetCocosProgressBar(ui_frame, ui_name, progress_bar_name)
     if ui_frame and ui_frame.cocos_widget 
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].progress_bar then
         return ui_frame.cocos_widget[ui_name].progress_bar[progress_bar_name]
+    end
+end
+
+function Ui:GetCocosPanel(ui_frame, ui_name, panel_name)
+    if ui_frame and ui_frame.cocos_widget 
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].panel then
+        return ui_frame.cocos_widget[ui_name].panel[panel_name]
     end
 end

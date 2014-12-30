@@ -34,9 +34,11 @@ function SkeltonPool:Create(layer_name, id, skelton_name, orgin_direction, param
 	local skelton = NewSkelton(skelton_name, orgin_direction, param)
 	if not skelton then
 		return
+	end	
+	if layer_name then
+		local sprite = skelton:GetSprite()
+		self.scene:AddObj(layer_name, self:GetClassName(), id, sprite)
 	end
-	local sprite = skelton:GetSprite()
-	self.scene:AddObj(layer_name, self:GetClassName(), id, sprite)
 	self.skelton_list[id] = {skelton, layer_name}
 	return skelton
 end
