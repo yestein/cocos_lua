@@ -35,6 +35,7 @@ function Puppet:_Init(name, orgin_direction)
 	self.child_list = {}	
 	self.change_pos_child = {}
 	self.scale = 1
+	self.direction = 1
 
 	return 1
 end
@@ -64,8 +65,13 @@ function Puppet:GetSprite()
 	return self.main_sprite
 end
 
-function Puppet:GetBoundingBox()
+function Puppet:GetContentSize()
 	return self.bounding_box
+end
+
+
+function Puppet:GetBoundingBox()
+	return self.main_sprite:getBoundingBox()
 end
 
 function Puppet:SetAnchorPoint(anchor_point)
@@ -84,7 +90,7 @@ function Puppet:SetLocalZOrder(order)
 	self.main_sprite:setLocalZOrder(order)
 end
 
-function Puppet:AddChildElement(name, child, x, y, is_change_position)
+function Puppet:AddChildElement(name, child, x, y, is_change_position, z_order)
 	local index = 1
 	local child_name = name
 	if self.child_list[child_name] then
@@ -92,6 +98,11 @@ function Puppet:AddChildElement(name, child, x, y, is_change_position)
 		return
 	end
 	self.child_list[child_name] = {obj = child, ref = 1}
+	if not z_order then
+		child:setLocalZOrder(10)
+	else
+		child:setLocalZOrder(z_order)
+	end
 	self.main_sprite:addChild(child)
 	if is_change_position == 1 then
 		self.change_pos_child[child_name] = 1
@@ -154,7 +165,7 @@ function Puppet:SetDirection(direction)
 		self.direction = -1
 	end
 	local old_scale_x = self.main_sprite:getScaleX()
-	self.main_sprite:setScaleX(-old_scale_x)
+	-- self.main_sprite:setScaleX(-old_scale_x)
 	self.logic_direction = direction
 	for child_name, _ in pairs(self.change_pos_child) do
 		local child_info = self.child_list[child_name]

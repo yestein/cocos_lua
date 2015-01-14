@@ -64,6 +64,7 @@ AddPreloadFile("framework/stat")
 AddPreloadFile("framework/physics_mgr")
 AddPreloadFile("framework/define")
 AddPreloadFile("framework/timer_base")
+AddPreloadFile("framework/shader_mgr")
 
 AddPreloadFile("framework/logic/logic_node")
 AddPreloadFile("framework/logic/game_mgr")

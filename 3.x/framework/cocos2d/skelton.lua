@@ -109,6 +109,8 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	if not armature then
 		return
 	end
+	local sprite = cc.Sprite:create()
+	sprite:setAnchorPoint(cc.p(0.5, 0))
 	self.skelton_name = skelton_name
 	self.bone_diplay_name = {}
 	self.bone_diplay_index = {}
@@ -135,7 +137,7 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 		end
 		func(self, bone, origin_frame_index, current_frame_index, armature)
 	end
-	armature:getAnimation():setFrameEventCallFunc(frameEvent)	
+	armature:getAnimation():setFrameEventCallFunc(frameEvent)
 
 	if armature.getOffsetPoints then
 		local offsetPoints = armature:getOffsetPoints()
@@ -165,7 +167,11 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 		end
 		armature:setScale(scale)
 	end
-	self:SetSprite(armature)
+	
+	sprite:setContentSize(armature:getBoundingBox())
+	self:SetSprite(sprite)
+	self:AddChildElement("armature", armature, 0, 0, 1, 10)
+
 	if param then
 		if param.change_equip then
 			for bone_name, index in pairs(param.change_equip) do
@@ -191,7 +197,7 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 end
 
 function Skelton:GetArmature()
-	return self:GetSprite()
+	return self:GetChildElement("armature")
 end
 
 function Skelton:SetAnimationFunc(movement_type, animation_name, func)
@@ -290,8 +296,13 @@ function Skelton:MoveTo(target_x, target_y, during_time, call_back)
 			self:PlayAnimation("normal")
 		end
 	end
-	if self:GetCurrentAnimation() ~= "run" then
-		self:PlayAnimation("run")
+	local animation_name = "run"
+	local direction = self:GetDirection()
+	if (target_x - x) * direction < 0 then
+		animation_name = "run_back"
+	end
+	if self:GetCurrentAnimation() ~= animation_name then
+		self:PlayAnimation(animation_name)
 	end
 	local action_list = {}
 	action_list[#action_list + 1] = cc.MoveBy:create(during_time, cc.p(target_x - x, target_y - y))
@@ -463,4 +474,27 @@ function Skelton:RemoveChildSkelton(child_name)
 	assert(skelton)
 	self:RemoveChildElement(child_name)
 	self.child_skelton[child_name] = nil
+end
+
+function Skelton:SetShader(shader)
+	local bone_list = self:GetArmature():getBoneDic()
+    for name, bone in pairs(bone_list) do
+    	local node = bone:getDisplayRenderNode()
+    	if node then
+    		node:setGLProgram(shader)
+    	end
+    end
+end
+
+function Skelton:SetBoneShader(bone_name, shader)
+	local bone_list = self:GetArmature():getBoneDic()
+	local bone = self:GetArmature():getBone(bone_name)
+	if not bone then
+		assert(false, "[%s]No Bone[%s]", self.skelton_name, bone_name)
+		return
+	end
+   	local node = bone:getDisplayRenderNode()
+    if node then
+    	node:setGLProgram(shader)
+    end
 end

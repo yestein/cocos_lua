@@ -105,7 +105,7 @@ local function main()
 	math.random(100)
 	Event:Preload()
     assert(Debug:Init(Debug.MODE_BLACK_LIST) == 1)
-    
+    assert(ShaderMgr:Init() == 1)
     assert(SceneMgr:Init() == 1)
     if __Debug then
     	assert(SceneMgr:CheckAllClass() == 1)

@@ -24,14 +24,12 @@ function Scene:_Init()
 	local rect = puppet:GetBoundingBox()
 
 	local child_sprite_1 = cc.Sprite:create("sample_resource/menu1.png")
-	puppet:AddChildElement("icon1", child_sprite_1)
-	child_sprite_1:setLocalZOrder(-1)
-	child_sprite_1:setPosition(10, 0)
+	puppet:AddChildElement("icon1", child_sprite_1, -rect.width / 2, 0, 0, -1)
+
 
 	local child_sprite_2 = cc.Sprite:create("sample_resource/menu1.png")
-	puppet:AddChildElement("icon2", child_sprite_2, 1)
+	puppet:AddChildElement("icon2", child_sprite_2, 0, rect.height, 1, 1)
 	child_sprite_2:setLocalZOrder(1)
-	child_sprite_2:setPosition(0, rect.height)
 	return 1
 end
 
