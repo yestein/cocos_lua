@@ -81,8 +81,13 @@ function SkillNode:RemoveSkill(skill_id)
 		return
 	end
 
-	table.remove(remove_index)
-	self.next_skill_index = self.next_skill_index - 1
+	
+	if remove_index <= self.next_skill_index then
+		table.remove(self.skills_index, remove_index)
+		self.next_skill_index = self.next_skill_index - 1
+	else
+		self.skills_index[remove_index] = nil
+	end
 	self.skills[skill_id] = nil
 	self:GetChild("cd"):Remove(skill_id)
 end
