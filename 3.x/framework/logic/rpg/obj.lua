@@ -123,6 +123,27 @@ function RpgObj:InitSkill(attack_skill_id, near_attack_skill_id, extra_skill_lis
 	return 1
 end
 
+function RpgObj:ReplaceAttackSkillId(attack_skill_id)
+	local old_attack_skill_id = self:GetAttackSkillId()
+	local skill_node = self:GetChild("skill")
+	skill_node:RemoveSkill(old_attack_skill_id)
+	local old_child_skill = Skill:GetChildSkill(old_attack_skill_id)
+	if old_child_skill then				
+		for _, child_skill_id in pairs(old_child_skill) do
+			skill_node:RemoveSkill(child_skill_id)
+		end
+	end
+	self:SetAttackSkillId(attack_skill_id)
+	skill_node:DoAddSkill(attack_skill_id, 1, 1, 100)
+	local child_skill = Skill:GetChildSkill(attack_skill_id)
+	if child_skill then				
+		for _, child_skill_id in pairs(child_skill) do
+			skill_node:DoAddSkill(child_skill_id, 1)
+		end
+	end
+	self:FireEvent("REPLACE_ATTACK_SKILL", attack_skill_id)
+end
+
 function RpgObj:InitBuff()
 	self:AddComponent("buff", "BUFF")
 end
@@ -406,9 +427,6 @@ function RpgObj:BeHit(luancher)
 end
 
 function RpgObj:Dead(dead_type)
-	if self:TryCall("Stop") == 0 then
-		return
-	end
 	assert(self:SetActionState(Def.STATE_DEAD) == 1)
 	local buff_node = self:GetChild("buff")
 	if buff_node then
