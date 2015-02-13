@@ -87,6 +87,8 @@ function Menu:GenerateByString(element_list, params)
 	local font_color = params.color
 	local outline_color = params.outline_color
 	local outline_width = params.outline_width
+	local shadow_color = params.shadow_color
+	local shadow_size = params.shadow_size
 
 	local menu_array = {}
 
