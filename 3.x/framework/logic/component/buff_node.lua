@@ -39,7 +39,7 @@ function BuffNode:OnActive(frame)
 	end
 end
 
-function BuffNode:AddBuff(buff_id, luancher_id, count)
+function BuffNode:AddBuff(buff_id, luancher, count)
 	if not self.buff_list then
 		return 0
 	end
@@ -51,7 +51,7 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 	end
 	local buff = self.buff_list[buff_id]
 	local is_add = 0
-	local owner_id = self:GetParent():GetId()
+	local owner = self:GetParent()
 	if not buff then
 		local config = BuffMgr:GetBuffConfig(buff_id)
 		if not config then
@@ -59,13 +59,13 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 			return 0
 		end
 		buff = BuffMgr:NewBuff(buff_id, config.template_id)
-		if buff:Init(buff_id, owner_id, config) ~= 1 then
+		if buff:Init(buff_id, owner, config) ~= 1 then
 			assert(false)
 			return 0
 		end
 
-		if luancher_id then
-			buff:SetLuancherId(luancher_id)
+		if luancher then
+			buff:SetLuancher(luancher)
 		end
 		self.buff_list[buff_id] = buff
 		if buff.state then
@@ -75,7 +75,7 @@ function BuffNode:AddBuff(buff_id, luancher_id, count)
 		if buff.OnAdd then
 			buff:OnAdd()
 		end
-		Event:FireEvent("BUFF.ADD", buff_id, owner_id, luancher_id, count)
+		Event:FireEvent("BUFF.ADD", buff_id, owner, luancher, count)
 
 		if config.lasts_time == 0 then
 			if self.buff_list then

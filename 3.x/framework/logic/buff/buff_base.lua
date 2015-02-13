@@ -17,15 +17,15 @@ function BuffBase:_Uninit()
 	return 1
 end
 
-function BuffBase:_Init(id, owner_id, config)
+function BuffBase:_Init(id, owner, config)
 	self.id = id
 	self.template_id = config.template_id
-	self.owner_id = owner_id
+	self.owner = owner
 	self.count = 0
 	self.max_count = config.max_count
 	self.born_frame = GameMgr:GetCurrentFrame()
 
-	--self.luancher_id = nil
+	--self.luancher = nil
 	return 1
 end
 
@@ -33,20 +33,20 @@ function BuffBase:GetBornFrame()
 	return self.born_frame
 end
 
-function BuffBase:SetOwnerId(owner_id)
-	self.owner_id = owner_id
+function BuffBase:SetOwner(owner)
+	self.owner = owner
 end
 
-function BuffBase:GetOwnerId()
-	return self.owner_id
+function BuffBase:GetOwner()
+	return self.owner
 end
 
-function BuffBase:SetLuancherId(luancher_id)
-	self.luancher_id = luancher_id
+function BuffBase:SetLuancher(luancher)
+	self.luancher = luancher
 end
 
-function BuffBase:GetLuancherId()
-	return self.luancher_id
+function BuffBase:GetLuancher()
+	return self.luancher
 end
 
 function BuffBase:ChangeCount(change)
