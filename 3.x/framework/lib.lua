@@ -252,7 +252,11 @@ function Lib:Table2OrderStr(tb, depth)
 			table_string = table_string .. self:Table2OrderStr(v, depth + 1)..",\n"
 		elseif type(v) == "string" then
 			-- TODO: string escape
-			table_string = table_string .. string.format("%q", v) .. ",\n"
+			if v == "nil" then
+				table_string = table_string .. "nil,\n"
+			else
+				table_string = table_string .. string.format("%q", v) .. ",\n"
+			end
 		else
 			table_string = table_string .. tostring(v)..",\n"
 		end
