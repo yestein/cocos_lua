@@ -316,3 +316,50 @@ function SceneBase:SimSlide(direction, time, speed, x, y)
 	end
 	RealTimer:RegistCocosTimerByCount(math.floor(time / cc.Director:getInstance():getAnimationInterval()), 0, {simTouch})
 end
+
+function SceneBase:InitCurtain(left_image, right_image)
+	local ui_frame = self:GetUI()
+	local left = cc.Sprite:create(left_image)
+	left:setAnchorPoint(cc.p(1, 0))
+	left:setLocalZOrder(100)
+	local right = cc.Sprite:create(right_image)
+	right:setAnchorPoint(cc.p(0, 0))
+	right:setLocalZOrder(100)
+	
+
+	Ui:AddElement(ui_frame, "IMAGE", "left_curtain", visible_size.width * 0.5, 0, left)
+	Ui:AddElement(ui_frame, "IMAGE", "right_curtain", visible_size.width * 0.5, 0, right)
+end
+
+function SceneBase:OpenCurtain(time, call_back)
+	local ui_frame = self:GetUI()
+	local left = Ui:GetElement(ui_frame, "IMAGE", "left_curtain")
+	local right = Ui:GetElement(ui_frame, "IMAGE", "right_curtain")
+
+	local left_action_list = {}
+	left_action_list[#left_action_list + 1] = cc.MoveTo:create(time, cc.p(0, 0))
+	if call_back and type(call_back) == "function" then
+		left_action_list[#left_action_list + 1] = cc.CallFunc:create(call_back)
+	end
+	left:stopAllActions()
+	left:runAction(cc.Sequence:create(unpack(left_action_list)))
+	right:stopAllActions()
+	right:runAction(cc.MoveTo:create(time, cc.p(visible_size.width, 0)))
+end
+
+function SceneBase:CloseCurtain(time, call_back)
+	local ui_frame = self:GetUI()
+	local left = Ui:GetElement(ui_frame, "IMAGE", "left_curtain")
+	local right = Ui:GetElement(ui_frame, "IMAGE", "right_curtain")
+
+	local left_action_list = {}
+	left_action_list[#left_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
+	if call_back and type(call_back) == "function" then
+		left_action_list[#left_action_list + 1] = cc.CallFunc:create(call_back)
+	end
+	left:runAction(cc.Sequence:create(unpack(left_action_list)))
+
+	local right_action_list = {}
+	right_action_list[#right_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
+	right:runAction(cc.Sequence:create(unpack(right_action_list)))
+end
