@@ -83,6 +83,7 @@ function LogicNode:AddChild(child_name, child_node, order)
 	self.child_list_order[order] = child_node
 	child_node.__parent = self
 	self.max_order = order
+	assert(self:RegistChildMessageHandler(child_name) == 1)
 end
 
 function LogicNode:RemoveChild(child_name)
@@ -193,6 +194,52 @@ function LogicNode:ReceiveMessage(msg, ...)
 		end
 	end
 end
+
+function LogicNode:SendMessage(msg, ...)
+	local func_list = self.msg_handler[msg]
+	if not func_list then
+		return 0
+	end
+	for child_name, func in pairs(func_list) do
+		local child = self:GetChild(child_name)
+		if not child then
+			func_list[child_name] = nil
+		else
+			return 1, func(child, ...)
+		end
+	end
+	return 0
+end
+
+function LogicNode:RegistChildMessageHandler(child_name)
+	local child = self:GetChild(child_name)
+	if not child then
+		assert(false)
+		return 0
+	end
+	if not child.msg_list then
+		return 1
+	end
+	if not self.msg_handler then
+		self.msg_handler = {}
+	end
+	for msg, func_name in pairs(child.msg_list) do
+		if not self.msg_handler[msg] then
+			self.msg_handler[msg] = {}
+		end
+		local func = child[func_name]
+		self.msg_handler[msg][child_name] = func
+	end
+	return 1
+end
+
+function LogicNode:DeclareListenEvent(msg, func_name)
+	if not self.msg_list then
+		self.msg_list = {}
+	end
+	self.msg_list[msg] = func_name
+end
+
 
 function LogicNode:DeclareListenEvent(event_type, func_name)
 	if not self.event_listener then
