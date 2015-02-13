@@ -92,6 +92,10 @@ function Skelton:_Init(name, orgin_direction, param)
 	self.frame_func = {}
 	self.child_skelton = {}
 	
+	local sprite = cc.Sprite:create()
+	sprite:setAnchorPoint(cc.p(0.5, 0))
+	self:SetSprite(sprite)
+
 	if not self:SetArmature(name, orgin_direction, param) then
 		return 0
 	end
@@ -105,12 +109,11 @@ function Skelton:_Init(name, orgin_direction, param)
 end
 
 function Skelton:SetArmature(skelton_name, orgin_direction, param)
-	local armature = Resource:LoadSkelton(skelton_name)
+	local armature = Resource:LoadAutoSkelton(skelton_name)
 	if not armature then
 		return
 	end
-	local sprite = cc.Sprite:create()
-	sprite:setAnchorPoint(cc.p(0.5, 0))
+	local sprite = self:GetSprite()
 	self.skelton_name = skelton_name
 	self.bone_diplay_name = {}
 	self.bone_diplay_index = {}
@@ -497,4 +500,24 @@ function Skelton:SetBoneShader(bone_name, shader)
     if node then
     	node:setGLProgram(shader)
     end
+end
+
+function Skelton:Pause()
+	self.main_sprite:pause()
+	for name, child in pairs(self.child_list) do
+		child.obj:pause()
+	end
+	for name, child_skelton in pairs(self.child_skelton) do
+		child_skelton:Pause()
+	end
+end
+
+function Skelton:Resume()
+	self.main_sprite:resume()
+	for name, child in pairs(self.child_list) do
+		child.obj:resume()
+	end
+	for name, child_skelton in pairs(self.child_skelton) do
+		child_skelton:Resume()
+	end
 end

@@ -50,14 +50,25 @@ function Resource:LoadSkelton(skelton_name)
 	return ccs.Armature:create(skelton_name)
 end
 
-function Resource:UnloadSkelton(skelton_name)
-	self.loaded_skelton[skelton_name] = self.loaded_skelton[skelton_name] - 1
-	if self.loaded_skelton[skelton_name] == 0 then
+function Resource:LoadAutoSkelton(skelton_name)
+	if not self.loaded_skelton[skelton_name] then
 		local prefix_file_name = self.skelton_folder_name .. "/" .. skelton_name .. "/" .. skelton_name
 		local json_file = prefix_file_name .. ".ExportJson"
-		armature_data_manager:removeArmatureFileInfo(json_file)
-		self.loaded_skelton[skelton_name] = nil
+		armature_data_manager:addArmatureFileInfo(json_file)
+		self.loaded_skelton[skelton_name] = 0
 	end
+	self.loaded_skelton[skelton_name] = self.loaded_skelton[skelton_name] + 1
+	return ccs.Armature:create(skelton_name)
+end
+
+function Resource:UnloadSkelton(skelton_name)
+	self.loaded_skelton[skelton_name] = self.loaded_skelton[skelton_name] - 1
+	-- if self.loaded_skelton[skelton_name] == 0 then
+	-- 	local prefix_file_name = self.skelton_folder_name .. "/" .. skelton_name .. "/" .. skelton_name
+	-- 	local json_file = prefix_file_name .. ".ExportJson"
+	-- 	armature_data_manager:removeArmatureFileInfo(json_file)
+	-- 	self.loaded_skelton[skelton_name] = nil
+	-- end
 end
 
 

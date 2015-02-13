@@ -186,7 +186,7 @@ end
 
 function Puppet:Resume()
 	self.main_sprite:resume()
-	for _, child in pairs(self.child_list) do
+	for name, child in pairs(self.child_list) do
 		child.obj:resume()
 	end
 end

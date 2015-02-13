@@ -14,7 +14,7 @@ end
 
 function SkillEffect:NewEffect(effect_name)
 	assert(not self.class_list[effect_name])
-	self.class_list[effect_name] = {}
+	self.class_list[effect_name] = {effect_name = effect_name}
 	
 	return self.class_list[effect_name]
 end
