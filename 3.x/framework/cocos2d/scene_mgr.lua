@@ -171,7 +171,13 @@ function SceneMgr:LoadScene(scene_template_name, scene_name, trans_func)
     if trans_func then
         cc_scene = trans_func(cc_scene)
     end
-    CCDirector:getInstance():pushScene(cc_scene)
+
+    if CCDirector:getInstance():getRunningScene() then
+        CCDirector:getInstance():pushScene(cc_scene)
+    else
+        CCDirector:getInstance():runWithScene(cc_scene)
+    end
+    
     return scene
 end
 
