@@ -12,6 +12,7 @@ end
 
 
 function RpgObj:_Uninit( ... )
+	self.last_damager_id	  = nil
 	self.attack_speed         = nil
 	self.target_id            = nil
 	self.template_id          = nil
@@ -36,6 +37,7 @@ function RpgObj:_Init()
 	self.direction            = "none"
 	self.target_id            = 0
 	self.attack_speed         = 1
+	self.last_damager_id	  = 0
 
 	return 1
 end
@@ -186,6 +188,14 @@ function RpgObj:GetType()
 	return self.obj_type
 end
 
+function RpgObj:SetLevel(level)
+	self.level = level
+end
+
+function RpgObj:GetLevel()
+	return self.level
+end
+
 function RpgObj:SetTemplateId(template_id)
 	self.template_id = template_id
 end
@@ -257,7 +267,8 @@ function RpgObj:GetAttackSpeed()
 end
 
 function RpgObj:InsertCommand(command, delay_frame)
-	if self:IsInState(Def.STATE_DEAD) == 1 then
+	local state = self:TryCall("GetState")
+	if state == Def.STATE_DEAD then
 		return
 	end
 	local cmd_node = self:GetChild("cmd")
@@ -275,6 +286,7 @@ function RpgObj:GetXY()
 	if move_node then
 		return move_node:GetXY()
 	end
+	return -1, -1
 end
 
 function RpgObj:GetPosition()
@@ -436,10 +448,52 @@ function RpgObj:Dead(dead_type)
 	Event:FireEvent(event_name, self:GetId(), dead_type)
 end
 
-function RpgObj:SetLevel(level)
-	self.level = level
+function RpgObj:IsPositionInRange(target_x, target_y, range_x, range_y)
+	if not range_y then
+		range_y = range_x
+	end
+	local x, y = self:GetXY()
+	local direction = self:GetDirection()
+	local min_x = nil
+	local max_x = nil
+	if direction == "left" then
+		min_x = x - range_x
+		max_x = x
+	else
+		min_x = x
+		max_x = x + range_x
+	end
+	local min_y = y - range_y
+	local max_y = y + range_y
+
+
+	if target_x < min_x or target_x > max_x or target_y < min_y or target_y > max_y then
+		return 0
+	end
+	return 1
 end
 
-function RpgObj:GetLevel()
-	return self.level
+function RpgObj:IsPositionInAround(target_x, target_y, range_x, range_y)
+	if not range_y then
+		range_y = range_x
+	end
+	local x, y = self:GetXY()
+	local min_x = x - range_x
+	local max_x = x + range_x
+	local min_y = y - range_y
+	local max_y = y + range_y
+
+
+	if target_x < min_x or target_x > max_x or target_y < min_y or target_y > max_y then
+		return 0
+	end
+	return 1
+end
+
+function RpgObj:SetLastDamager(id)
+	self.last_damager_id = id
+end
+
+function RpgObj:GetLastDamager()
+	return self.last_damager_id
 end

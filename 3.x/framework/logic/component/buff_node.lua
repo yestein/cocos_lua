@@ -75,13 +75,7 @@ function BuffNode:AddBuff(buff_id, luancher, count)
 		if buff.OnAdd then
 			buff:OnAdd()
 		end
-		Event:FireEvent("BUFF.ADD", buff_id, owner, luancher, count)
-
-		if config.lasts_time == 0 then
-			if self.buff_list then
-				self:RemoveBuff(buff_id, count)
-			end
-		end
+		Event:FireEvent("BUFF.ADD", buff_id, owner:GetId(), luancher:GetId(), count)
 	else
 		buff:ChangeCount(count)
 	end

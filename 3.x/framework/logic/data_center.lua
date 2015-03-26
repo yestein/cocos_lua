@@ -10,6 +10,14 @@ if not DataCenter then
 	DataCenter = {}
 end
 
+function DataCenter:FirstPlay()
+	for module_name, class_module in pairs(ModuleMgr.module_list) do
+		if class_module.FirstPlay then
+			class_module:FirstPlay()
+		end
+	end
+end
+
 function DataCenter:GetSaveData()
 	local save_data = {}
 	for module_name, class_module in pairs(ModuleMgr.module_list) do

@@ -8,6 +8,9 @@
 
 require("framework/cocos2d/scene_base.lua")
 
+local OPEN_CURTAIN_TIME = 0.3
+local CLOSE_CURTAIN_TIME = 0.8
+
 function SceneBase:MoveCamera(x, y)
 	local layer_x, layer_y = visible_size.width / 2 - x, visible_size.height / 2 - y
 	return self:MoveMainLayer(layer_x, layer_y)
@@ -87,7 +90,7 @@ function SceneBase:AddReturnMenu(font_size)
 	        [1] = {
 				item_name = "返回上一场景",
 	        	callback_function = function()
-	        		SceneMgr:UnLoadCurrentScene()
+	        		self:ReturnLastScene()
 	        	end,
 	        },
 	    },
@@ -98,6 +101,21 @@ function SceneBase:AddReturnMenu(font_size)
     local ui_frame = self:GetUI()
     local menu_tools = cc.Menu:create(unpack(menu_array))
     Ui:AddElement(ui_frame, "MENU", "ReturnMenu", visible_size.width, visible_size.height, menu_tools)
+end
+
+function SceneBase:ReturnLastScene()
+	local function curtainUnloadScene()
+		SceneMgr:UnLoadCurrentScene()
+		local scene = SceneMgr:GetCurrentScene()
+		if scene:IsHaveCurtain() == 1 then
+			scene:OpenCurtain(OPEN_CURTAIN_TIME)
+		end
+	end
+	if self:IsHaveCurtain() == 1 then
+		self:CloseCurtain(CLOSE_CURTAIN_TIME, curtainUnloadScene)
+	else
+		SceneMgr:UnLoadCurrentScene()
+	end
 end
 
 function SceneBase:AddReloadMenu(font_size, is_no_reload_scene)
@@ -317,7 +335,7 @@ function SceneBase:SimSlide(direction, time, speed, x, y)
 	RealTimer:RegistCocosTimerByCount(math.floor(time / cc.Director:getInstance():getAnimationInterval()), 0, {simTouch})
 end
 
-function SceneBase:InitCurtain(left_image, right_image)
+function SceneBase:InitCurtain(left_image, right_image, is_hide)
 	local ui_frame = self:GetUI()
 	local left = cc.Sprite:create(left_image)
 	left:setAnchorPoint(cc.p(1, 0))
@@ -326,9 +344,18 @@ function SceneBase:InitCurtain(left_image, right_image)
 	right:setAnchorPoint(cc.p(0, 0))
 	right:setLocalZOrder(100)
 	
+	self.is_have_curtain = 1
 
 	Ui:AddElement(ui_frame, "IMAGE", "left_curtain", visible_size.width * 0.5, 0, left)
 	Ui:AddElement(ui_frame, "IMAGE", "right_curtain", visible_size.width * 0.5, 0, right)
+	if is_hide == 1 then
+		left:setPosition(0, 0)
+		right:setPosition(visible_size.width, 0)
+	end
+end
+
+function SceneBase:IsHaveCurtain()
+	return self.is_have_curtain
 end
 
 function SceneBase:OpenCurtain(time, call_back)
@@ -354,6 +381,7 @@ function SceneBase:CloseCurtain(time, call_back)
 
 	local left_action_list = {}
 	left_action_list[#left_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
+	left_action_list[#left_action_list + 1] = cc.DelayTime:create(0.5)
 	if call_back and type(call_back) == "function" then
 		left_action_list[#left_action_list + 1] = cc.CallFunc:create(call_back)
 	end
@@ -361,5 +389,6 @@ function SceneBase:CloseCurtain(time, call_back)
 
 	local right_action_list = {}
 	right_action_list[#right_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
+	right_action_list[#right_action_list + 1] = cc.DelayTime:create(0.5)
 	right:runAction(cc.Sequence:create(unpack(right_action_list)))
 end

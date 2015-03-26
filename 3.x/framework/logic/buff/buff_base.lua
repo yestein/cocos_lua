@@ -58,7 +58,7 @@ function BuffBase:ChangeCount(change)
 	end
 	if change > 0 then
 		local config = BuffMgr:GetBuffConfig(self.id)
-		if config.lasts_time and config.lasts_time > 0 then
+		if config.lasts_time then
 			self:ResetLastsTime(config.lasts_time)
 		end
 	end
@@ -81,8 +81,7 @@ function BuffBase:GetRestFrame()
 end
 
 function BuffBase:ResetLastsTime(lasts_time)
-	if not lasts_time or lasts_time <= 0 then
-		assert(false)
+	if not lasts_time then
 		return
 	end
 	local frame = math.ceil(lasts_time * GameMgr:GetFPS())
@@ -95,7 +94,7 @@ end
 
 function BuffBase:OnActive(frame)
 	local is_need_remove = 0
-	if self.remove_frame and frame == self.remove_frame then
+	if self.remove_frame and frame >= self.remove_frame then
 		is_need_remove = 1
 	end
 	if self._OnActive then

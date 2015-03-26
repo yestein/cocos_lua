@@ -233,7 +233,7 @@ function LogicNode:RegistChildMessageHandler(child_name)
 	return 1
 end
 
-function LogicNode:DeclareListenEvent(msg, func_name)
+function LogicNode:DeclareHandleMsg(msg, func_name)
 	if not self.msg_list then
 		self.msg_list = {}
 	end

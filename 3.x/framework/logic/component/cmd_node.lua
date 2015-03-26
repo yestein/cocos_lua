@@ -11,6 +11,8 @@ if not CmdNode then
 	CmdNode = ComponentMgr:CreateComponent("COMMAND")
 end
 
+CmdNode:DeclareHandleMsg("EXECUTE_CMD", "Breath")
+
 function CmdNode:_Uninit( ... )
 	self.command_pool = nil
 	return 1
@@ -21,7 +23,7 @@ function CmdNode:_Init( ... )
 	return 1
 end
 
-function CmdNode:OnActive(frame)
+function CmdNode:Breath(frame)
 	local command_list = self.command_pool[frame]
 	if not command_list then
 		return
@@ -39,11 +41,6 @@ end
 function CmdNode:InsertCommand(command, delay_frame)
 	if not delay_frame then
 		delay_frame = 0
-	end
-
-	if delay_frame <= 0 then
-		self:Execute(command)
-		return
 	end
 
 	local frame = GameMgr:GetCurrentFrame() + delay_frame

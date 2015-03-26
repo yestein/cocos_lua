@@ -180,12 +180,6 @@ function SkillNode:CanCastSkill(skill_id, target_list, ...)
 		return 0, "cd"
 	end
 
-	local morale_total = MoraleMgr:GetMoraleTotal()
-	local cost_morale = skill.skill_param.cost_morale
-	if cost_morale and morale_total and morale_total - cost_morale < 0 then
-		return 0, "morale"
-	end 
-
 	return skill.skill_template:CanCast(owner, target_list, skill.skill_param, ...)
 end
 
@@ -226,9 +220,7 @@ function SkillNode:CastSkill(skill_id, ...)
 		return can_cast_skill, reason
 	end
 	local owner = self:GetParent()
-	if owner:TryCall("Stop") == 0 then
-		return 0, "can not stop"
-	end
+
 	if owner:TryCall("SetActionState", Def.STATE_SKILL) == 0 then
 		return 0, "state error"
 	end

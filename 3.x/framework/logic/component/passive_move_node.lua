@@ -102,22 +102,25 @@ function MoveNode:Stop()
 	return 1
 end
 
-function MoveNode:DirectMove(x, y)
+function MoveNode:DirectMove(x, y, time)
 	local owner = self:GetParent()
+	if self:Stop() ~= 1 then
+		return 0
+	end
 	if owner:TryCall("SetActionState", Def.STATE_MOVE) ~= 1 then
 		return 0
 	end	
-	self:StopMove()
+	
 	local event_name = owner:GetClassName()..".DIRECT_MOVE"
-	Event:FireEvent(event_name, owner:GetId(), x, y)
+	Event:FireEvent(event_name, owner:GetId(), x, y, time)
 	return 1
 end
 
-function MoveNode:TransportTo(x, y)
+function MoveNode:TransportTo(x, y, time)
 	self:StopMove()
 	local owner = self:GetParent()
 	local event_name = owner:GetClassName()..".TRANSPORT"
-	Event:FireEvent(event_name, owner:GetId(), x, y)
+	Event:FireEvent(event_name, owner:GetId(), x, y, time)
 end
 
 function MoveNode:SetSprite(sprite)
@@ -161,7 +164,7 @@ function MoveNode:IsHaveTarget()
 	return 1
 end
 
-function MoveNode:GetMoveTraget()
+function MoveNode:GetMoveTarget()
 	return self.target_pos
 end
 

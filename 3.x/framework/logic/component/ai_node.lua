@@ -11,6 +11,8 @@ if not AINode then
 	AINode = ComponentMgr:CreateComponent("AI")
 end
 
+AINode:DeclareHandleMsg("AI_ACTIVE", "Breath")
+
 function AINode:_Uninit( ... )
 	self.param       = nil
 	self.ai_list     = nil
@@ -69,7 +71,7 @@ function AINode:OnLoop()
 	return self:OnActive()
 end
 
-function AINode:OnActive(frame)
+function AINode:Breath(frame)
 	if not self.ai_list then
 		return
 	end

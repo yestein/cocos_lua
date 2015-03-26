@@ -217,7 +217,7 @@ function MoveNode:DirectMove(x, y)
 	local owner = self:GetParent()
 	if owner:TryCall("SetActionState", Def.STATE_MOVE) ~= 1 then
 		return 0
-	end	
+	end
 	self:StopMove()
 	local event_name = owner:GetClassName()..".DIRECT_MOVE"
 	Event:FireEvent(event_name, owner:GetId(), x, y)

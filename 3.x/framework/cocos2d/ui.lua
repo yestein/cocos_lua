@@ -239,7 +239,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
             root_widget:setScaleY(visible_size.height / widget_rect.height)
             if data.hide == 1 then
                 root_widget:setVisible(false)
-                self:SetCocosLayerEnabled(root_widget, false)
+                -- self:SetCocosLayerEnabled(root_widget, false)
             end
             local ui_name = data.name
             ui_frame.cocos_widget[ui_name] = {}
