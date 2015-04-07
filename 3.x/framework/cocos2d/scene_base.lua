@@ -22,6 +22,7 @@ function SceneBase:_Uninit()
 	Movie:RemoveFunction("movie_border_start")
 	Ui:UninitScene(self.scene_name)
 
+	self.cocos_button_event = nil
 	self.playing_effect = nil
 	self:UnloadAllSoundEffect()
 	self.obj_list = nil
@@ -399,7 +400,7 @@ function SceneBase:RegisterTouchEvent()
     	if current_touches == 1 then
 	        if self.OnTouchEnded then
 	        	local x, y = touches[1], touches[2]
-	        	local scale = self:GetScale()
+	        	local scale = self:GetScale() or 1
 	    		self:OnTouchEnded((x - layer_x) / scale, (y - layer_y) / scale)
 	    	end
 	    	self.is_move = nil
@@ -430,4 +431,36 @@ function SceneBase:RegisterTouchEvent()
 
     layer_main:registerScriptTouchHandler(onTouch, true)
     layer_main:setTouchEnabled(true)
+end
+
+function SceneBase:RegistCocosButtonEvent(event, ui_name, button_name, func_name)
+	if not self.cocos_button_event then
+		self.cocos_button_event = {}
+	end
+	
+	if not self.cocos_button_event[event] then
+		self.cocos_button_event[event] = {}
+	end
+
+	if not self.cocos_button_event[event][ui_name] then
+		self.cocos_button_event[event][ui_name] = {}
+	end
+
+	self.cocos_button_event[event][ui_name][button_name] = func_name
+end
+
+function SceneBase:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
+	if not self.cocos_button_event[event] or not self.cocos_button_event[event][ui_name] then
+		return
+	end
+	local func_name = self.cocos_button_event[event][ui_name][button_name]
+	if not func_name then
+		return
+	end
+	local func = self[func_name]
+	if type(func) ~= "function" then
+		assert(false, "%s is not function", func_name)
+		return
+	end
+	return self[func_name](self, ui_name, button_name, event, widget_button)
 end

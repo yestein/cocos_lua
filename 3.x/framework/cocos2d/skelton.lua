@@ -186,6 +186,17 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 			end
 		end
 
+		if param.bone_shader then
+			for bone_name, shader_name in pairs(param.bone_shader) do
+				local shader = ShaderMgr:GetShader(shader_name)
+				self:SetBoneShader(bone_name, shader)
+			end
+		end
+
+		if param.animation_bone_display then
+			self.animation_bone_display = param.animation_bone_display
+		end
+
 		if param.hide_bone then
 			for bone_name, _ in pairs(param.hide_bone) do
 				self:SetBoneVisible(bone_name, false)
@@ -280,6 +291,13 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
 		armature:getAnimation():setSpeedScale(speed_scale)
 	end
 	armature:resume()
+
+	local bone_display = self.animation_bone_display and self.animation_bone_display[animation_name] or nil
+	if bone_display then
+		for bone_name, display_name in pairs(bone_display) do
+			self:ChangeBoneDisplayByName(bone_name, display_name)
+		end
+	end
 	armature:getAnimation():play(resource_name, duration_frame or -1, is_loop or -1)
 	self.current_animation = animation_name
 end

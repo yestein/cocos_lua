@@ -112,7 +112,7 @@ function SceneBase:ReturnLastScene()
 		end
 	end
 	if self:IsHaveCurtain() == 1 then
-		self:CloseCurtain(CLOSE_CURTAIN_TIME, curtainUnloadScene)
+		self:CloseCurtain(CLOSE_CURTAIN_TIME, {curtainUnloadScene})
 	else
 		SceneMgr:UnLoadCurrentScene()
 	end
@@ -216,17 +216,7 @@ function SceneBase:SetBGMVolume(bgm_volume)
 end
 
 function SceneBase:PlayBGM()
-	if self.bgm_path then
-		local bgm_full_path = nil
-	    if (cc.PLATFORM_OS_IPHONE == targetPlatform) or (cc.PLATFORM_OS_IPAD == targetPlatform) then
-	        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(self.bgm_path)
-	    else
-	        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(self.bgm_path)
-	    end
-	    cc.SimpleAudioEngine:getInstance():playMusic(bgm_full_path, true)
-	else
-		cc.SimpleAudioEngine:getInstance():stopMusic()
-	end
+	Resource:PlayBGM(self.bgm_path)
 	if self.bgm_volume then
 		cc.SimpleAudioEngine:getInstance():setMusicVolume(self.bgm_volume)
 	end
@@ -339,15 +329,16 @@ function SceneBase:InitCurtain(left_image, right_image, is_hide)
 	local ui_frame = self:GetUI()
 	local left = cc.Sprite:create(left_image)
 	left:setAnchorPoint(cc.p(1, 0))
-	left:setLocalZOrder(100)
+	left:setPosition(visible_size.width * 0.5, 0)
 	local right = cc.Sprite:create(right_image)
 	right:setAnchorPoint(cc.p(0, 0))
-	right:setLocalZOrder(100)
+	right:setPosition(visible_size.width * 0.5, 0)
 	
 	self.is_have_curtain = 1
 
-	Ui:AddElement(ui_frame, "IMAGE", "left_curtain", visible_size.width * 0.5, 0, left)
-	Ui:AddElement(ui_frame, "IMAGE", "right_curtain", visible_size.width * 0.5, 0, right)
+	local layer = self:CreateLayer("curtain", 10)
+	self:AddObj("curtain", "IMAGE", "left_curtain", left)
+	self:AddObj("curtain", "IMAGE", "right_curtain", right)
 	if is_hide == 1 then
 		left:setPosition(0, 0)
 		right:setPosition(visible_size.width, 0)
@@ -359,36 +350,64 @@ function SceneBase:IsHaveCurtain()
 end
 
 function SceneBase:OpenCurtain(time, call_back)
+	if self.is_opening_curtain then
+		return
+	end
+	self.is_opening_curtain = 1
 	local ui_frame = self:GetUI()
-	local left = Ui:GetElement(ui_frame, "IMAGE", "left_curtain")
-	local right = Ui:GetElement(ui_frame, "IMAGE", "right_curtain")
+	local left = self:GetObj("curtain", "IMAGE", "left_curtain")
+	local right = self:GetObj("curtain", "IMAGE", "right_curtain")
 
 	local left_action_list = {}
 	left_action_list[#left_action_list + 1] = cc.MoveTo:create(time, cc.p(0, 0))
-	if call_back and type(call_back) == "function" then
-		left_action_list[#left_action_list + 1] = cc.CallFunc:create(call_back)
+	local function actionEnd()
+		self.is_opening_curtain = nil
+		if call_back then
+			Lib:SafeCall(call_back)
+		end
 	end
+	left_action_list[#left_action_list + 1] = cc.CallFunc:create(actionEnd)
 	left:stopAllActions()
 	left:runAction(cc.Sequence:create(unpack(left_action_list)))
 	right:stopAllActions()
 	right:runAction(cc.MoveTo:create(time, cc.p(visible_size.width, 0)))
+	
 end
 
 function SceneBase:CloseCurtain(time, call_back)
+	if self.is_close_curtain then
+		return
+	end
+	self.is_close_curtain = 1
 	local ui_frame = self:GetUI()
-	local left = Ui:GetElement(ui_frame, "IMAGE", "left_curtain")
-	local right = Ui:GetElement(ui_frame, "IMAGE", "right_curtain")
+	local left = self:GetObj("curtain", "IMAGE", "left_curtain")
+	local right = self:GetObj("curtain", "IMAGE", "right_curtain")
 
 	local left_action_list = {}
 	left_action_list[#left_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
 	left_action_list[#left_action_list + 1] = cc.DelayTime:create(0.5)
-	if call_back and type(call_back) == "function" then
-		left_action_list[#left_action_list + 1] = cc.CallFunc:create(call_back)
+
+	local function actionEnd()
+		self.is_close_curtain = nil
+		if call_back then
+			Lib:SafeCall(call_back)
+		end
 	end
+	left_action_list[#left_action_list + 1] = cc.CallFunc:create(actionEnd)
 	left:runAction(cc.Sequence:create(unpack(left_action_list)))
 
 	local right_action_list = {}
 	right_action_list[#right_action_list + 1] = cc.EaseBounceOut:create(cc.MoveTo:create(time, cc.p(visible_size.width * 0.5, 0)))
 	right_action_list[#right_action_list + 1] = cc.DelayTime:create(0.5)
 	right:runAction(cc.Sequence:create(unpack(right_action_list)))
+end
+
+function SceneBase:AddMask(name, color, level)
+	local layer_color = cc.LayerColor:create(color, visible_size.width + 100, visible_size.height + 50)
+	layer_color:setLocalZOrder(level)
+	self:AddLayer(name, layer_color)
+end
+
+function SceneBase:RemoveMask(name)
+	self:RemoveLayer(name)
 end

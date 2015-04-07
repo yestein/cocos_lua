@@ -110,3 +110,22 @@ function Resource:PlaySoundEffect(file_path)
 	local full_path = file_utils:fullPathForFilename(file_path)
 	return audio_engine:playEffect(full_path)
 end
+
+function Resource:PlayBGM(bgm_path)
+	if self.playing_bgm == bgm_path then
+		return
+	end
+	if not bgm_path then
+		cc.SimpleAudioEngine:getInstance():stopMusic()
+		self.playing_bgm = nil
+		return
+	end
+	local bgm_full_path = nil
+    if (cc.PLATFORM_OS_IPHONE == targetPlatform) or (cc.PLATFORM_OS_IPAD == targetPlatform) then
+        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(bgm_path)
+    else
+        bgm_full_path = cc.FileUtils:getInstance():fullPathForFilename(bgm_path)
+    end
+    cc.SimpleAudioEngine:getInstance():playMusic(bgm_full_path, true)
+    self.playing_bgm = bgm_path
+end

@@ -93,7 +93,11 @@ end
 
 function Lib:SafeCall(callback)
 	local function InnerCall()
-		return callback[1](unpack(callback, 2))
+		if type(callback) == "table" then
+			return callback[1](unpack(callback, 2))
+		elseif type(callback) == "function" then
+			return callback()
+		end
 	end
 	return xpcall(InnerCall, Lib.ShowStack)
 end

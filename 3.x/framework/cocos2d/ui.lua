@@ -222,7 +222,7 @@ function Ui:LoadJson(cc_layer, json_file_path)
     local root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
     local widget_rect = root_widget:getSize()
     cc_layer:addChild(root_widget)
-    return root_widget, root_widget
+    return root_widget, widget_rect
 end
 
 function Ui:PreloadCocosUI(scene_name, ui_list)
@@ -231,9 +231,11 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
         if not ui_frame.cocos_widget then
             ui_frame.cocos_widget = {}
         end
-        local layer = self:GetLayer(ui_frame)
-        for ui_file, data in pairs(ui_list) do
-            local root_widget, root_widget = self:LoadJson(layer, ui_file)
+        local scene = SceneMgr:GetScene(scene_name)
+        for json_file_path, data in pairs(ui_list) do
+            local ui_name = data.name
+            local root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
+            scene:AddLayer(ui_name, root_widget)
             local widget_rect = root_widget:getSize()
             root_widget:setScaleX(visible_size.width / widget_rect.width)
             root_widget:setScaleY(visible_size.height / widget_rect.height)
@@ -241,7 +243,6 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 root_widget:setVisible(false)
                 -- self:SetCocosLayerEnabled(root_widget, false)
             end
-            local ui_name = data.name
             ui_frame.cocos_widget[ui_name] = {}
             local ui_widget = ui_frame.cocos_widget[ui_name]
 
@@ -265,9 +266,7 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 local widget_button = tolua.cast(node, "ccui.Button")
                 local scene = SceneMgr:GetScene(scene_name)
                 local button_name = widget2button[widget_button:getName()]
-                if scene.OnCocosButtonEvent then
-                    scene:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
-                end
+                scene:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
             end
             for button_name, widget_name in pairs(data.button or {}) do
                 local widget_button = GetTheLastNode(widget_name)
@@ -409,4 +408,21 @@ function Ui:GetCocosPanel(ui_frame, ui_name, panel_name)
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].panel then
         return ui_frame.cocos_widget[ui_name].panel[panel_name]
     end
+end
+
+function Ui:PopPanel(panel)
+    panel:setScale(0.01)
+    local scale_1 = cc.ScaleTo:create(0.1, 1.1)
+    local scale_2 = cc.ScaleTo:create(0.05, 1)
+    panel:runAction(cc.Sequence:create(scale_1, scale_2))
+end
+
+function Ui:PushPanel(panel, call_back)
+    local action_list = {}
+    action_list[#action_list + 1] = cc.ScaleTo:create(0.05, 1.1)
+    action_list[#action_list + 1] = cc.ScaleTo:create(0.05, 0.01)
+    if call_back then
+        action_list[#action_list + 1] = cc.CallFunc:create(call_back)
+    end
+    panel:runAction(cc.Sequence:create(unpack(action_list)))
 end
