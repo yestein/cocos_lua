@@ -22,7 +22,7 @@ function SceneBase:_Uninit()
 	Movie:RemoveFunction("movie_border_start")
 	Ui:UninitScene(self.scene_name)
 
-	self.cocos_button_event = nil
+	self.cocos_widget_event = nil
 	self.playing_effect = nil
 	self:UnloadAllSoundEffect()
 	self.obj_list = nil
@@ -317,6 +317,9 @@ function SceneBase:RegisterTouchEvent()
     local current_touches = 0
     local function onTouchBegan(touches)
     	-- print("began", #touches, touches[3], touches[6])
+    	if not self.scale then
+    		return
+    	end
     	for i = 1, #touches, 3 do
     		if not touch_begin_points[touches[i + 2]] then
 	    		touch_begin_points[touches[i + 2]] = {x = touches[i], y = touches[i + 1]}
@@ -326,11 +329,12 @@ function SceneBase:RegisterTouchEvent()
     	end
         local layer_x, layer_y = layer_main:getPosition()
         if current_touches == 1 then
+        	local x, y = touches[1], touches[2]
         	if self.OnTouchBegan then
-        		local x, y = touches[1], touches[2]
         		local scale = self:GetScale()
         		self:OnTouchBegan((x - layer_x) / scale, (y - layer_y) / scale)
         	end
+        	self:TryOpenDebug(x, y)
         	self.is_move = nil
         elseif current_touches == 2 and self:CanScale() == 1 then
         	local x1, y1, x2, y2
@@ -351,6 +355,9 @@ function SceneBase:RegisterTouchEvent()
     end
 
     local function onTouchMoved(touches)
+    	if not self.scale then
+    		return
+    	end
     	if current_touches == 1 then
     		local x, y = touches[1], touches[2]
     		local touch_begin_point = touch_begin_points[touches[3]]
@@ -364,10 +371,14 @@ function SceneBase:RegisterTouchEvent()
 	        			bool_pick = 1
 	        		end
 	            end
-	            if bool_pick ~= 1 and self:CanDrag() == 1 then
-	                local new_layer_x, new_layer_y = layer_x + x - touch_begin_point.x, layer_y + y - touch_begin_point.y
-	                self:MoveMainLayer(new_layer_x, new_layer_y)
-	            end
+	            if self:GetLayer("debug_assert") then
+	            	self:MoveDebugMsg(x - touch_begin_point.x, y - touch_begin_point.y)
+	            else
+		            if bool_pick ~= 1 and self:CanDrag() == 1 then
+		                local new_layer_x, new_layer_y = layer_x + x - touch_begin_point.x, layer_y + y - touch_begin_point.y
+		                self:MoveMainLayer(new_layer_x, new_layer_y)
+		            end
+		        end
 	            touch_begin_point.x = x
 	            touch_begin_point.y = y
 	        end
@@ -395,14 +406,17 @@ function SceneBase:RegisterTouchEvent()
     end
 
     local function onTouchEnded(touches)
-    	-- print("end", #touches, touches[3], touches[6])
+    	if not self.scale then
+    		return
+    	end
         local layer_x, layer_y = layer_main:getPosition()
     	if current_touches == 1 then
-	        if self.OnTouchEnded then
-	        	local x, y = touches[1], touches[2]
+    		local x, y = touches[1], touches[2]
+	        if self.OnTouchEnded then	        	
 	        	local scale = self:GetScale() or 1
 	    		self:OnTouchEnded((x - layer_x) / scale, (y - layer_y) / scale)
 	    	end
+	    	self:CheckCanOpenDebug(x, y)
 	    	self.is_move = nil
 	    elseif current_touches == 2 then
 	        touch_distance = nil
@@ -433,34 +447,71 @@ function SceneBase:RegisterTouchEvent()
     layer_main:setTouchEnabled(true)
 end
 
-function SceneBase:RegistCocosButtonEvent(event, ui_name, button_name, func_name)
-	if not self.cocos_button_event then
-		self.cocos_button_event = {}
-	end
-	
-	if not self.cocos_button_event[event] then
-		self.cocos_button_event[event] = {}
-	end
-
-	if not self.cocos_button_event[event][ui_name] then
-		self.cocos_button_event[event][ui_name] = {}
-	end
-
-	self.cocos_button_event[event][ui_name][button_name] = func_name
+function SceneBase:RegistCocosWidgetEvent(event, ui_name, widget_name, func_name)
+	local func = self[func_name]
+	assert(type(func) == "function", "%s is not function", func_name)
+	return self:_RegisterTouchEvent(event, ui_name, widget_name, func)
 end
 
-function SceneBase:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
-	if not self.cocos_button_event[event] or not self.cocos_button_event[event][ui_name] then
+function SceneBase:_RegisterTouchEvent(event, ui_name, widget_name, func)
+	if not self.cocos_widget_event then
+		self.cocos_widget_event = {}
+	end
+	
+	if not self.cocos_widget_event[ui_name] then
+		self.cocos_widget_event[ui_name] = {}
+	end
+
+	if not self.cocos_widget_event[ui_name][widget_name] then
+		self.cocos_widget_event[ui_name][widget_name] = {}
+	end
+
+	self.cocos_widget_event[ui_name][widget_name][event] = func
+end
+
+function SceneBase:BindWidgetTouchEvent(ui_name, widget_name, target_widget_name)
+	local function SimTouchBegan(self)
+		local widget = Ui:GetCocosWidget(self:GetUI(), ui_name, widget_name)
+		widget:setHighlighted(true)
+		return self:OnCocosWidgetEvent(ui_name, widget_name, Ui.TOUCH_EVENT_BEGAN, widget)
+	end
+	self:_RegisterTouchEvent(Ui.TOUCH_EVENT_BEGAN, ui_name, target_widget_name, SimTouchBegan)
+
+	local function SimTouchMoved(self)
+		local widget = Ui:GetCocosWidget(self:GetUI(), ui_name, widget_name)
+		return self:OnCocosWidgetEvent(ui_name, widget_name, Ui.TOUCH_EVENT_MOVED, widget)
+	end
+	self:_RegisterTouchEvent(Ui.TOUCH_EVENT_MOVED, ui_name, target_widget_name, SimTouchMoved)
+
+	local function SimTouchEnded(self)
+		local widget = Ui:GetCocosWidget(self:GetUI(), ui_name, widget_name)
+		widget:setHighlighted(false)
+		return self:OnCocosWidgetEvent(ui_name, widget_name, Ui.TOUCH_EVENT_ENDED, widget)
+	end
+	self:_RegisterTouchEvent(Ui.TOUCH_EVENT_ENDED, ui_name, target_widget_name, SimTouchEnded)
+
+	local function SimTouchCanceled(self)
+		local widget = Ui:GetCocosWidget(self:GetUI(), ui_name, widget_name)
+		widget:setHighlighted(false)
+		return self:OnCocosWidgetEvent(ui_name, widget_name, Ui.TOUCH_EVENT_CANCELED, widget)
+	end
+	self:_RegisterTouchEvent(Ui.TOUCH_EVENT_CANCELED, ui_name, target_widget_name, SimTouchCanceled)
+end
+
+function SceneBase:IsHaveTouchEvent(ui_name, widget_name)
+	if not self.cocos_widget_event[ui_name] or not self.cocos_widget_event[ui_name][widget_name] then
+		return 0
+	end
+	return 1
+end
+
+function SceneBase:OnCocosWidgetEvent(ui_name, widget_name, event, widget_button)
+	if self:IsHaveTouchEvent(ui_name, widget_name) ~= 1 then
 		return
 	end
-	local func_name = self.cocos_button_event[event][ui_name][button_name]
-	if not func_name then
+	local func = self.cocos_widget_event[ui_name][widget_name][event]
+	if not func then
 		return
 	end
-	local func = self[func_name]
-	if type(func) ~= "function" then
-		assert(false, "%s is not function", func_name)
-		return
-	end
-	return self[func_name](self, ui_name, button_name, event, widget_button)
+	return func(self, ui_name, widget_name, event, widget_button)
 end

@@ -402,7 +402,7 @@ function SceneBase:CloseCurtain(time, call_back)
 	right:runAction(cc.Sequence:create(unpack(right_action_list)))
 end
 
-function SceneBase:AddMask(name, color, level)
+function SceneBase:AddMask(name, color, level, width, height)
 	local layer_color = cc.LayerColor:create(color, visible_size.width + 100, visible_size.height + 50)
 	layer_color:setLocalZOrder(level)
 	self:AddLayer(name, layer_color)
@@ -410,4 +410,115 @@ end
 
 function SceneBase:RemoveMask(name)
 	self:RemoveLayer(name)
+end
+
+function SceneBase:TryOpenDebug(x, y)
+	local function OverTime()
+		self.try_open_debug = nil
+		self.try_close_debug = nil
+	end
+	if x < 200 then
+		if y < 200 then
+			self.try_open_debug = 1
+			self:RegistRealTimerBySeconds(1, {OverTime})
+		elseif y > visible_size.height - 200 then
+			self.try_close_debug = 1
+			self:RegistRealTimerBySeconds(1, {OverTime})
+		end
+	end
+end
+
+function SceneBase:CheckCanOpenDebug(x, y)
+	if self.try_open_debug == 1 then
+		if (x > visible_size.width - 200) and y > (visible_size.height - 200) then
+			self:OpenDebugAssert()
+		end
+		self.try_open_debug = nil
+	end
+	if self.try_close_debug == 1 then
+		if (x > visible_size.width - 200) and y < 200 then
+			self:CloseDebugAssert()
+		end
+		self.try_close_debug = nil
+	end
+end
+
+function SceneBase:UpdateDebugAssert()
+	if not self:GetLayer("debug_assert") then
+		self:OpenDebugAssert()
+	else
+		local label = self:GetObj("debug_assert", "debug", "assert")
+		local msg = string.format(">>BEGIN\n%s\n>>END", Debug:GetRecordMsg())
+		label:setString(msg)
+		local rect = label:getBoundingBox()
+		label:setPosition(0, rect.height)
+	end
+end
+
+function SceneBase:OpenDebugAssert()
+	self:AddMask("debug_assert", cc.c4b(0, 0, 0, 220), 4)
+	local msg = string.format(">>BEGIN\n%s\n>>END", Debug:GetRecordMsg())
+	local label = cc.Label:createWithSystemFont(msg, "", 20, cc.size(visible_size.width, 0))
+	LabelEffect:EnableOutline(label, cc.c3b(255, 255, 255), cc.c3b(0.5, 0.5, 0.5, 1), 1)
+	label:setAnchorPoint(0, 1)
+	local rect = label:getBoundingBox()
+	label:setPosition(0, rect.height)
+	self:AddObj("debug_assert", "debug", "assert", label)
+
+	local element_list = {
+	    [1] = {
+	    	{
+				item_name = "上移",
+	        	callback_function = function()
+	        		self:MoveDebugMsg(0, -100)
+	        	end,
+	        },
+	    },
+	    [2] = {
+			{
+				item_name = "下移",
+				callback_function = function()
+					self:MoveDebugMsg(0, 100)
+				end,
+			},
+		},
+		[3] = {
+	        {
+				item_name = "关闭",
+	        	callback_function = function()
+	        		self:CloseDebugAssert()
+	        	end,
+	        },
+	    },
+	}	
+    local menu_array = Menu:GenerateByString(element_list, 
+    	{font_size = font_size or 30, align_type = "right", interval_y = 40, outline_color = cc.c4b(0.5, 0.5, 0.5, 1), outline_width = 2}
+    )
+    local ui_frame = self:GetUI()
+    local menu_tools = cc.Menu:create(unpack(menu_array))
+    menu_tools:setPosition(visible_size.width, visible_size.height - 200)
+   	self:AddObj("debug_assert", "debug", "close", menu_tools)
+end
+
+function SceneBase:MoveDebugMsg(x, y)
+	local label = self:GetObj("debug_assert", "debug", "assert")
+	local old_x, old_y = label:getPosition()
+	local rect = label:getBoundingBox()
+	if rect.height < visible_size.height then
+		return
+	end
+	local new_x, new_y = old_x, old_y + y
+	if new_y > rect.height then
+		new_y = rect.height
+	end
+	if new_y < visible_size.height then
+		new_y = visible_size.height
+	end
+	label:setPosition(new_x, new_y)
+end
+
+function SceneBase:CloseDebugAssert()
+	if self:GetLayer("debug_assert") then
+		self:RemoveLayer("debug_assert")
+	end
 end

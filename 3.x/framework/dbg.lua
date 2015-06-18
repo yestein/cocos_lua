@@ -44,8 +44,21 @@ end
 
 function Debug:Init(mode)
 	self:SetMode(mode)
-
+	self.assert_msg = ""
 	return 1
+end
+
+function Debug:GetRecordMsg()
+	return self.assert_msg
+end
+
+function Debug:RecordMsg(msg)
+	self.assert_msg = self.assert_msg .. msg
+end
+
+function Debug:InformDisplayAssertMsg()
+	local scene = SceneMgr:GetCurrentScene()
+	scene:UpdateDebugAssert()
 end
 
 function Debug:SetMode(mode)
