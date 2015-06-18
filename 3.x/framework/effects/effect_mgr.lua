@@ -40,8 +40,21 @@ local GenearteFuncion = {
 		SpriteSheets:RunAnimation(effect, animation_name, nil, loop_count)
 		return effect
 	end,
-	["skelton"] = function(skelton_name, animation_name)
-		local skelton = NewSkelton(skelton_name, nil, {})
+	["skelton"] = function(model_name, animation_name)
+		local display_param      = ModelConfig:GetParam(model_name)
+		local skelton_name       = display_param.skelton_name
+		local resource_direction = display_param.resource_direction
+
+		local param = {
+			scale                = scale or 1,
+			bone_change         = display_param.bone_change,		
+			animation_list       = display_param.animation_list,
+			bone_shader			 = display_param.bone_shader,
+			bone_visible           = display_param.bone_visible,		
+			offset               = display_param.offset,
+		}
+		local skelton = NewSkelton(skelton_name, resource_direction, param)
+		skelton:SetDirection("right")
 		if animation_name then
 			skelton:PlayAnimation(animation_name)
 		end

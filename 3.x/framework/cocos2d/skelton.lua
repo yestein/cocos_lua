@@ -96,10 +96,10 @@ function Skelton:_Init(name, orgin_direction, param)
 	sprite:setAnchorPoint(cc.p(0.5, 0))
 	self:SetSprite(sprite)
 
+
 	if not self:SetArmature(name, orgin_direction, param) then
 		return 0
 	end
-
 	self:PlayAnimation("normal")
 
 	if self:IsDebugBoundingBox() == 1 then
@@ -176,8 +176,8 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 	self:AddChildElement("armature", armature, 0, 0, 1, 10)
 
 	if param then
-		if param.change_equip then
-			for bone_name, index in pairs(param.change_equip) do
+		if param.bone_change then
+			for bone_name, index in pairs(param.bone_change) do
 				if type(index) == "number" then
 					self:ChangeBoneDisplay(bone_name, index)
 				elseif type(index) == "string" then
@@ -197,9 +197,9 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 			self.animation_bone_display = param.animation_bone_display
 		end
 
-		if param.hide_bone then
-			for bone_name, _ in pairs(param.hide_bone) do
-				self:SetBoneVisible(bone_name, false)
+		if param.bone_visible then
+			for bone_name, is_visible in pairs(param.bone_visible) do
+				self:SetBoneVisible(bone_name, is_visible == 1 and true or false)
 			end
 		end
 		if param.animation_list then
@@ -318,10 +318,11 @@ function Skelton:MoveTo(target_x, target_y, during_time, call_back)
 		end
 	end
 	local animation_name = "run"
-	local direction = self:GetDirection()
-	if (target_x - x) * direction < 0 then
-		animation_name = "run_back"
-	end
+	-- local direction = self:GetDirection()
+	-- print(self.id, self.skelton_name, direction)
+	-- if (target_x - x) * direction < 0 then
+	-- 	animation_name = "run_back"
+	-- end
 	if self:GetCurrentAnimation() ~= animation_name then
 		self:PlayAnimation(animation_name)
 	end
@@ -425,7 +426,11 @@ end
 
 function Skelton:SetBoneVisible(bone_name, is_visible)
 	local bone = self:GetArmature():getBone(bone_name)
-	bone:getDisplayRenderNode():setVisible(is_visible)
+	if not bone then
+		assert(false, "no %s bone", bone_name)
+		return
+	end
+	bone:setVisible(is_visible)
 end
 
 function Skelton:ChangeBoneDisplay(bone_name, index)
