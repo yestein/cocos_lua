@@ -85,6 +85,12 @@ if __platform == cc.PLATFORM_OS_WINDOWS then
 	end
 end
 
+
+if _VERSION == "Lua 5.3" then
+	pack = table.pack
+	unpack = table.unpack
+end
+
 local function main()
 	-- avoid memory leak
 	collectgarbage("setpause", 100)
@@ -139,12 +145,16 @@ end
 
 --This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 function DidEnterBackground()
-	-- body
+	if GameMgr.DidEnterBackground then
+		GameMgr:DidEnterBackground()
+	end
 end
 
 --this function will be called when the app is active again
 function WillEnterForeground()
-	-- body
+	if GameMgr.WillEnterForeground then
+		GameMgr:WillEnterForeground()
+	end
 end
 
 function Exit()

@@ -56,7 +56,7 @@ function GameMgr:OnLoop(delta)
 		end
 		if not self._lua_memory_count then
 			self._lua_memory_count = collectgarbage("count")
-			self.size = self._lua_memory_count / (MAX_COLLECT_TIME * self.LOGIC_FPS)
+			self.size = math.floor(self._lua_memory_count / (MAX_COLLECT_TIME * self.LOGIC_FPS))
 		end
 		local result = collectgarbage("step", self.size)
 		if result == true then
