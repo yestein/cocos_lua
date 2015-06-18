@@ -254,91 +254,34 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
                 for i=2, #widget_array do
                     last_node = last_node:getChildByName(widget_array[i])
                 end
-                return last_node
+                return last_node, widget_array[#widget_array]
             end
 
-            ui_widget.button = {}
-            ui_widget.widget2button = {}
-            local button_widget_list = ui_widget.button
-            local widget2button = ui_widget.widget2button
-
-            local function OnButtonEvent(node, event)
-                local widget_button = tolua.cast(node, "ccui.Button")
+            ui_widget.widget_list = {}
+            ui_widget.widget2name = {}
+            local widget_list = ui_widget.widget_list
+            local widget2name = ui_widget.widget2name
+            local function OnTouchEvent(node, event)
                 local scene = SceneMgr:GetScene(scene_name)
-                local button_name = widget2button[widget_button:getName()]
-                scene:OnCocosButtonEvent(ui_name, button_name, event, widget_button)
-            end
-            for button_name, widget_name in pairs(data.button or {}) do
-                local widget_button = GetTheLastNode(widget_name)
-                assert(widget2button, widget_name)
-                widget_button:addTouchEventListener(OnButtonEvent)
-                local widget_array = Lib:Split(widget_name, "/")
-                widget2button[widget_array[#widget_array]] = button_name
-                button_widget_list[button_name] = tolua.cast(widget_button, "ccui.Button")
+                local widget_name = widget2name[node]
+                scene:OnCocosWidgetEvent(ui_name, widget_name, event, node)
             end
 
-            ui_widget.text = {}
-            ui_widget.widget2text = {}
-            for text_name, widget_name in pairs(data.text or {}) do
-                ui_widget.text[text_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.Text")
-                ui_widget.widget2text[widget_name] = text_name
-            end
-
-            ui_widget.textbmfont = {}
-            ui_widget.widget2bmftext = {}
-            for textbmfont_name, widget_name in pairs(data.textbmfont or {}) do
-                ui_widget.textbmfont[textbmfont_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.TextBMFont")
-                ui_widget.widget2bmftext[widget_name] = textbmfont_name
-            end
-
-            ui_widget.image_view = {}
-            ui_widget.widget2imageview = {}
-            for imageview_name, widget_name in pairs(data.image_view or {}) do
-                ui_widget.image_view[imageview_name] = tolua.cast(assert(GetTheLastNode(widget_name), widget_name), "ccui.ImageView")
-                ui_widget.widget2imageview[widget_name] = imageview_name
-            end
-
-            ui_widget.text_field = {}
-            ui_widget.widget2text_field = {}
-            local text_field_widget_list = ui_widget.text_field
-            local widget2text_field = ui_widget.widget2text_field
-            local function OnTextFieldEvent(node, event)
-                local widget_text_field = tolua.cast(node, "ccui.TextField")
-                local scene = SceneMgr:GetScene(scene_name)
-                local text_field_name = widget2text_field[widget_text_field:getName()]
-                if scene.OnCocosTextFieldEvent then
-                    scene:OnCocosTextFieldEvent(ui_name, text_field_name, event, widget_text_field)
+            for widget_name, resource_name in pairs(data.widget or {}) do
+                local widget, real_name = GetTheLastNode(resource_name)
+                if not widget or not real_name then
+                    assert(false, widget_name, resource_name)
+                else
+                    if scene:IsHaveTouchEvent(ui_name, widget_name) == 1 then
+                        widget:addTouchEventListener(OnTouchEvent)
+                    end
+                    widget2name[widget] = widget_name
+                    widget_list[widget_name] = widget
                 end
             end
-            for text_field_name, widget_name in pairs(data.text_field or {}) do
-                local widget_text_field = GetTheLastNode(widget_name)
-                assert(widget2text_field, widget_name)
-                widget_text_field:addTouchEventListener(OnTextFieldEvent)
-                ui_widget.text_field[text_field_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.TextField")
-                local widget_array = Lib:Split(widget_name, "/")
-                ui_widget.widget2text_field[widget_array[#widget_array]] = text_field_name
-            end
-
-            ui_widget.scroll_view = {}
-            ui_widget.widget2scroll_view = {}
-            for scroll_view_name, widget_name in pairs(data.scroll_view or {}) do
-                ui_widget.scroll_view[scroll_view_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.ScrollView")
-                ui_widget.widget2scroll_view[widget_name] = scroll_view_name
-            end
-
-            ui_widget.progress_bar = {}
-            ui_widget.widget2progress_bar = {}
-            for progress_bar_name, widget_name in pairs(data.progress_bar or {}) do
-                ui_widget.progress_bar[progress_bar_name] = tolua.cast(assert(GetTheLastNode(widget_name)), "ccui.LoadingBar")
-                ui_widget.widget2progress_bar[widget_name] = progress_bar_name
-            end
-
-            ui_widget.panel = {}
-            ui_widget.widget2panel = {}
-            for panel_name, widget_name in pairs(data.panel or {}) do
-                ui_widget.panel[panel_name] = assert(GetTheLastNode(widget_name))
-                ui_widget.widget2panel[widget_name] = panel_name
-            end
+            root_widget:addTouchEventListener(OnTouchEvent)
+            widget2name[root_widget] = "root"
+            widget_list["root"] = root_widget         
         end
     end
 end
@@ -354,61 +297,35 @@ function Ui:GetCocosLayer(ui_frame, ui_name)
     end
 end
 
-function Ui:GetCocosButton(ui_frame, ui_name, button_name)
+function Ui:GetCocosWidget(ui_frame, ui_name, widget_name)
     if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].button then
-        return ui_frame.cocos_widget[ui_name].button[button_name]
+        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].widget_list then
+        return ui_frame.cocos_widget[ui_name].widget_list[widget_name]
     end
 end
 
-function Ui:GetCocosText(ui_frame, ui_name, text_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].text then
-        return ui_frame.cocos_widget[ui_name].text[text_name]
-    end
+function Ui:AddCocosWidget(ui_frame, ui_name, widget_name, parent_widget, widget)
+    local ui_widget = ui_frame.cocos_widget[ui_name]
+
+    local widget_list = ui_widget.widget_list
+    local widget2name = ui_widget.widget2name
+    
+    widget2name[widget] = widget_name
+    widget_list[widget_name] = widget
+    parent_widget:addChild(widget)
 end
 
-function Ui:GetCocosTextBMFont(ui_frame, ui_name, textbmfont_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].textbmfont then
-        return ui_frame.cocos_widget[ui_name].textbmfont[textbmfont_name]
-    end
+function Ui:RemoveCocosWidget(ui_frame, ui_name, widget_name, parent_widget, widget)
+    local ui_widget = ui_frame.cocos_widget[ui_name]
+
+    local widget_list = ui_widget.widget_list
+    local widget2name = ui_widget.widget2name
+    
+    widget2name[widget] = widget_name
+    widget_list[widget_name] = widget
+    parent_widget:addChild(widget)
 end
 
-function Ui:GetCocosImageView(ui_frame, ui_name, image_view_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].image_view then
-        return ui_frame.cocos_widget[ui_name].image_view[image_view_name]
-    end
-end
-
-function Ui:GetCocosTextField(ui_frame, ui_name, text_field_name)
-    if ui_frame and ui_frame.cocos_widget
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].text_field then
-        return ui_frame.cocos_widget[ui_name].text_field[text_field_name]
-    end
-end
-
-function Ui:GetCocosScrollView(ui_frame, ui_name, scroll_view_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].scroll_view then
-        return ui_frame.cocos_widget[ui_name].scroll_view[scroll_view_name]
-    end
-end
-
-function Ui:GetCocosProgressBar(ui_frame, ui_name, progress_bar_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].progress_bar then
-        return ui_frame.cocos_widget[ui_name].progress_bar[progress_bar_name]
-    end
-end
-
-function Ui:GetCocosPanel(ui_frame, ui_name, panel_name)
-    if ui_frame and ui_frame.cocos_widget 
-        and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].panel then
-        return ui_frame.cocos_widget[ui_name].panel[panel_name]
-    end
-end
 
 function Ui:PopPanel(panel)
     panel:setScale(0.01)

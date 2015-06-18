@@ -110,23 +110,10 @@ function Menu:GenerateByString(element_list, params)
 		end
 		local row_menu_list = {}
 		for column, element in ipairs(row_elements) do
-			local ccLabel = cc.Label:createWithSystemFont(element["item_name"] or "错误的菜单项", font_file_path, font_size)
-			if shadow_color and shadow_size then
-				ccLabel:enableShadow(shadow_color, shadow_size)
-			end
-			if __platform == cc.PLATFORM_OS_IPHONE or __platform == cc.PLATFORM_OS_IPAD or __platform == cc.PLATFORM_OS_ANDROID then
-				if outline_color and outline_width then
-					ccLabel:enableOutline(outline_color, outline_width)
-				end
-			end
-			if font_color then
-				if __platform == cc.PLATFORM_OS_IPHONE then
-					ccLabel:setTextColor(font_color)
-				else
-					ccLabel:setColor(font_color)
-				end
-			end
-			local menu = CCMenuItemLabel:create(ccLabel)
+			local label = cc.Label:createWithSystemFont(element["item_name"] or "错误的菜单项", font_file_path, font_size)
+			LabelEffect:EnableShadow(label, shadow_color, shadow_size)
+			LabelEffect:EnableOutline(label, font_color, outline_color, outline_width)
+			local menu = CCMenuItemLabel:create(label)
 			menu:registerScriptTapHandler(element["callback_function"])
 			local item_width = menu:getBoundingBox().width
 			if item_height == 0 then
