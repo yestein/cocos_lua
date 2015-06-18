@@ -81,7 +81,7 @@ function RpgObj:InitPassiveMove(move_speed)
 	if not move_speed then
 		return 0
 	end
-	self:AddComponent("move", "PASSIVE_MOVE", move_speed)
+	self:AddComponent("move", "PASSIVE_MOVE", self:GetPosition(), move_speed)
 	return 1
 end
 
@@ -266,14 +266,14 @@ function RpgObj:GetAttackSpeed()
 	return self.attack_speed
 end
 
-function RpgObj:InsertCommand(command, delay_frame)
+function RpgObj:InsertCommand(command, delay_frame, priority)
 	local state = self:TryCall("GetState")
 	if state == Def.STATE_DEAD then
 		return
 	end
 	local cmd_node = self:GetChild("cmd")
 	assert(cmd_node)
-	cmd_node:InsertCommand(command, delay_frame)
+	cmd_node:InsertCommand(command, delay_frame, priority)
 end
 
 function RpgObj:SetPosition(x, y)
@@ -284,9 +284,12 @@ end
 function RpgObj:GetXY()
 	local move_node = self:GetChild("move")
 	if move_node then
-		return move_node:GetXY()
+		local x, y = move_node:GetXY()
+		if x and y then
+			return x, y
+		end
 	end
-	return -1, -1
+	return self.position.x, self.position.y
 end
 
 function RpgObj:GetPosition()
@@ -326,7 +329,7 @@ function RpgObj:GetLifePercentage()
 	return percentage
 end
 
-function RpgObj:ChangeProperty(key, change_value,is_critical)
+function RpgObj:ChangeProperty(key, change_value)
 	local old_value = self:GetProperty(key)
 	local new_value = old_value + change_value
 
@@ -339,20 +342,21 @@ function RpgObj:ChangeProperty(key, change_value,is_critical)
 		end
 	end
 	if old_value == new_value then
-		return
+		return new_value
 	end
 	self:SetProperty(key, new_value)
 	local event_name = self:GetClassName()..".CHANGE_PROPERTY"
-	Event:FireEvent(event_name, self:GetId(), key, old_value, new_value, is_critical)
+	Event:FireEvent(event_name, self:GetId(), key, old_value, new_value)
 	if key == "life" and new_value <= 0 then
 		self:Dead()
 	end
+	return new_value
 end
 
 function RpgObj:ReceiveDamage(luancher_id, damage, is_critical)
 	local event_name = self:GetClassName()..".RECEIVE_DAMAGE"
 	Event:FireEvent(event_name, self:GetId(), luancher_id, damage, is_critical)
-	self:ChangeProperty("life", -damage, is_critical)
+	self:ChangeProperty("life", -damage)
 	self:SetLastDamager(luancher_id)	
 end
 
