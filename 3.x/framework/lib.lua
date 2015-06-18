@@ -59,6 +59,14 @@ function Lib:ShowTB1(tb)
 	end
 end
 
+function Lib:CopyTo(src_table, dest_table)
+	if type(src_table) == "table" and type(dest_table) == "table" then
+		for k, v in pairs(src_table) do
+			dest_table[k] = v
+		end
+	end
+end
+
 function Lib:CopyTB1(tb)
 	local table_copy = {}
 	for k, v in pairs(tb) do
@@ -91,6 +99,10 @@ function Lib.ShowStack(s)
 	return s
 end
 
+function Lib:GetFormatTime(time)
+	return string.format("%02d:%02d:%02d", math.floor(time / 3600), math.floor(time / 60) % 60, time % 60)
+end
+
 function Lib:SafeCall(callback)
 	local function InnerCall()
 		if type(callback) == "table" then
@@ -102,9 +114,19 @@ function Lib:SafeCall(callback)
 	return xpcall(InnerCall, Lib.ShowStack)
 end
 
+function Lib:ConcatArray(array_dest, array_src)
+	for _, v in ipairs(array_src) do
+		array_dest[#array_dest + 1] = v
+	end
+end
+
 function Lib:MergeTable(table_dest, table_src)
-	for _, v in ipairs(table_src) do
-		table_dest[#table_dest + 1] = v
+	for k, v in pairs(table_src) do
+		if type(table_dest[k]) == "number" and type(v) == "number" then
+			table_dest[k] = table_dest[k] + v
+		else
+			table_dest[k] = v
+		end
 	end
 end
 
@@ -284,7 +306,7 @@ function Lib:Table2OrderStr(tb, depth)
 end
 
 function Lib:Str2Val(str)
-	return assert(loadstring("return"..str)())
+	return assert(loadstring("return "..str)())
 end
 
 function Lib:SaveFile(file_path, content)
@@ -449,7 +471,7 @@ end
 -- local result = Lib:Dijkstra(connect_map, "wuzhishan_0")
 -- Lib:ShowTB(result["mkj"].path)
 
-function Lib:ShowBoundingBox(sprite, border_color)
+function Lib:ShowBoundingBox(sprite, border_color, is_no_dot)
 	local draw_flag = 333
 	while sprite:getChildByTag(draw_flag) do
 		sprite:removeChildByTag(draw_flag, true)
@@ -471,7 +493,9 @@ function Lib:ShowBoundingBox(sprite, border_color)
 		border_color
 	)
 	draw_node:setLocalZOrder(10000)
-	draw_node:drawDot(cc.p(anchor_points.x - offset_points.x, anchor_points.y - offset_points.y), 7, cc.c4b(1, 0, 0, 1))
+	if is_no_dot ~= 1 then
+		draw_node:drawDot(cc.p(anchor_points.x - offset_points.x, anchor_points.y - offset_points.y), 7, cc.c4b(1, 0, 0, 1))
+	end
 	sprite:addChild(draw_node)
 end
 
@@ -521,8 +545,8 @@ function Lib:Split(str, delim, maxNb)
     local result = {}  
     local pat = "(.-)" .. delim .. "()"   
     local nb = 0  
-    local lastPos   
-    for part, pos in string.gfind(str, pat) do  
+    local lastPos
+    for part, pos in string.gmatch(str, pat) do  
         nb = nb + 1  
         result[nb] = part   
         lastPos = pos   
