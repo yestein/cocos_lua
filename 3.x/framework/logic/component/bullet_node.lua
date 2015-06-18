@@ -93,6 +93,10 @@ function BulletNode:GoTo(x, y, call_back)
 	self.call_back = call_back
 end
 
+function BulletNode:GetTargetPos()
+	return self.target_pos
+end
+
 function BulletNode:MoveToTarget()
 	self:MoveTo(self.next_pos.x, self.next_pos.y)
 	if self:IsArriveTarget() == 1 then

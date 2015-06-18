@@ -92,6 +92,7 @@ end
 
 function ObjPool:Remove(id, ...)
 	if not id or not self.obj_pool[id] then
+		assert(false)
 		return 0
 	end
 

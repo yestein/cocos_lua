@@ -24,46 +24,54 @@ function CmdNode:_Init( ... )
 end
 
 function CmdNode:Breath(frame)
-	local command_list = self.command_pool[frame]
-	if not command_list then
-		return
-	end
+	local cmd_frame, command = self:GetNextCommand()
 	local fun = Stat:GetStatFunc("cmd active")
-	for _, command in ipairs(command_list) do
-		self:Execute(command)
+	while cmd_frame and cmd_frame <= frame do
+		table.remove(self.command_pool, 1)
+		self:Execute(command)		
+		cmd_frame, command = self:GetNextCommand()
 	end
 	if fun then
 		fun()
 	end
-	self.command_pool[frame] = nil
 end
 
-function CmdNode:InsertCommand(command, delay_frame)
+function CmdNode:GetNextCommand()
+	local command_data = self.command_pool[1]
+	if not command_data then
+		return
+	end
+	return command_data[1], command_data[2]
+end
+
+function CmdNode:InsertCommand(command, delay_frame, priority)
 	if not delay_frame then
 		delay_frame = 0
 	end
 
 	local frame = GameMgr:GetCurrentFrame() + delay_frame
-	if not self.command_pool[frame] then
-		self.command_pool[frame] = {}
-	end
-	table.insert(self.command_pool[frame], command)
+
+	table.insert(self.command_pool, {frame, command, priority or 0})
+	table.sort(self.command_pool,
+		function(a, b)
+			if a[1] == b[1] then
+				return a[3] > b[3]
+			else
+				return a[1] < b[1]
+			end
+		end
+	)
 	Event:FireEvent("RECEIVE_CMD", self:GetParent():GetId(), command[1], command, delay_frame)
 	return frame
 end
 
-function CmdNode:RemoveCommand(frame)
-	local command_list = self.command_pool[frame]
-	if command_list then
-		Event:FireEvent("CANCEL_CMD", self:GetParent():GetId(), frame)
-		self.command_pool[frame] = nil
-	end
+function CmdNode:RemoveCommand(index)
+	Event:FireEvent("CANCEL_CMD", self:GetParent():GetId(), index)
+	table.remove(self.command_pool, index)
 end
 
 function CmdNode:RemoveAllCmd()
-	for frame, command_list in pairs(self.command_pool) do
-		self:RemoveCommand(frame)
-	end
+	self.command_pool = {}
 end
 
 function CmdNode:Execute(command)
