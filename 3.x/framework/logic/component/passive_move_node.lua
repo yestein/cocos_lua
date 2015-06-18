@@ -33,7 +33,8 @@ function MoveNode:_Uninit()
 	return 1
 end
 
-function MoveNode:_Init(speed)
+function MoveNode:_Init(position, speed)
+	self.position = position
 	self.speed = speed
 	if self.speed > self.MAX_SPEED then
 		self.speed = self.MAX_SPEED
@@ -59,9 +60,9 @@ function MoveNode:GoTo(x, y, call_back)
 	y = math.floor(y)
 	local owner = self:GetParent()
 	local position = self:GetPosition()
-		
+	
 	if equal(position.x, x) and equal(position.y, y) then
-		return
+		return "目的地原地"
 	end	
 	
 	local buff_node = owner:GetChild("buff")
@@ -74,13 +75,13 @@ function MoveNode:GoTo(x, y, call_back)
 			end
 		end
 		if can_move == 0 then
-			return
+			return "无法移动"
 		end
 	end
 	
 
 	if owner:TryCall("SetActionState", Def.STATE_RUN) == 0 then
-		return
+		return "状态错误"
 	end
 
 	local event_name = owner:GetClassName()..".PASSIVE_GOTO"
@@ -129,16 +130,17 @@ end
 
 function MoveNode:GetPosition()
 	if self.sprite then
-		local x, y = self.sprite:getPosition()
-		return {x = x, y = y}
+		self.position.x, self.position.y = self.sprite:getPosition()
+		return self.position
 	end
-	return nil
+	return self.position
 end
 
 function MoveNode:GetXY()
 	if self.sprite then
 		return self.sprite:getPosition()
 	end
+	return self.position.x, self.position.y
 end
 
 function MoveNode:GetMoveSpeed()

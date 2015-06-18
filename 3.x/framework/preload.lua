@@ -25,7 +25,7 @@ end
 function PreloadScript()
 	for _, script_file in ipairs(g_script_list) do
 		print("loading \""..script_file.."\"")
-		require(script_file)
+		require("src/".. script_file..".lua")
 	end
 	for name, func in pairs(g_init_funciton) do
 		local result, ret_code = Lib:SafeCall({func})
@@ -124,5 +124,6 @@ AddPreloadFile("framework/cocos2d/sample_scene/scene_list")
 
 
 AddPreloadFile("framework/effects/fly_text")
+AddPreloadFile("framework/effects/label_effect")
 AddPreloadFile("framework/effects/effect_mgr")
 AddPreloadFile(PROJECT_PATH.."/game_mgr")

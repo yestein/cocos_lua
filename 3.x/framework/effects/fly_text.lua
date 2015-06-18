@@ -296,3 +296,89 @@ function FlyText:VerticalShakeWithIcon(layer, target_obj, custom_font_path, icon
 	jumped_text:runAction(cc.Sequence:create(unpack(action_list_text)))
 	icon:runAction(cc.Sequence:create(unpack(action_list_icon)))
 end
+
+function FlyText:VerticalShakeWithIcon1(target_obj, custom_font_path, icon_name, text, param)
+	if not param then
+		param = {}
+	end
+
+	local jumped_text = cc.LabelBMFont:create(text, custom_font_path)
+	if param.text_scale then
+		jumped_text:setScale(param.text_scale)
+	end
+	local color = param.color or "white"	
+	jumped_text:setColor(Def:GetColor(color))
+	target_obj:addChild(jumped_text)
+
+	if param.zorder then
+		jumped_text:setLocalZOrder(param.zorder)
+	else
+		jumped_text:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	end
+
+	local icon = cc.Sprite:create(icon_name)
+	if param.icon_scale then
+		icon:setScale(param.icon_scale)
+	end
+	target_obj:addChild(icon)
+	if param.zorder then
+		icon:setLocalZOrder(param.zorder)
+	else
+		icon:setLocalZOrder(target_obj:getLocalZOrder() + 1)
+	end
+
+	local offset_x = param.offset_x or 0
+	local offset_y = param.offset_y or 0
+	local sprite_rect = target_obj:getBoundingBox()
+	local icon_rect = icon:getBoundingBox()
+	local text_rect = jumped_text:getBoundingBox()
+	local percent_x = param.percent_x or 0.5
+	local percent_y = param.percent_y or 1
+	local icon_x = sprite_rect.width * percent_x - (icon_rect.width + text_rect.width) * 0.5 + icon_rect.width / 2 + offset_x
+	local text_x = icon_x + icon_rect.width / 2 + text_rect.width / 2 + (param.blank_width or 0)
+	local icon_y = sprite_rect.height * percent_y + offset_y
+	local text_y = icon_y
+
+	jumped_text:setPosition(text_x, text_y)
+	icon:setPosition(icon_x, icon_y)
+
+	local up_time = param.up_time or 0
+	local down_time = param.down_time or 0
+	local up_y = param.up_y or 0
+	local down_y = param.down_y or 0
+	local delay_time = param.delay_time or 0
+	local fade_time = param.fade_time or 0
+
+	local action_list_icon = {}
+	local action_list_text = {}
+
+	if up_time > 0 and up_y ~= 0 then
+		action_list_icon[#action_list_icon + 1] = cc.MoveBy:create(up_time, cc.p(0, up_y))
+		action_list_text[#action_list_text + 1] = cc.MoveBy:create(up_time, cc.p(0, up_y))
+	end
+	
+	if down_time > 0 and down_y ~= 0 then
+		action_list_icon[#action_list_icon + 1] = cc.MoveBy:create(down_time, cc.p(0, down_y))
+		action_list_text[#action_list_text + 1] = cc.MoveBy:create(down_time, cc.p(0, down_y))
+	end
+	
+	if delay_time > 0 then
+		local action_delay_time = cc.DelayTime:create(delay_time)
+		action_list_icon[#action_list_icon + 1] = action_delay_time
+		action_list_text[#action_list_text + 1] = action_delay_time
+	end
+	
+	if fade_time > 0 then
+		action_list_icon[#action_list_icon + 1] = CCFadeOut:create(fade_time)
+		action_list_text[#action_list_text + 1] = CCFadeOut:create(fade_time)
+	end
+	
+	local action_remove_self = cc.RemoveSelf:create()
+	action_list_icon[#action_list_icon + 1] = action_remove_self
+	action_list_text[#action_list_text + 1] = action_remove_self
+
+	
+	jumped_text:runAction(cc.Sequence:create(unpack(action_list_text)))
+	icon:runAction(cc.Sequence:create(unpack(action_list_icon)))
+end
+
