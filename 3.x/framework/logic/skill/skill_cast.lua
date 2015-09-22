@@ -3,34 +3,35 @@
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : 2014/6/5 15:59:22
 -- Description  : skill_cast
--- Modify       : 
+-- Modify       :
 --=======================================================================
 
 if not SkillCast then
-	SkillCast = {
-		class_list = {},
-	}
+    SkillCast = {
+        class_list = {},
+    }
 end
 
 function SkillCast:NewMethod(method_name)
-	assert(not self.class_list[method_name])
-	self.class_list[method_name] = {}
-	
-	return self.class_list[method_name]
+    assert(not self.class_list[method_name])
+    self.class_list[method_name] = {}
+
+    return self.class_list[method_name]
 end
 
 function SkillCast:RawGetMethod(method_name)
-	if not self.class_list[method_name] then
-		return
-	end
-	return self.class_list[method_name]
+    if not self.class_list[method_name] then
+        return
+    end
+    return self.class_list[method_name]
 end
 
-function SkillCast:GetMethod(method_name)
-	local method = self:RawGetMethod(method_name)
-	if not method then
-		assert(false, "No Skill Cast Method[%s]", method_name)
-		return
-	end
-	return Lib:GetReadOnly(method)
+function SkillCast:GetMethod(method_id)
+    local method_name = Def.SKILL_CAST_TYPE[method_id]
+    local method = self:RawGetMethod(method_name)
+    if not method then
+        assert(false, "No Skill Cast Method[%s]", method_name)
+        return
+    end
+    return Lib:GetReadOnly(method)
 end

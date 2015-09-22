@@ -3,19 +3,19 @@
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : 2015/1/6 11:27:13
 -- Description  : description
--- Modify       : 
+-- Modify       :
 --=======================================================================
 
 if not ShaderMgr then
-	ShaderMgr = {
-		shader_list = {},
+    ShaderMgr = {
+        shader_list = {},
         GLProgramCache = nil,
-	}
+    }
 end
 
 function ShaderMgr:Init()
     self.GLProgramCache = cc.GLProgramCache:getInstance()
-	return 1
+    return 1
 end
 
 function ShaderMgr:AddShader(shader_name, vsh_file, fsh_file)
@@ -30,5 +30,5 @@ function ShaderMgr:AddShader(shader_name, vsh_file, fsh_file)
 end
 
 function ShaderMgr:GetShader(name)
-	return self.GLProgramCache:getGLProgram(name)
+    return self.GLProgramCache:getGLProgram(name)
 end

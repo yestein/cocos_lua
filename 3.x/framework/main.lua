@@ -10,8 +10,14 @@
 -- for CCLuaEngine traceback
 function __G__TRACKBACK__(msg)
     print("----------------------------------------")
+    if SetConsoleError then
+        SetConsoleError(1)
+    end
     print("LUA ERROR: " .. tostring(msg) .. "\n")
     print(debug.traceback())
+    if SetConsoleError then
+        SetConsoleError(0)
+    end
     print("----------------------------------------")
 end
 
@@ -21,16 +27,16 @@ __platform = cc.Application:getInstance():getTargetPlatform()
 __write_path = cc.FileUtils:getInstance():getWritablePath()
 
 local platform_name = {
-	[cc.PLATFORM_OS_WINDOWS   ] = "Windows",
-	[cc.PLATFORM_OS_LINUX     ] = "Linux",
-	[cc.PLATFORM_OS_MAC       ] = "Mac",
-	[cc.PLATFORM_OS_ANDROID   ] = "Android",
-	[cc.PLATFORM_OS_IPHONE    ] = "iPhone",
-	[cc.PLATFORM_OS_IPAD      ] = "iPad",
-	[cc.PLATFORM_OS_BLACKBERRY] = "BlackBerry",
-	[cc.PLATFORM_OS_NACL      ] = "nacl",
-	[cc.PLATFORM_OS_EMSCRIPTEN] = "emscripten",
-	[cc.PLATFORM_OS_TIZEN     ] = "tizen",
+    [cc.PLATFORM_OS_WINDOWS   ] = "Windows",
+    [cc.PLATFORM_OS_LINUX     ] = "Linux",
+    [cc.PLATFORM_OS_MAC       ] = "Mac",
+    [cc.PLATFORM_OS_ANDROID   ] = "Android",
+    [cc.PLATFORM_OS_IPHONE    ] = "iPhone",
+    [cc.PLATFORM_OS_IPAD      ] = "iPad",
+    [cc.PLATFORM_OS_BLACKBERRY] = "BlackBerry",
+    [cc.PLATFORM_OS_NACL      ] = "nacl",
+    [cc.PLATFORM_OS_EMSCRIPTEN] = "emscripten",
+    [cc.PLATFORM_OS_TIZEN     ] = "tizen",
 }
 
 require("project.lua")
@@ -39,82 +45,76 @@ require(PROJECT_PATH.."/preload.lua")
 assert(PreloadScript() == 1)
 
 function InsertConsoleCmd(cmd_string)
-	wait_execute_cmd_string = cmd_string
+    wait_execute_cmd_string = cmd_string
 end
 
 local function ExecuteCmdString(cmd_string)
-	if cmd_string then
-		local cmd_func = loadstring(cmd_string)
-		if cmd_func then
-			xpcall(cmd_func, __G__TRACKBACK__)
-		else
-			cclog("Invalid CMD! %s", cmd_string)
-		end
-	end
+    if cmd_string then
+        local cmd_func = loadstring(cmd_string)
+        if cmd_func then
+            xpcall(cmd_func, __G__TRACKBACK__)
+        else
+            cclog("Invalid CMD! %s", cmd_string)
+        end
+    end
 end
 local function MainLoop(delta)
-	local fun = Stat:GetStatFunc("main loop")
-	if FetchConsoleCmd then
-		ExecuteCmdString(FetchConsoleCmd())
-	end
-	if wait_execute_cmd_string then
-		ExecuteCmdString(wait_execute_cmd_string)
-		wait_execute_cmd_string = nil
-	end
-	local tbModule = nil
-	function ModulLoop()
-		tbModule:OnLoop(delta)
-	end
+    local fun = Stat:GetStatFunc("main loop")
+    if FetchConsoleCmd then
+        ExecuteCmdString(FetchConsoleCmd())
+    end
+    if wait_execute_cmd_string then
+        ExecuteCmdString(wait_execute_cmd_string)
+        wait_execute_cmd_string = nil
+    end
+    local tbModule = nil
+    function ModulLoop()
+        tbModule:OnLoop(delta)
+    end
 
-	tbModule = Physics
-	xpcall(ModulLoop, __G__TRACKBACK__)
+    tbModule = Physics
+    xpcall(ModulLoop, __G__TRACKBACK__)
 
-	tbModule = GameMgr
-	xpcall(ModulLoop, __G__TRACKBACK__)
+    tbModule = GameMgr
+    xpcall(ModulLoop, __G__TRACKBACK__)
 
-	tbModule = SceneMgr
-	xpcall(ModulLoop, __G__TRACKBACK__)
-	if fun then
-		fun()
-	end
+    tbModule = SceneMgr
+    xpcall(ModulLoop, __G__TRACKBACK__)
+    if fun then
+        fun()
+    end
 end
 
 if __platform == cc.PLATFORM_OS_WINDOWS then
-	function OnWin32End()
-		Exit()
-	end
-end
-
-
-if _VERSION == "Lua 5.3" then
-	pack = table.pack
-	unpack = table.unpack
+    function OnWin32End()
+        Exit()
+    end
 end
 
 local function main()
-	-- avoid memory leak
-	collectgarbage("setpause", 100)
-	collectgarbage("setstepmul", 5000)
-	print("main start")
-	local director = cc.Director:getInstance()
-	CCDirector:getInstance():setDisplayStats(true)
+    -- avoid memory leak
+    collectgarbage("setpause", 100)
+    collectgarbage("setstepmul", 5000)
+    print("main start")
+    local director = cc.Director:getInstance()
+    CCDirector:getInstance():setDisplayStats(true)
 
     if GameMgr.Preset then
-    	GameMgr:Preset()
+        GameMgr:Preset()
     end
 
     visible_size = director:getVisibleSize()
-	local glview = director:getOpenGLView()
-	resolution_size = glview:getDesignResolutionSize()
-	
-	math.randomseed(os.time())
-	math.random(100)
-	Event:Preload()
+    local glview = director:getOpenGLView()
+    resolution_size = glview:getDesignResolutionSize()
+
+    math.randomseed(os.time())
+    math.random(100)
+    Event:Preload()
     assert(Debug:Init(Debug.MODE_BLACK_LIST) == 1)
     assert(ShaderMgr:Init() == 1)
     assert(SceneMgr:Init() == 1)
     if __Debug then
-    	assert(SceneMgr:CheckAllClass() == 1)
+        assert(SceneMgr:CheckAllClass() == 1)
     end
     assert(Resource:Init() == 1)
     assert(Physics:Init() == 1)
@@ -123,45 +123,45 @@ local function main()
     print("================================================")
     print("Lua:", _VERSION)
     if __Debug == 1 then
-    	print("Mode:", "Debug")
+        print("Mode:", "Debug")
     else
-    	print("Mode:", "Release")
+        print("Mode:", "Release")
     end
-	print("Platform:", platform_name[__platform] or __platform)
-	if CCVersion then
-		print("Cocos2d: ", CCVersion())
-	end
-    print("Project:", PROJECT_PATH) 
-   
+    print("Platform:", platform_name[__platform] or __platform)
+    if CCVersion then
+        print("Cocos2d: ", CCVersion())
+    end
+    print("Project:", PROJECT_PATH)
 
-	if jit then
-		print("LuaJIT: ", jit.version)
-	end
+
+    if jit then
+        print("LuaJIT: ", jit.version)
+    end
     print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
-    print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))   
-	print("================================================")
+    print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))
+    print("================================================")
     assert(GameMgr:Init() == 1)
 end
 
 --This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 function DidEnterBackground()
-	if GameMgr.DidEnterBackground then
-		GameMgr:DidEnterBackground()
-	end
+    if GameMgr.DidEnterBackground then
+        GameMgr:DidEnterBackground()
+    end
 end
 
 --this function will be called when the app is active again
 function WillEnterForeground()
-	if GameMgr.WillEnterForeground then
-		GameMgr:WillEnterForeground()
-	end
+    if GameMgr.WillEnterForeground then
+        GameMgr:WillEnterForeground()
+    end
 end
 
 function Exit()
-	GameMgr:Uninit()
-	Ui:Uninit()
-	Physics:Uninit()
-	SceneMgr:Uninit()
-	Net:Uninit()
+    GameMgr:Uninit()
+    Ui:Uninit()
+    Physics:Uninit()
+    SceneMgr:Uninit()
+    Net:Uninit()
 end
 xpcall(main, __G__TRACKBACK__)

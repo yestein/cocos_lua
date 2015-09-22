@@ -8,50 +8,68 @@
 
 local g_script_list = {}
 local g_init_funciton = {}
+local g_addition_package_path = {}
+local raw_package_path = package.path
+
+if _VERSION == "Lua 5.3" then
+    pack = table.pack
+    unpack = table.unpack
+end
+
+function AddPackagePath(package_path)
+    g_addition_package_path[package_path] = 1
+end
 
 function AddPreloadFile(script_file)
-	g_script_list[#g_script_list + 1] = script_file
+    g_script_list[#g_script_list + 1] = script_file
 end
 
 function AddProjectScript(script_file)
-	return AddPreloadFile(PROJECT_PATH.."/"..script_file)
+    return AddPreloadFile(PROJECT_PATH.."/"..script_file)
 end
 
-
 function AddInitFunction(name, func)
-	g_init_funciton[name] = func
+    g_init_funciton[name] = func
 end
 
 function PreloadScript()
-	for _, script_file in ipairs(g_script_list) do
-		print("loading \""..script_file.."\"")
-		require("src/".. script_file..".lua")
-	end
-	for name, func in pairs(g_init_funciton) do
-		local result, ret_code = Lib:SafeCall({func})
-		if not result or ret_code ~= 1 then
-			assert(false, "%s execute failed", name)
-			return 0
-		end
-	end
-	return 1
+    print("old path", raw_package_path)
+    local new_package_path = ""
+    for path, _ in pairs(g_addition_package_path) do
+        print(path)
+        new_package_path = string.format("src/%s/?.lua;", path) .. new_package_path
+    end
+    package.path = new_package_path .. raw_package_path
+    print("Package Path", package.path)
+    for _, script_file in ipairs(g_script_list) do
+        print("loading \""..script_file.."\"")
+        require("src/".. script_file..".lua")
+    end
+    for name, func in pairs(g_init_funciton) do
+        local result, ret_code = Lib:SafeCall({func})
+        if not result or ret_code ~= 1 then
+            assert(false, "%s execute failed", name)
+            return 0
+        end
+    end
+    return 1
 end
 
 function ReloadScript()
-	if __platform == cc.PLATFORM_OS_WINDOWS then
-		print("Reload Lua Script...")
-		for _, script_file in ipairs(g_script_list) do
-			dofile("src/"..script_file .. ".lua")
-			print("Reload\t["..script_file.."]")
-		end
+    if __platform == cc.PLATFORM_OS_WINDOWS then
+        print("Reload Lua Script...")
+        for _, script_file in ipairs(g_script_list) do
+            dofile("src/"..script_file .. ".lua")
+            print("Reload\t["..script_file.."]")
+        end
 
-		for name, func in pairs(g_init_funciton) do
-			print(name .. "...")
-			Lib:SafeCall({func})
-		end
-	else
-		print("Can not support Script Reload!!")
-	end
+        for name, func in pairs(g_init_funciton) do
+            print(name .. "...")
+            Lib:SafeCall({func})
+        end
+    else
+        print("Can not support Script Reload!!")
+    end
 end
 
 AddPreloadFile("framework/log")
@@ -65,10 +83,12 @@ AddPreloadFile("framework/physics_mgr")
 AddPreloadFile("framework/define")
 AddPreloadFile("framework/timer_base")
 AddPreloadFile("framework/shader_mgr")
+AddPreloadFile("framework/random_pool")
 
 AddPreloadFile("framework/logic/logic_node")
 AddPreloadFile("framework/logic/game_mgr")
 AddPreloadFile("framework/logic/module_mgr")
+AddPreloadFile("framework/logic/story_mgr")
 AddPreloadFile("framework/logic/obj_base")
 AddPreloadFile("framework/logic/obj_pool")
 AddPreloadFile("framework/logic/real_timer")
@@ -95,6 +115,7 @@ AddPreloadFile("framework/logic/rpg/calculator")
 
 AddPreloadFile("framework/logic/component/move_node")
 AddPreloadFile("framework/logic/component/passive_move_node")
+AddPreloadFile("framework/logic/component/direction_move_node")
 AddPreloadFile("framework/logic/component/bullet_node")
 AddPreloadFile("framework/logic/component/cmd_node")
 AddPreloadFile("framework/logic/component/ai_node")
@@ -115,6 +136,7 @@ AddPreloadFile("framework/cocos2d/scene_base")
 AddPreloadFile("framework/cocos2d/scene_base_ex")
 AddPreloadFile("framework/cocos2d/scene_mgr")
 AddPreloadFile("framework/cocos2d/puppet")
+AddPreloadFile("framework/cocos2d/spine_skelton")
 AddPreloadFile("framework/cocos2d/skelton")
 AddPreloadFile("framework/cocos2d/skelton_ex")
 AddPreloadFile("framework/cocos2d/skelton_pool")

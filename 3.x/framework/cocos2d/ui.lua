@@ -18,6 +18,11 @@ Ui.TOUCH_EVENT_MOVED    = 1
 Ui.TOUCH_EVENT_ENDED    = 2
 Ui.TOUCH_EVENT_CANCELED = 3
 
+Ui.TextureResType = {
+    LOCAL = 0,
+    PLIST = 1,
+}
+
 local title_font_name = "MarkerFelt-Thin"
 if __platform == cc.PLATFORM_OS_WINDOWS then
     title_font_name = "Microsoft Yahei"
@@ -39,9 +44,9 @@ function Ui:InitScene(scene, cc_scene)
         cclog("[%s]Already Exists", scene_name)
         return
     end
-    
+
     local ui_frame = {}
-	ui_frame.element_list = {
+    ui_frame.element_list = {
         ["MENU"] = {},
         ["LABELTTF"] = {},
         ["LABELBMFONT"] = {},
@@ -49,13 +54,14 @@ function Ui:InitScene(scene, cc_scene)
         ["DRAW"] = {},
     }
 
-    ui_frame.sysmsg_list = {}    
+    ui_frame.sysmsg_list = {}
 
-	local cc_layer_ui = CCLayer:create()        
+    local cc_layer_ui = scene:CreateLayer("ui", Def.ZOOM_LEVEL_TITLE)
+    local cc_layer_msg = scene:CreateLayer("msg", Def.ZOOM_LEVEL_SYSMSG)
 
     for i = 1, Ui.MSG_MAX_COUNT do
         local cc_labelttf_sysmsg = CCLabelTTF:create("系统提示", title_font_name, 40)
-        cc_layer_ui:addChild(cc_labelttf_sysmsg)
+        cc_layer_msg:addChild(cc_labelttf_sysmsg)
         cc_labelttf_sysmsg:setLocalZOrder(Def.ZOOM_LEVEL_SYSMSG)
         local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height / 2 - (2 - i) * tbMsgRect.height)
@@ -64,10 +70,9 @@ function Ui:InitScene(scene, cc_scene)
     end
     ui_frame.index_sysmsg = 1
 
-    cc_scene:addChild(cc_layer_ui, Def.ZOOM_LEVEL_TITLE)
-
     ui_frame.cc_scene = cc_scene
     ui_frame.cc_layer_ui = cc_layer_ui
+    ui_frame.cc_layer_msg = cc_layer_msg
 
     local border_height = Movie:GetBorderHeight()
     local movie_boder_up = cc.DrawNode:create()
@@ -86,7 +91,7 @@ function Ui:InitScene(scene, cc_scene)
 
     self.scene_ui_list[scene_name] = ui_frame
 
-    self:PreloadCocosUI(scene_name, scene.cocos_ui)
+    self:LoadCocosUIList(scene_name, scene.cocos_ui)
 end
 
 function Ui:UninitScene(scene_name)
@@ -101,7 +106,7 @@ function Ui:UninitScene(scene_name)
         end
     end
     for _, cc_lable in pairs(ui_frame.sysmsg_list) do
-        ui_frame.cc_layer_ui:removeChild(cc_lable, true)
+        ui_frame.cc_layer_msg:removeChild(cc_lable, true)
     end
     ui_frame.cc_scene:removeChild(ui_frame.cc_layer_ui)
 
@@ -208,8 +213,8 @@ function Ui:SysMsg(ui_frame, text_content, color_name)
             cc_labelttf_sysmsg:setColor(color)
             cc_labelttf_sysmsg:stopAllActions()
             cc_labelttf_sysmsg:runAction(CCFadeOut:create(3))
-        end        
-        local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()        
+        end
+        local tbMsgRect = cc_labelttf_sysmsg:getBoundingBox()
         cc_labelttf_sysmsg:setPosition(visible_size.width / 2, visible_size.height - (self.MSG_MAX_COUNT - i + 1) * tbMsgRect.height)
     end
     ui_frame.index_sysmsg = ui_frame.index_sysmsg + 1
@@ -219,13 +224,60 @@ function Ui:SysMsg(ui_frame, text_content, color_name)
 end
 
 function Ui:LoadJson(cc_layer, json_file_path)
-    local root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
-    local widget_rect = root_widget:getSize()
-    cc_layer:addChild(root_widget)
-    return root_widget, widget_rect
+
+    local cc_root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
+    local widget_rect = cc_root_widget:getSize()
+    cc_layer:addChild(cc_root_widget)
+    return cc_root_widget, widget_rect
+
 end
 
-function Ui:PreloadCocosUI(scene_name, ui_list)
+function Ui:LoadCocosUI(scene_name, json_file_path, data)
+    local ui_widget = {}
+    local ui_name = data.name
+    local scene = SceneMgr:GetScene(scene_name)
+    local cc_root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
+
+    ui_widget.cc_root_widget = cc_root_widget
+
+    local function GetTheLastNode(widget_name)
+        local widget_array = Lib:Split(widget_name, "/")
+        local cc_last_node = cc_root_widget:getChildByName(widget_array[1])
+        for i=2, #widget_array do
+            cc_last_node = cc_last_node:getChildByName(widget_array[i])
+        end
+        return cc_last_node, widget_array[#widget_array]
+    end
+
+    ui_widget.widget_list = {}
+    ui_widget.widget2name = {}
+    local widget_list = ui_widget.widget_list
+    local widget2name = ui_widget.widget2name
+    local function OnTouchEvent(cc_node, event)
+        local widget_name = widget2name[cc_node]
+        scene:OnCocosWidgetEvent(ui_name, widget_name, event, cc_node)
+    end
+
+    for widget_name, resource_name in pairs(data.widget or {}) do
+        local cc_widget, real_name = GetTheLastNode(resource_name)
+        if not cc_widget or not real_name then
+            assert(false, widget_name, resource_name)
+        else
+            if scene:IsHaveTouchEvent(ui_name, widget_name) == 1 then
+                cc_widget:addTouchEventListener(OnTouchEvent)
+            end
+            widget2name[cc_widget] = widget_name
+            widget_list[widget_name] = cc_widget
+        end
+    end
+    cc_root_widget:addTouchEventListener(OnTouchEvent)
+    widget2name[cc_root_widget] = "root"
+    widget_list["root"] = cc_root_widget
+
+    return ui_widget
+end
+
+function Ui:LoadCocosUIList(scene_name, ui_list)
     local ui_frame = self:GetSceneUi(scene_name)
     if ui_list and ui_frame then
         if not ui_frame.cocos_widget then
@@ -234,71 +286,36 @@ function Ui:PreloadCocosUI(scene_name, ui_list)
         local scene = SceneMgr:GetScene(scene_name)
         for json_file_path, data in pairs(ui_list) do
             local ui_name = data.name
-            local root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
-            scene:AddLayer(ui_name, root_widget)
-            local widget_rect = root_widget:getSize()
-            root_widget:setScaleX(visible_size.width / widget_rect.width)
-            root_widget:setScaleY(visible_size.height / widget_rect.height)
+
+
+            ui_frame.cocos_widget[ui_name] = self:LoadCocosUI(scene_name, json_file_path, data)
+            local cc_root_widget = ui_frame.cocos_widget[ui_name].cc_root_widget
+
+            local widget_rect = cc_root_widget:getSize()
+            cc_root_widget:setScaleX(visible_size.width / widget_rect.width)
+            cc_root_widget:setScaleY(visible_size.height / widget_rect.height)
             if data.hide == 1 then
-                root_widget:setVisible(false)
-                -- self:SetCocosLayerEnabled(root_widget, false)
-            end
-            ui_frame.cocos_widget[ui_name] = {}
-            local ui_widget = ui_frame.cocos_widget[ui_name]
-
-            ui_widget.root_widget = root_widget
-
-            local function GetTheLastNode(widget_name)
-                local widget_array = Lib:Split(widget_name, "/")
-                local last_node = root_widget:getChildByName(widget_array[1])
-                for i=2, #widget_array do
-                    last_node = last_node:getChildByName(widget_array[i])
-                end
-                return last_node, widget_array[#widget_array]
+                cc_root_widget:setVisible(false)
             end
 
-            ui_widget.widget_list = {}
-            ui_widget.widget2name = {}
-            local widget_list = ui_widget.widget_list
-            local widget2name = ui_widget.widget2name
-            local function OnTouchEvent(node, event)
-                local scene = SceneMgr:GetScene(scene_name)
-                local widget_name = widget2name[node]
-                scene:OnCocosWidgetEvent(ui_name, widget_name, event, node)
-            end
-
-            for widget_name, resource_name in pairs(data.widget or {}) do
-                local widget, real_name = GetTheLastNode(resource_name)
-                if not widget or not real_name then
-                    assert(false, widget_name, resource_name)
-                else
-                    if scene:IsHaveTouchEvent(ui_name, widget_name) == 1 then
-                        widget:addTouchEventListener(OnTouchEvent)
-                    end
-                    widget2name[widget] = widget_name
-                    widget_list[widget_name] = widget
-                end
-            end
-            root_widget:addTouchEventListener(OnTouchEvent)
-            widget2name[root_widget] = "root"
-            widget_list["root"] = root_widget         
+            scene:AddLayer(ui_name, cc_root_widget)
         end
     end
 end
 
-function Ui:SetCocosLayerEnabled(root_widget, is_enable)
-    root_widget:setEnabled(is_enable)
+function Ui:SetCocosLayerEnabled(cc_root_widget, is_enable)
+    cc_root_widget:setEnabled(is_enable)
 end
 
 function Ui:GetCocosLayer(ui_frame, ui_name)
-    if ui_frame and ui_frame.cocos_widget 
+    if ui_frame and ui_frame.cocos_widget
         and ui_frame.cocos_widget[ui_name] then
-        return ui_frame.cocos_widget[ui_name].root_widget
+        return ui_frame.cocos_widget[ui_name].cc_root_widget
     end
 end
 
 function Ui:GetCocosWidget(ui_frame, ui_name, widget_name)
-    if ui_frame and ui_frame.cocos_widget 
+    if ui_frame and ui_frame.cocos_widget
         and ui_frame.cocos_widget[ui_name] and ui_frame.cocos_widget[ui_name].widget_list then
         return ui_frame.cocos_widget[ui_name].widget_list[widget_name]
     end
@@ -309,7 +326,7 @@ function Ui:AddCocosWidget(ui_frame, ui_name, widget_name, parent_widget, widget
 
     local widget_list = ui_widget.widget_list
     local widget2name = ui_widget.widget2name
-    
+
     widget2name[widget] = widget_name
     widget_list[widget_name] = widget
     parent_widget:addChild(widget)
@@ -320,7 +337,7 @@ function Ui:RemoveCocosWidget(ui_frame, ui_name, widget_name, parent_widget, wid
 
     local widget_list = ui_widget.widget_list
     local widget2name = ui_widget.widget2name
-    
+
     widget2name[widget] = widget_name
     widget_list[widget_name] = widget
     parent_widget:addChild(widget)

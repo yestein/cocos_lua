@@ -3,16 +3,16 @@
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : 2014/6/11 10:15:28
 -- Description  : animation
--- Modify       : 
+-- Modify       :
 --=======================================================================
 
 if not SpriteSheets then
-	SpriteSheets = {}
+    SpriteSheets = {}
 end
 local cache = cc.SpriteFrameCache:getInstance()
 
 function SpriteSheets:Uninit()
-	self.animation_num_list = nil
+    self.animation_num_list = nil
     return 1
 end
 
@@ -24,36 +24,36 @@ function SpriteSheets:SetAnimationParam(animation_name, param)
     if not self.animation_num_list then
         self.animation_num_list = {}
     end
-	self.animation_num_list[animation_name] = {frame_count = param.frame_count, time_interval = param.time_interval}
+    self.animation_num_list[animation_name] = {frame_count = param.frame_count, time_interval = param.time_interval}
 end
 
 function SpriteSheets:GetAnimationParam(animation_name)
-	return self.animation_num_list[animation_name]
+    return self.animation_num_list[animation_name]
 end
 
 function SpriteSheets:GetAnimationCount(animation_name)
-	local param = self:GetAnimationParam(animation_name)
-	if not param then
+    local param = self:GetAnimationParam(animation_name)
+    if not param then
         assert(false, "No Animation[%s] Count", animation_name)
-		return
-	end
+        return
+    end
 
-	return param.frame_count
+    return param.frame_count
 end
 
 function SpriteSheets:GetAnimationInterval(animation_name)
-	local param = self:GetAnimationParam(animation_name)
-	if not param then
-		return
-	end
+    local param = self:GetAnimationParam(animation_name)
+    if not param then
+        return
+    end
 
-	return param.time_interval
+    return param.time_interval
 end
 
 function SpriteSheets:RunAnimation(sprite, animation_name, time_interval, loop_count)
     local frames = {}
     local frame_count = self:GetAnimationCount(animation_name)
-    for i = 1, frame_count do 
+    for i = 1, frame_count do
         frames[i] = cache:getSpriteFrame(string.format("%s%d.png", animation_name, i))
         assert(frames[i])
     end
@@ -73,14 +73,14 @@ function SpriteSheets:RunAnimation(sprite, animation_name, time_interval, loop_c
 end
 
 function SpriteSheets:RunOneTimeAnimation(sprite, animation_name, time_interval, remove_fun)
-	local frames = {}
-	local frame_count = self:GetAnimationCount(animation_name)
-    for i = 1, frame_count do 
+    local frames = {}
+    local frame_count = self:GetAnimationCount(animation_name)
+    for i = 1, frame_count do
         frames[i] = cache:getSpriteFrame(string.format("%s%d.png", animation_name, i))
         assert(frames[i], "%s %d", animation_name, i)
     end
     if not time_interval then
-    	time_interval = self:GetAnimationInterval(animation_name)
+        time_interval = self:GetAnimationInterval(animation_name)
     end
     local animation = cc.Animation:createWithSpriteFrames(frames, time_interval)
 

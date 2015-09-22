@@ -3,9 +3,9 @@
 -- Creator      : yestein(yestein86@gmail.com)
 -- Date         : 2014/6/7 14:02:32
 -- Description  : a timer trigger based on logic frame
--- Modify       : 
+-- Modify       :
 --=======================================================================
 
 if not LogicTimer then
-	LogicTimer = Class:New(TimerBase, "LogicTimer")
+    LogicTimer = Class:New(TimerBase, "LogicTimer")
 end
