@@ -9,16 +9,16 @@
 
 -- for CCLuaEngine traceback
 function __G__TRACKBACK__(msg)
-    print("----------------------------------------")
+    log_print("----------------------------------------")
     if SetConsoleError then
         SetConsoleError(1)
     end
-    print("LUA ERROR: " .. tostring(msg) .. "\n")
-    print(debug.traceback())
+    log_print("LUA ERROR: " .. tostring(msg) .. "\n")
+    log_print(debug.traceback())
     if SetConsoleError then
         SetConsoleError(0)
     end
-    print("----------------------------------------")
+    log_print("----------------------------------------")
 end
 
 cc.FileUtils:getInstance():addSearchPath("src")
@@ -39,7 +39,9 @@ local platform_name = {
     [cc.PLATFORM_OS_TIZEN     ] = "tizen",
 }
 
+package.path = "./src/?.lua;" .. package.path
 require("project.lua")
+require("logic_base/preload.lua")
 require("framework/preload.lua")
 require(PROJECT_PATH.."/preload.lua")
 assert(PreloadScript() == 1)
@@ -95,7 +97,7 @@ local function main()
     -- avoid memory leak
     collectgarbage("setpause", 100)
     collectgarbage("setstepmul", 5000)
-    print("main start")
+    log_print("main start")
     local director = cc.Director:getInstance()
     CCDirector:getInstance():setDisplayStats(true)
 
@@ -109,6 +111,7 @@ local function main()
 
     math.randomseed(os.time())
     math.random(100)
+    DisplayRandom:Init(100)
     Event:Preload()
     assert(Debug:Init(Debug.MODE_BLACK_LIST) == 1)
     assert(ShaderMgr:Init() == 1)
@@ -120,26 +123,26 @@ local function main()
     assert(Physics:Init() == 1)
     assert(Ui:Init() == 1)
     CCDirector:getInstance():getScheduler():scheduleScriptFunc(MainLoop, 0, false)
-    print("================================================")
-    print("Lua:", _VERSION)
+    log_print("================================================")
+    log_print("Lua:", _VERSION)
     if __Debug == 1 then
-        print("Mode:", "Debug")
+        log_print("Mode:", "Debug")
     else
-        print("Mode:", "Release")
+        log_print("Mode:", "Release")
     end
-    print("Platform:", platform_name[__platform] or __platform)
+    log_print("Platform:", platform_name[__platform] or __platform)
     if CCVersion then
-        print("Cocos2d: ", CCVersion())
+        log_print("Cocos2d: ", CCVersion())
     end
-    print("Project:", PROJECT_PATH)
+    log_print("Project:", PROJECT_PATH)
 
 
     if jit then
-        print("LuaJIT: ", jit.version)
+        log_print("LuaJIT: ", jit.version)
     end
-    print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
-    print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))
-    print("================================================")
+    log_print(string.format("Resolution: %d * %d", resolution_size.width, resolution_size.height))
+    log_print(string.format("Screen Size: %d * %d", visible_size.width, visible_size.height))
+    log_print("================================================")
     assert(GameMgr:Init() == 1)
 end
 

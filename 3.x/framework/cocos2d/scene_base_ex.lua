@@ -109,13 +109,14 @@ function SceneBase:ReturnLastScene(story)
         local scene = SceneMgr:GetCurrentScene()
         scene:UpdateSceneLayer()
         if scene:IsHaveCurtain() == 1 then
+            scene:OnEnterFromPopScene()
             scene:OpenCurtain(OPEN_CURTAIN_TIME, {scene.PlayStory, scene, story})
         end
     end
     if self:IsHaveCurtain() == 1 then
         self:CloseCurtain(CLOSE_CURTAIN_TIME, {curtainUnloadScene})
     else
-        SceneMgr:UnLoadCurrentScene()
+        curtainUnloadScene()
     end
 end
 
@@ -465,7 +466,6 @@ function SceneBase:OpenNetProcess()
     layer_color:setTouchEnabled(true)
 
     self:AddLayer(layer_name, layer_color)
-    print("net_process")
 
     local function onTouchEvent(eventType, x, y)
         if eventType == "began" then

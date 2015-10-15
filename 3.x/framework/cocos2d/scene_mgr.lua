@@ -222,7 +222,6 @@ function SceneMgr:UnLoadCurrentScene()
     CCDirector:getInstance():popScene()
     local scene = self:GetCurrentScene()
     if scene then
-        scene:OnEnterFromPopScene()
         scene:PlayBGM()
     end
 end

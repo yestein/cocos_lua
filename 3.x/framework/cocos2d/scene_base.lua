@@ -341,7 +341,7 @@ function SceneBase:RegisterTouchEvent()
     local zoom_offset_x, zoom_offset_y = nil, nil
     local current_touches = 0
     local function onTouchBegan(touches)
-        -- print("began", #touches, touches[3], touches[6])
+        -- log_print("began", #touches, touches[3], touches[6])
         if not self.scale then
             return
         end

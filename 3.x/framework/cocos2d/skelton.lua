@@ -210,7 +210,6 @@ function Skelton:SetArmature(skelton_name, orgin_direction, param)
 
         if param.animation_speed then
             for k, v in pairs(param.animation_speed) do
-                print(k,v)
                 self:SetAnimationSpeed(k, v)
             end
         end
@@ -282,7 +281,7 @@ function Skelton:GetAnimationResourceName(skelton_name, animation_name)
         if self.animation_next[skelton_name] then
             return resource_name[1]
         else
-            local random_index = math.random(1, #resource_name)
+            local random_index = DisplayRandom:Get(1, #resource_name)
             return resource_name[random_index]
         end
     end
@@ -292,7 +291,7 @@ function Skelton:PlayAnimation(animation_name, duration_frame, is_loop)
     local resource_name = self:GetAnimationResourceName(self.skelton_name, animation_name)
 
     if not resource_name then
-        print(string.format("No Animation[%s]", animation_name))
+        log_print(string.format("No Animation[%s]", animation_name))
         return
     end
     local armature = self:GetArmature()
@@ -329,11 +328,6 @@ function Skelton:MoveTo(target_x, target_y, during_time, call_back)
         end
     end
     local animation_name = "run"
-    -- local direction = self:GetDirection()
-    -- print(self.id, self.skelton_name, direction)
-    -- if (target_x - x) * direction < 0 then
-    --     animation_name = "run_back"
-    -- end
     if self:GetCurrentAnimation() ~= animation_name then
         self:PlayAnimation(animation_name)
     end

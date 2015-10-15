@@ -35,8 +35,8 @@ function FlyText:RandomJumped(target_obj, custom_font_path, text, param)
     local up_max_y = param.up_max_y or 100
 
     local function GenerateActionMoveUp(is_left)
-        local distance_x = math.random(up_min_x, up_max_x)
-        local distance_y = math.random(up_min_y, up_max_y)
+        local distance_x = DisplayRandom:Get(up_min_x, up_max_x)
+        local distance_y = DisplayRandom:Get(up_min_y, up_max_y)
         local time = distance_y / up_speed
         if is_left == 1 then
             return cc.MoveBy:create(time, cc.p(-distance_x, distance_y))
@@ -52,8 +52,8 @@ function FlyText:RandomJumped(target_obj, custom_font_path, text, param)
     local down_max_y = param.down_max_y or 25
 
     local function GenerateActionMoveDown(is_left)
-        local distance_x = math.random(down_min_x, down_max_x)
-        local distance_y = math.random(down_min_y, down_max_y)
+        local distance_x = DisplayRandom:Get(down_min_x, down_max_x)
+        local distance_y = DisplayRandom:Get(down_min_y, down_max_y)
         local time = distance_y / down_speed
         if is_left == 1 then
             return cc.MoveBy:create(time, cc.p(-distance_x, -distance_y))
@@ -63,7 +63,7 @@ function FlyText:RandomJumped(target_obj, custom_font_path, text, param)
     end
 
     local is_left = -1
-    local random = math.random(1, 2)
+    local random = DisplayRandom:Get(1, 2)
     if random == 2 then
         is_left = 1
     end
@@ -122,8 +122,8 @@ function FlyText:RandomJumpedFade(layer, target_obj, custom_font_path, text, par
     local max_height = param.max_height or 100
     local jump_num = param.jump_num or 1
 
-    local target_x = math.random(range_min_x, range_max_x)
-    local target_y = math.random(range_min_y, range_max_y)
+    local target_x = DisplayRandom:Get(range_min_x, range_max_x)
+    local target_y = DisplayRandom:Get(range_min_y, range_max_y)
 
     local action_list = {}
     action_list[#action_list + 1] = cc.JumpBy:create(jump_time, cc.p(target_x, target_y), max_height, jump_num)

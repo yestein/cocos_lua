@@ -212,22 +212,21 @@ function SpineSkelton:GetAnimationResourceName(skelton_name, animation_name)
         if self.animation_next[skelton_name] then
             return resource_name[1]
         else
-            local random_index = math.random(1, #resource_name)
+            local random_index = DisplayRandom:Get(1, #resource_name)
             return resource_name[random_index]
         end
     end
 end
 
 function SpineSkelton:PlayAnimation(animation_name, is_loop)
-
     if is_loop == -1 then
         is_loop = true
-    else
+    elseif is_loop == 0 then
         is_loop = false
     end
     local resource_name = self:GetAnimationResourceName(self.skelton_name, animation_name)
     if not resource_name then
-        print(string.format("No Animation[%s]", animation_name))
+        log_print(string.format("No Animation[%s]", animation_name))
         return
     end
     local sp_skelton = self:GetArmature()
@@ -237,13 +236,35 @@ function SpineSkelton:PlayAnimation(animation_name, is_loop)
     end
     sp_skelton:setToSetupPose()
     sp_skelton:setAnimation(0, resource_name, is_loop)
-    sp_skelton:update(0)
+
+    self.current_animation = animation_name
+end
+
+function SpineSkelton:AddAnimation(animation_name, is_loop)
+    if is_loop == -1 then
+        is_loop = true
+    elseif is_loop == 0 then
+        is_loop = false
+    end
+    local resource_name = self:GetAnimationResourceName(self.skelton_name, animation_name)
+    if not resource_name then
+        log_print(string.format("No Animation[%s]", animation_name))
+        return
+    end
+    local sp_skelton = self:GetArmature()
+    local speed_scale = self:GetAnimationSpeed(animation_name)
+    if speed_scale then
+        sp_skelton:setTimeScale(speed_scale)
+    end
+    sp_skelton:setToSetupPose()
+    sp_skelton:addAnimation(0, resource_name, is_loop)
 
     self.current_animation = animation_name
 end
 
 function SpineSkelton:PlayRawAnimation(track_index, resource_name, is_loop)
-     local sp_skelton = self:GetArmature()
+    local sp_skelton = self:GetArmature()
+    sp_skelton:setToSetupPose()
     return sp_skelton:addAnimation(track_index, resource_name, is_loop)
 end
 
