@@ -315,18 +315,12 @@ end
 function SpineSkelton:MoveTo(target_x, target_y, during_time, call_back)
     local cc_sprite = self:GetSprite()
     local x, y = cc_sprite:getPosition()
-    local function playStop()
-        if self:GetCurrentAnimation() == "run" then
-            self:PlayAnimation("normal", -1)
-        end
-    end
     local animation_name = "run"
     if self:GetCurrentAnimation() ~= animation_name then
         self:PlayAnimation(animation_name, -1)
     end
     local action_list = {}
     action_list[#action_list + 1] = cc.MoveBy:create(during_time, cc.p(target_x - x, target_y - y))
-    action_list[#action_list + 1] = cc.CallFunc:create(playStop)
     if call_back then
         action_list[#action_list + 1] = cc.CallFunc:create(call_back)
     end
@@ -371,12 +365,9 @@ function SpineSkelton:ReplaceArmature(skelton_name, orgin_direction, param)
     return 1
 end
 
-function SpineSkelton:SetShader(shader_name)
-    local shader = ShaderMgr:GetShader(shader_name)
-    if shader then
-        local sp_skelton = self:GetArmature()
-        sp_skelton:setGLProgram(shader)
-    end
+function SpineSkelton:SetShader(shader_name, uniform_list)
+    local sp_skelton = self:GetArmature()
+    ShaderMgr:AttachShader(sp_skelton, shader_name, uniform_list)
 end
 
 function SpineSkelton:RestoreShader()

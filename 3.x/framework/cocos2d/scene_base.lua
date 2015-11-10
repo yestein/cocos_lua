@@ -225,23 +225,19 @@ function SceneBase:GetScale()
     return self.scale
 end
 
-function SceneBase:SetScale(scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
+function SceneBase:SetScale(scale)
     local layer_main = self:GetLayer("main")
     if scale < self.min_scale then
         scale = self.min_scale
-    elseif self.scale > self.max_scale then
-        self.scale = self.max_scale
+    elseif scale > self.max_scale then
+        scale = self.max_scale
     end
     if self.scale == scale then
-        return
+        return 0
     end
-
     self.scale = scale
     layer_main:setScale(scale)
-
-    if zoom_x and zoom_y then
-        self:MoveCamera(zoom_x * self:GetWidth() * scale + zoom_offset_x, zoom_y * self:GetHeight() * scale + zoom_offset_y)
-    end
+    return 1
 end
 
 function SceneBase:SetMaxScale(max_scale)
@@ -373,8 +369,8 @@ function SceneBase:RegisterTouchEvent()
                 end
             end
             touch_distance = Lib:GetDistance(x1, y1, x2, y2)
-               zoom_x , zoom_y = ((x1 + x2) / 2 - layer_x) / (self:GetWidth() * self.scale), ((y1 + y2) / 2 - layer_y) / (self:GetHeight() * self.scale)
-               zoom_offset_x, zoom_offset_y = visible_size.width / 2 - (x1 + x2) / 2 , visible_size.height / 2 - (y1 + y2) / 2
+            zoom_x , zoom_y = ((x1 + x2) / 2 - layer_x) / (self:GetWidth() * self.scale), ((y1 + y2) / 2 - layer_y) / (self:GetHeight() * self.scale)
+            zoom_offset_x, zoom_offset_y = visible_size.width / 2 - (x1 + x2) / 2 , visible_size.height / 2 - (y1 + y2) / 2
         end
         return true
     end
@@ -421,10 +417,17 @@ function SceneBase:RegisterTouchEvent()
                     break
                 end
             end
-            local distance = Lib:GetDistance(x1, y1, x2, y2) * self.scale
+            local distance = Lib:GetDistance(x1, y1, x2, y2)
             if touch_distance then
+                local layer_x, layer_y = layer_main:getPosition()
+                local old_scale = self:GetScale()
                 local change_scale = self.scale + (distance - touch_distance) * self.scale_rate
-                self:SetScale(change_scale, zoom_x, zoom_y, zoom_offset_x, zoom_offset_y)
+                if self:SetScale(change_scale) == 1 then
+                    local new_scale = self:GetScale()
+                    zoom_x , zoom_y = ((x1 + x2) / 2 - layer_x) * new_scale / old_scale, ((y1 + y2) / 2 - layer_y) * new_scale / old_scale
+                    zoom_offset_x, zoom_offset_y = visible_size.width / 2 - (x1 + x2) / 2 , visible_size.height / 2 - (y1 + y2) / 2
+                    self:MoveCamera(zoom_x + zoom_offset_x, zoom_y + zoom_offset_y)
+                end
             end
             touch_distance = distance
         end

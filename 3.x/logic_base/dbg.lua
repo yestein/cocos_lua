@@ -7,19 +7,14 @@
 --=======================================================================
 
 if not Debug then
-	Debug = {}
+	Debug = {
+		watch_event_list = {},
+		watch_event_black_list = {},
+	}
 end
 
 Debug.MODE_BLACK_LIST = 1
 Debug.MODE_WHITE_LIST = 2
-
-Debug.watch_event_list = {
-
-}
-
-Debug.watch_event_black_list = {
-
-}
 
 function cclog(fmt, ...)
     return Log:Print(Log.LOG_ERROR, fmt, ...)
@@ -36,6 +31,12 @@ end
 
 function Debug:AddBlackEvent(event_type, log_level)
 	self.watch_event_black_list[event_type] = log_level or Log.LOG_DEBUG
+end
+
+function Debug:ClearBlackEvent()
+	for k, v in pairs(self.watch_event_black_list) do
+		self.watch_event_black_list[k] = nil
+	end
 end
 
 function Debug:AddWhiteEvent(event_type, log_level)
@@ -61,13 +62,15 @@ end
 
 function Debug:InformDisplayAssertMsg()
 	local scene = SceneMgr:GetCurrentScene()
-	scene:UpdateDebugAssert()
+	if scene then
+		scene:UpdateDebugAssert()
+	end
 end
 
 function Debug:SetMode(mode)
 	self.mode = mode
 	if mode == self.MODE_BLACK_LIST then
-		Event:RegistWatcher(Debug.watch_event_black_list, PrintEvent)
+		Event:RegistWatcher(self.watch_event_black_list, PrintEvent)
 	elseif mode == self.MODE_WHITE_LIST then
 		self.event_watch_list = {}
 		for event_type, log_level in pairs(Debug.watch_event_list) do

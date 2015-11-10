@@ -30,7 +30,7 @@ function SkillEffect:GetEffect(effect_id, param)
     local effect_name = Def.SKILL_EFFECT_LIST[effect_id]
     local effect = self:RawGetEffect(effect_name)
     if not effect then
-        assert(false, "No Skill Effect[%s]", effect_name)
+        assert(false, string.format("No Skill Effect[%s]", effect_name))
         return
     end
     local new_effect = Class:New(effect, effect_name)

@@ -61,7 +61,7 @@ function BuffNode:AddBuff(buff_id, luancher, count)
     if not buff then
         local config = BuffMgr:GetBuffConfig(buff_id)
         if not config then
-            assert(false, "Add Buff : No Buff[%s]", tostring(buff_id))
+            assert(false, string.format("Add Buff : No Buff[%s]", tostring(buff_id)))
             return 0
         end
         buff = BuffMgr:NewBuff(buff_id, config.template_id)

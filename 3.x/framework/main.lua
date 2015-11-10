@@ -6,6 +6,7 @@
 -- Modify       :
 --===================================================
 
+__platform = cc.Application:getInstance():getTargetPlatform()
 
 -- for CCLuaEngine traceback
 function __G__TRACKBACK__(msg)
@@ -19,11 +20,14 @@ function __G__TRACKBACK__(msg)
         SetConsoleError(0)
     end
     log_print("----------------------------------------")
+    -- log_print("进入调试模式")
+    -- if __platform == cc.PLATFORM_OS_WINDOWS then
+    --     debug.debug()
+    -- end
 end
 
 cc.FileUtils:getInstance():addSearchPath("src")
 cc.FileUtils:getInstance():addSearchPath("res")
-__platform = cc.Application:getInstance():getTargetPlatform()
 __write_path = cc.FileUtils:getInstance():getWritablePath()
 
 local platform_name = {
@@ -40,10 +44,10 @@ local platform_name = {
 }
 
 package.path = "./src/?.lua;" .. package.path
-require("project.lua")
-require("logic_base/preload.lua")
-require("framework/preload.lua")
-require(PROJECT_PATH.."/preload.lua")
+require("project")
+require("logic_base/preload")
+require("framework/preload")
+require(PROJECT_PATH.."/preload")
 assert(PreloadScript() == 1)
 
 function InsertConsoleCmd(cmd_string)
@@ -52,6 +56,9 @@ end
 
 local function ExecuteCmdString(cmd_string)
     if cmd_string then
+        if GBK2Utf8 then
+            cmd_string = GBK2Utf8(cmd_string)
+        end
         local cmd_func = loadstring(cmd_string)
         if cmd_func then
             xpcall(cmd_func, __G__TRACKBACK__)
@@ -165,6 +172,5 @@ function Exit()
     Ui:Uninit()
     Physics:Uninit()
     SceneMgr:Uninit()
-    Net:Uninit()
 end
 xpcall(main, __G__TRACKBACK__)

@@ -20,6 +20,10 @@ log_print = function(...)
     print(...)
 end
 
+dbg_print = function(...)
+    print(...)
+end
+
 function AddPackagePath(package_path)
     g_addition_package_path[package_path] = 1
 end
@@ -37,18 +41,19 @@ function AddInitFunction(name, func)
 end
 
 function PreloadScript()
-    log_print("old path", raw_package_path)
+    dbg_print("old path", raw_package_path)
     local new_package_path = ""
     for path, _ in pairs(g_addition_package_path) do
         new_package_path = string.format("%s/?.lua;", path) .. new_package_path
     end
     package.path = new_package_path .. raw_package_path
-    log_print("Package Path", package.path)
+    dbg_print("Package Path", package.path)
     for _, script_file in ipairs(g_script_list) do
-        log_print("loading \""..script_file.."\"")
+        dbg_print("loading \""..script_file.."\"")
         require(script_file)
     end
     for name, func in pairs(g_init_funciton) do
+        dbg_print(name, "Execute...")
         local result, ret_code = Lib:SafeCall({func})
         if not result or ret_code ~= 1 then
             assert(false, "%s execute failed", name)
@@ -59,17 +64,22 @@ function PreloadScript()
 end
 
 function ReloadScript()
-    log_print("Reload Lua Script...")
+    dbg_print("Reload Lua Script...")
     for _, script_file in ipairs(g_script_list) do
         package.loaded[script_file]  = nil
         require(script_file)
-        log_print("Reload\t["..script_file.."]")
+        dbg_print("Reload\t["..script_file.."]")
     end
 
     for name, func in pairs(g_init_funciton) do
-        log_print(name .. "...")
-        Lib:SafeCall({func})
+        dbg_print(name, "Execute...")
+        local result, ret_code = Lib:SafeCall({func})
+        if not result or ret_code ~= 1 then
+            assert(false, "%s execute failed", name)
+            return 0
+        end
     end
+    return 1
 end
 
 AddPreloadFile("logic_base/calculator")
@@ -79,6 +89,7 @@ AddPreloadFile("logic_base/data_center")
 AddPreloadFile("logic_base/dbg")
 AddPreloadFile("logic_base/event")
 AddPreloadFile("logic_base/lib")
+AddPreloadFile("logic_base/config_parser")
 AddPreloadFile("logic_base/log")
 AddPreloadFile("logic_base/logic_node")
 AddPreloadFile("logic_base/module_mgr")

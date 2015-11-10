@@ -86,7 +86,13 @@ function Log:_Print(log_level, text)
 	end
 	if not self.view_level or log_level >= self.view_level then
 		if __CLIENT == 1 then
+            if log_level == self.LOG_ERROR and SetConsoleError then
+                SetConsoleError(1)
+            end
 			log_print(text)
+            if log_level == self.LOG_ERROR and SetConsoleError then
+                SetConsoleError(0)
+            end
 		end
 		if __SERVER == 1 then
 			Agent:Log(text)

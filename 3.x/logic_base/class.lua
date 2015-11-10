@@ -15,19 +15,6 @@ end
 -- Class.is_debug = 1
 Class.depth = 0
 
-local MetaTable = {
-    __index = function(table, key)
-        local v = rawget(table, key)
-        if v then
-            return v
-        end
-        local base_class = rawget(table, "_tbBase")
-        if base_class then
-            return base_class[key]
-        end
-    end
-}
-
 local function AddInheritFunctionOrder(self, function_name)
     local function Inherit(self, ...)
         local execute_list = {}
@@ -69,7 +56,7 @@ local function AddInheritFunctionOrder(self, function_name)
         end
         return child_func(self, ...)
     end
-    self[function_name] = Inherit
+    self.__AddBaseValue(function_name, Inherit)
 end
 
 local function AddInheritFunctionDisorder(self, function_name)
@@ -92,7 +79,7 @@ local function AddInheritFunctionDisorder(self, function_name)
         local execute_list = {}
         local base_class = self._tbBase
         while base_class do
-            local inherit_func = rawget(base_class, "_Uninit")
+            local inherit_func = rawget(base_class, child_function_name)
             if inherit_func then
                 execute_list[#execute_list + 1] = {inherit_func, rawget(base_class, "__class_name")}
             end
@@ -115,7 +102,7 @@ local function AddInheritFunctionDisorder(self, function_name)
         end
         return ret_code
     end
-    self[function_name] = Inherit
+    self.__AddBaseValue(function_name, Inherit)
 end
 
 local function GetClassName(self)
@@ -123,15 +110,40 @@ local function GetClassName(self)
 end
 
 function Class:New(base_class, class_name)
-    local new_class = { _tbBase = base_class }
-    setmetatable(new_class, MetaTable)
-    new_class.__class_name = class_name
-    new_class.__AddInheritFunctionOrder = AddInheritFunctionOrder
-    new_class.__AddInheritFunctionDisorder = AddInheritFunctionDisorder
-    new_class.GetClassName = GetClassName
-
+    local new_class = {}
+    local base_value_list = {
+        __GetBaseValue = function()
+            return base_value_list
+        end,
+        _tbBase = base_class,
+        __AddInheritFunctionOrder = AddInheritFunctionOrder,
+        __AddInheritFunctionDisorder = AddInheritFunctionDisorder,
+        GetClassName = GetClassName,
+    }
+    base_value_list.__AddBaseValue = function(k, v)
+        base_value_list[k] = v
+    end,
+    setmetatable(new_class,
+        {
+            __index = function(table, key)
+                local v = base_value_list[key]
+                if v then
+                    return v
+                end
+                v = rawget(table, key)
+                if v then
+                    return v
+                end
+                if base_class then
+                    return base_class[key]
+                end
+            end
+        }
+    )
     new_class:__AddInheritFunctionOrder("Init")
     new_class:__AddInheritFunctionDisorder("Uninit")
+
+    new_class.__class_name = class_name --查看的时候还是需要看ClassName的
     return new_class
 end
 

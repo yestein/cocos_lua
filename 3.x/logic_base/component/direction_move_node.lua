@@ -14,7 +14,7 @@ end
 
 DirectionMoveNode.MAX_SPEED = 1000
 DirectionMoveNode:DeclareHandleMsg("MOVE", "Breath")
--- DirectionMoveNode:DeclareHandleMsg("OWNER_DEAD", "OnOwnerDead")
+DirectionMoveNode:DeclareHandleMsg("OWNER_DEAD", "OnOwnerDead")
 
 local move_offset = {
     left  = {-1, 0},

@@ -48,12 +48,10 @@ function SceneBase:GetModifyPosition(position_x, position_y)
     return position_x, position_y
 end
 
-function SceneBase:SetBackGroundImage(layer, image_list, screen_width, screen_height)
+function SceneBase:SetBackGroundImage(layer_name, image_list, screen_width, screen_height)
     local x, y = 0, 0
     local bg_width, bg_height = 0, 0
-    if not layer then
-        return x, y
-    end
+
     for _, image_file in ipairs(image_list) do
         local background = cc.Sprite:create(image_file)
         background:setAnchorPoint(cc.p(0, 0))
@@ -75,10 +73,14 @@ function SceneBase:SetBackGroundImage(layer, image_list, screen_width, screen_he
         if bg_height < size.height then
             bg_height = size.height
         end
-        layer:addChild(background)
+        self:AddObj(layer_name, "IMAGE", "BackGround", background)
     end
     bg_width = x
     return bg_width, bg_height
+end
+
+function SceneBase:GetBackGroundImage(layer_name)
+   return self:GetObj(layer_name, "IMAGE", "BackGround")
 end
 
 function SceneBase:AddReturnMenu(font_size)
@@ -110,7 +112,7 @@ function SceneBase:ReturnLastScene(story)
         scene:UpdateSceneLayer()
         if scene:IsHaveCurtain() == 1 then
             scene:OnEnterFromPopScene()
-            scene:OpenCurtain(OPEN_CURTAIN_TIME, {scene.PlayStory, scene, story})
+            scene:OpenCurtain(OPEN_CURTAIN_TIME, {scene.OpenStoryUI, scene, story})
         end
     end
     if self:IsHaveCurtain() == 1 then
@@ -451,7 +453,9 @@ function SceneBase:AddMask(name, color, level, pop_panel_name)
 end
 
 function SceneBase:RemoveMask(name)
-    self:RemoveLayer(name)
+    if self:GetLayer(name) then
+        self:RemoveLayer(name)
+    end
 end
 
 function SceneBase:OpenNetProcess()
@@ -493,7 +497,9 @@ function SceneBase:OpenNetProcess()
 end
 
 function SceneBase:CloseNetProcess()
-    self:RemoveLayer("net_process")
+    if self:GetLayer("net_process") then
+        self:RemoveLayer("net_process")
+    end
 end
 
 function SceneBase:TryOpenDebug(x, y)
@@ -540,7 +546,7 @@ function SceneBase:UpdateDebugAssert()
 end
 
 function SceneBase:OpenDebugAssert()
-    self:AddMask("debug_assert", cc.c4b(0, 0, 0, 220), 4)
+    self:AddMask("debug_assert", cc.c4b(0, 0, 0, 220), 1000)
     local msg = string.format(">>BEGIN\n%s\n>>END", Debug:GetRecordMsg())
     local label = cc.Label:createWithSystemFont(msg, "", 20, cc.size(visible_size.width, 0))
     LabelEffect:EnableOutline(label, cc.c3b(255, 255, 255), cc.c3b(0.5, 0.5, 0.5, 1), 1)
@@ -607,12 +613,6 @@ function SceneBase:CloseDebugAssert()
     end
 end
 
-function SceneBase:PlayStory(story_id, callback)
-    if not story_id then
-        return
-    end
-    StoryMgr:PlayStory(self, story_id, callback)
-end
 
 function SceneBase:UpdateSceneLayer()
 

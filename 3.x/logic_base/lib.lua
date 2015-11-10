@@ -56,6 +56,18 @@ function Lib:CountTB(tb)
 	return count
 end
 
+function Lib:GetTodayDateNum()
+    local s_time = os.time()
+    local t = os.date("*t", s_time - CommonDef.DAILY_RESET_TIME)
+    local time_string = string.format("%d%02d%02d", t.year, t.month, t.day)
+    time = tonumber(time_string)
+    return time
+end
+
+function Lib:GetNowTime()
+    return os.time()
+end
+
 function Lib:ShowTB1(tb)
     if not tb then
         print("nil")
@@ -154,15 +166,15 @@ function Lib:GetFormatTime(time)
     return string.format("%02d:%02d:%02d", math.floor(time / 3600), math.floor(time / 60) % 60, time % 60)
 end
 
-function Lib:SafeCall(callback)
-    local function InnerCall()
-        if type(callback) == "table" then
+function Lib:SafeCall(callback, ...)
+    if type(callback) == "table" then
+        local function InnerCall()
             return callback[1](unpack(callback, 2))
-        elseif type(callback) == "function" then
-            return callback()
         end
+        return xpcall(InnerCall, Lib.ShowStack)
+    elseif type(callback) == "function" then
+        return xpcall(callback, Lib.ShowStack, ...)
     end
-    return xpcall(InnerCall, Lib.ShowStack)
 end
 
 function Lib:ConcatArray(array_dest, array_src)
@@ -190,7 +202,7 @@ function Lib:ShowTB(table_raw, n)
         return
     end
     if not n then
-        n = 7
+        n = 1
     end
     local function showTB(table, deepth, max_deepth)
         if deepth > n or deepth > max_deepth then
@@ -255,7 +267,7 @@ function Lib:Table2Str(tb)
         if type(k) == "number" then
             table_string = table_string .. "["..k.."]="
         elseif type(k) == "string" then
-            table_string = table_string .. k .. "="
+            table_string = table_string .."[\"" .. k .. "\"]="
         else
             assert(false)
             return
@@ -274,16 +286,13 @@ function Lib:Table2Str(tb)
     return table_string
 end
 
-function ipairs_ex(array)
-    return function (_array, i)
-        i = i + 1
-        while (not _array[i]) and i < max_num do
-            i = i + 1
-        end
-        if i <= max_num then
-            return i, _array[i]
-        end
-    end, array, 0
+function Lib:GetTableOrderedKeyList(tb)
+    local list = {}
+    for key, value in pairs(tb) do
+        table.insert(list, key)
+    end
+    table.sort(list)
+    return list
 end
 
 function Lib:Table2OrderStr(tb, depth)
@@ -351,7 +360,7 @@ function Lib:Table2OrderStr(tb, depth)
 end
 
 function Lib:Str2Val(str)
-    return assert(loadstring("return "..str)())
+    return assert(loadstring("return "..str), str)()
 end
 
 function Lib:SaveFile(file_path, content)
@@ -563,7 +572,7 @@ function Lib:LoadConfigFile(file_path)
     else
         msg = msg .. " Failed!"
     end
-    print(msg)
+    log_print(msg)
     return str_content
 end
 
@@ -579,6 +588,33 @@ function equal(a, b)
     else
         return a == b
     end
+end
+
+function Lib:LoadConfigFile(file_path, config_type, ...)
+    if not config_type then
+        config_type = "lua"
+    end
+    local full_path = Lib:GetFileRealPath(file_path)
+    local msg = string.format("Load %s", full_path)
+    local str_content = self:LoadFile(full_path)
+    local result = ConfigParser:Parse(str_content, config_type, ...)
+    if result then
+        msg = msg .. " Success!"
+    else
+        msg = msg .. " Failed!"
+    end
+    dbg_print(msg)
+    return result
+end
+
+function Lib:GetFileRealPath(file_path)
+    local full_path
+    if __CLIENT == 1 then
+        full_path = cc.FileUtils:getInstance():fullPathForFilename(PROJECT_PATH.. "/" .. file_path)
+    elseif __SERVER == 1 then
+        full_path = __write_path .. PROJECT_PATH .. "/" .. file_path
+    end
+    return full_path
 end
 
 function Lib:Split(str, delim, maxNb)
@@ -604,14 +640,6 @@ function Lib:Split(str, delim, maxNb)
         result[nb + 1] = string.sub(str, lastPos)
     end
     return result
-end
-
-function Lib:GetAccumulator(start_index)
-    local index = start_index - 1
-    return function()
-        index = index + 1
-        return index
-    end
 end
 
 function Lib:CompareTB(tb_a, tb_b)
@@ -642,3 +670,67 @@ function Lib:CompareTB(tb_a, tb_b)
     end
     return 1
 end
+
+function Lib:SplitToken(str, seperate_str)
+    local token_list = {}
+    local str_len = #str
+    local seperate_str_len = #seperate_str
+    local begin_index = 1
+    local end_index
+
+    end_index = str:find(seperate_str, begin_index, true)
+    while end_index do
+        table.insert(token_list, str:sub(begin_index, end_index - 1))
+        begin_index = end_index + seperate_str_len
+        end_index = str:find(seperate_str, begin_index, true)
+    end
+    if begin_index <= str_len then
+        table.insert(token_list, str:sub(begin_index))
+    elseif begin_index == str_len + seperate_str_len then
+        table.insert(token_list, "")
+    end
+    return token_list
+end
+
+function Lib:GetAccumulator(start_index, max_index)
+    local index = start_index - 1
+    return function()
+        if max_index and index >= max_index then
+            assert(false, "枚举值已超出最大值%d", max_index)
+        end
+        index = index + 1
+        return index
+    end
+end
+
+-- local time
+-- function hook(p)
+--     local name = debug.getinfo(2, "n").name
+--     if name == "TestHook" or name == "ReloadScript" then
+--         if p == "call" then
+--             time = os.clock()
+--         end
+--         Lib:ShowTB(debug.getinfo(2, "n"))
+--         Lib:ShowTB(debug.getinfo(2, "S"))
+--         Lib:ShowTB(debug.getinfo(2, "u"))
+--         Lib:ShowTB(debug.getinfo(2, "t"))
+--         Lib:ShowTB(debug.getinfo(2, "l"))
+
+--         if p == "return" then
+--             print("cost", os.clock() - time)
+--         end
+--         print(p, "Hooked!")
+--     end
+-- end
+
+-- function Lib:TestHook()
+--     print(1)
+--     print(1)
+--     print(1)
+--     print(1)
+--     print(1)
+-- end
+
+-- function Lib:TestHook1()
+--     Lib:TestHook()
+-- end

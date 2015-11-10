@@ -11,9 +11,16 @@ if not BuffBase then
 end
 
 function BuffBase:_Uninit()
+    local owner = self.owner
+    if self.reg_msg_list then
+        for msg, reg_id in pairs(self.reg_msg_list) do
+            owner:UnregistMessageHandler(msg, reg_id)
+        end
+    end
     self.lasts_time = nil
     self.max_count = nil
     self.count = nil
+    self.owner = nil
     self.template_id = nil
     self.id = nil
 
@@ -27,6 +34,9 @@ function BuffBase:_Init(id, owner, config)
     self.count = 0
     self.lasts_time = config.lasts_time
     self.max_count = config.max_count
+
+    local result, reg_msg_list = owner:RegistChildMessageHandler(self)
+    self.reg_msg_list = reg_msg_list
 
     self.luancher = nil
     return 1

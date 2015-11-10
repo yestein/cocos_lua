@@ -23,6 +23,8 @@ Ui.TextureResType = {
     PLIST = 1,
 }
 
+Ui.CurrTextureResType = Ui.TextureResType.LOCAL
+
 local title_font_name = "MarkerFelt-Thin"
 if __platform == cc.PLATFORM_OS_WINDOWS then
     title_font_name = "Microsoft Yahei"
@@ -237,7 +239,6 @@ function Ui:LoadCocosUI(scene_name, json_file_path, data)
     local ui_name = data.name
     local scene = SceneMgr:GetScene(scene_name)
     local cc_root_widget = ccs.GUIReader:getInstance():widgetFromJsonFile(json_file_path)
-
     ui_widget.cc_root_widget = cc_root_widget
 
     local function GetTheLastNode(widget_name)
@@ -273,7 +274,6 @@ function Ui:LoadCocosUI(scene_name, json_file_path, data)
     cc_root_widget:addTouchEventListener(OnTouchEvent)
     widget2name[cc_root_widget] = "root"
     widget_list["root"] = cc_root_widget
-
     return ui_widget
 end
 

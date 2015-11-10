@@ -84,7 +84,7 @@ function LogicNode:AddChild(child_name, child_node, order)
     self.child_list_order[order] = child_node
     child_node.__parent = self
     self.max_order = order
-    assert(self:RegistChildMessageHandler(child_name) == 1)
+    assert(self:RegistChildMessageHandlerByName(child_name) == 1)
 end
 
 function LogicNode:RemoveChild(child_name)
@@ -201,10 +201,11 @@ function LogicNode:SendMessage(msg, ...)
     if not func_list then
         return 0
     end
-    for _, handler in ipairs(func_list) do
-        handler[1](handler[2], ...)
+    local res = 0
+    for _, handler in pairs(func_list) do
+        res = handler[1](handler[2], ...)
     end
-    return 0
+    return res or 0
 end
 
 function LogicNode:DeclareHandleMsg(msg, func_name)
@@ -214,15 +215,23 @@ function LogicNode:DeclareHandleMsg(msg, func_name)
     self.msg_list[msg] = func_name
 end
 
-function LogicNode:RegistMessageHandler(msg, func_name)
-     if not self.msg_handler then
+function LogicNode:RegistMessageHandler(msg, obj, func_name)
+    if not self.msg_handler then
         self.msg_handler = {}
     end
     if not self.msg_handler[msg] then
         self.msg_handler[msg] = {}
     end
-    local func = self[func_name]
-    table.insert(self.msg_handler[msg], {func, self})
+    local id = #self.msg_handler[msg] + 1
+    self.msg_handler[msg][id] = {obj[func_name], obj}
+    return id
+end
+
+function LogicNode:UnregistMessageHandler(msg, reg_id)
+    assert(self.msg_handler)
+    assert(self.msg_handler[msg])
+    self.msg_handler[msg][reg_id] = nil
+    return id
 end
 
 function LogicNode:RegistDeclareMsgHandler()
@@ -230,30 +239,29 @@ function LogicNode:RegistDeclareMsgHandler()
         return 1
     end
     for msg, func_name in pairs(self.msg_list) do
-       self:RegistMessageHandler(msg, func_name)
+       self:RegistMessageHandler(msg, self, func_name)
     end
+    return 1
 end
 
-function LogicNode:RegistChildMessageHandler(child_name)
+function LogicNode:RegistChildMessageHandlerByName(child_name)
     local child = self:GetChild(child_name)
     if not child then
         assert(false)
         return 0
     end
+    return self:RegistChildMessageHandler(child)
+end
+
+function LogicNode:RegistChildMessageHandler(child)
     if not child.msg_list then
         return 1
     end
-    if not self.msg_handler then
-        self.msg_handler = {}
-    end
+    local id_list = {}
     for msg, func_name in pairs(child.msg_list) do
-        if not self.msg_handler[msg] then
-            self.msg_handler[msg] = {}
-        end
-        local func = child[func_name]
-        table.insert(self.msg_handler[msg], {func, child})
+        id_list[msg] = self:RegistMessageHandler(msg, child, func_name)
     end
-    return 1
+    return 1, id_list
 end
 
 
@@ -327,8 +335,8 @@ end
 
 function LogicNode:AddComponent(child_name, component_name, ...)
     local component = ComponentMgr:NewComponent(component_name)
-    component:Init(...)
     self:AddChild(child_name, component)
+    component:Init(...)
     return component
 end
 
@@ -369,6 +377,12 @@ function LogicNode:RegistLogicTimerBySeconds(sec, call_back)
 end
 
 function LogicNode:UnregistLogicTimer(timer_id)
+    if not timer_id then
+        return
+    end
+    if not self.real_timer_id_list[timer_id] then
+        return
+    end
     LogicTimer:CloseTimer(timer_id)
     self.real_timer_id_list[timer_id] = nil
 end
