@@ -1,3 +1,6 @@
+I have gave up cocos2d, so it will no update.
+=====================================================
+
 cocos_lua
 =========
 
