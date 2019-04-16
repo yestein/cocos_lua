@@ -1,3 +1,5 @@
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 I have gave up cocos2d, so it will no update.
 =====================================================
 
